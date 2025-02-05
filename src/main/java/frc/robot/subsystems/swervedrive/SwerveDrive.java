@@ -1,9 +1,6 @@
-package frc.robot.subsystems;
+package frc.robot.subsystems.swervedrive;
 
 import java.util.Arrays;
-import java.util.Map;
-import java.util.function.BooleanSupplier;
-import java.util.function.Consumer;
 import java.util.function.DoubleSupplier;
 
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -13,9 +10,6 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
-import com.pathplanner.lib.controllers.PathFollowingController;
-import com.studica.frc.AHRS;
-
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -23,20 +17,17 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
-import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.subsystems.swerveModule.SwerveModule;
 
 public class SwerveDrive extends SubsystemBase {
     private final SwerveModule[] swerveModules;
@@ -44,11 +35,9 @@ public class SwerveDrive extends SubsystemBase {
     private final SwerveDrivePoseEstimator poseEstimator;
     private SwerveDriveIO io;
     private SwerveDriveIOInputsAutoLogged inputs = new SwerveDriveIOInputsAutoLogged();
-    //private final GenericEntry speedX;
-    //private final GenericEntry speedY;
-    //private final GenericEntry speedRot;
+    private RobotConfig config;
 
-    public SwerveDrive(SwerveDriveIO io, final ShuffleboardLayout layout, final SwerveModule... swerveModules) {
+    public SwerveDrive(SwerveDriveIO io,  final SwerveModule... swerveModules) {
         this.swerveModules = swerveModules;
 
         this.io = io;
@@ -59,11 +48,8 @@ public class SwerveDrive extends SubsystemBase {
         this.swerveDriveKinematics = new SwerveDriveKinematics(leverArmArray);
         poseEstimator = new SwerveDrivePoseEstimator(swerveDriveKinematics, getRotation(), getModulePositions(), new Pose2d());         
 
-        //speedX = layout.add("chassisSpeeds x", 0.0).getEntry();
-        //speedY = layout.add("chassisSpeeds y", 0.0).getEntry();
-        //speedRot = layout.add("chassisSpeeds rot", 0.0).getEntry();
-
         try {
+            config = RobotConfig.fromGUISettings();
             AutoBuilder.configure(
                 poseEstimator::getEstimatedPosition,
                 this::resetOdometry,
@@ -74,39 +60,17 @@ public class SwerveDrive extends SubsystemBase {
                         new PIDConstants(1, 0, 0),
                         4.5
                 ),
-                RobotConfig.fromGUISettings(),
-                () -> DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red,
+                config,
+                () -> false,
                 this
             );
         } catch (Exception e) {
             DriverStation.reportError("AutoBuilder.configure failed", e.getStackTrace());
         }
-
-        // layout.addDouble("x", () -> poseEstimator.getEstimatedPosition().getX())
-        //         .withPosition(0, 0);
-        // layout.addDouble("y", () -> poseEstimator.getEstimatedPosition().getY())
-        //         .withPosition(1, 0);
-        // layout.addDouble("Gyro Angle", () -> inputs.gyroRotation.getDegrees())
-        //         .withWidget(BuiltInWidgets.kGyro)
-        //         .withProperties(Map.of("Counter clockwise", true))
-        //         .withPosition(0, 1);
-        // // layout.addFloat("GyroFusedHeading", () -> -gyro.getFusedHeading())
-        // //         .withWidget(BuiltInWidgets.kGyro)
-        // //         .withProperties(Map.of("Counter clockwise", true))
-        // //         .withPosition(2, 1);
-        // layout.addDouble("Pose Angle", () -> poseEstimator.getEstimatedPosition().getRotation().getDegrees())
-        //         .withWidget(BuiltInWidgets.kGyro)
-        //         .withProperties(Map.of("Counter clockwise", true))
-        //         .withPosition(1, 1);
-        // layout.add(resetOdometryCommand()).withPosition(0, 2);
-        // // layout.add("Follow Angle", 0.0)
-        // //         .withWidget(BuiltInWidgets.kGyro)
-        // //         .withPosition(1, 2)
-        // //         .withProperties(Map.of("Counter clockwise", true))
-        // //         .getEntry();
-        layout.addBoolean("IsGyroCalibrating", ()-> inputs.isCalibrating)
-                .withWidget(BuiltInWidgets.kBooleanBox)
-                .withPosition(2, 2);
+        
+    }
+    public RobotConfig getConfig(){
+        return config;
     }
 
     public Command manualDrive(DoubleSupplier vx, DoubleSupplier vy, DoubleSupplier omegarad) {
@@ -158,9 +122,8 @@ public class SwerveDrive extends SubsystemBase {
      * +y is left
      */
     public void updateSpeed(ChassisSpeeds speeds) {
-        //speedX.setDouble(speeds.vxMetersPerSecond);
-        //speedY.setDouble(speeds.vyMetersPerSecond);
-        //speedRot.setDouble(speeds.omegaRadiansPerSecond);
+        Logger.recordOutput("Drive/InputSpeed", speeds);
+        System.out.println(speeds);
 
         SwerveModuleState[] states = swerveDriveKinematics.toSwerveModuleStates(speeds);
         setStates(states);

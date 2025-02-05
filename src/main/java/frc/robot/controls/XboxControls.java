@@ -16,36 +16,53 @@ public class XboxControls implements IControls {
 
     @Override
     public DoubleSupplier fowardsAndBackAxis() {
-        return () -> Constants.deadbandAndExponential(xboxController.getLeftY());
+        return () -> Constants.deadbandAndExponential(-xboxController.getLeftY());
     }
 
     @Override
     public DoubleSupplier sideToSideAxis() {
-        return () -> Constants.deadbandAndExponential(xboxController.getLeftX());
+        return () -> Constants.deadbandAndExponential(-xboxController.getLeftX());
     }
 
     @Override
     public DoubleSupplier driveRotation() {
-        return () -> Constants.deadbandAndExponential(xboxController.getRightX());
+        return () -> Constants.deadbandAndExponential(-xboxController.getRightX());
     }
 
     @Override
     public Trigger manualElevatorMoveUp() {
-       return xboxController.rightBumper();
+       return xboxController.x();
     }
 
     @Override
     public Trigger manualElevatorMoveDown() {
-        return xboxController.leftBumper();
+        return xboxController.y();
     }
+
 
     @Override
     public Trigger goToNearestAprilTag() {
-        return xboxController.a();
+        return xboxController.b();
     }
 
     @Override
     public Trigger elevatorMoveToSetPoint() {
         return xboxController.povUp();
     }    
+
+    @Override
+    public Trigger cancel() {
+        return xboxController.a();
+    }
+
+    @Override
+    public Trigger placeCoral() {
+        return xboxController.rightBumper();
+ 
+    }
+
+    @Override
+    public DoubleSupplier elevatorMove() {
+        return () -> Constants.deadband(-xboxController.getRightY(), .1);
+    }
 }

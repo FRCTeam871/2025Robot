@@ -6,18 +6,22 @@ import com.ctre.phoenix6.swerve.SwerveModule;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Time;
-import frc.robot.subsystems.SwerveModuleIO;
-import frc.robot.subsystems.SwerveModuleIOSparkFlex;
-import frc.robot.subsystems.SwerveModuleIOSparkMax;
+import frc.robot.subsystems.swerveModule.SwerveModuleIO;
+import frc.robot.subsystems.swerveModule.SwerveModuleIOSparkFlex;
+import frc.robot.subsystems.swerveModule.SwerveModuleIOSparkMax;
 
 public class Constants {
-    // Swerve Constants 
+    public static final boolean ON_SYMPHONY = true;
+
+    // Swerve Constants
     public static final double SWERVE_STEER_KP = 2 / 360.0;
     public static final double SWERVE_STEER_KI = 0.000;
     public static final double SWERVE_STEER_KD = 0;
 
     public static final double MAX_VELOCITY = 36000;
     public static final double MAX_ACCELERATION = 100000;
+
+    public static final double DRIVE_SPEED_MULTIPLIER = 0.15;
 
     public static final double RADIUS_IN_METERS = edu.wpi.first.math.util.Units.inchesToMeters(2);
     public static final double SWERVE_DRIVE_RATIO = 1 / 6.75;
@@ -32,7 +36,7 @@ public class Constants {
     public static final Time TARGET_DROP_THRESHOLD = Units.Second.of(0.5);;
     public static final Time PISTON_OUT_TIME = Units.Second.of(0.25);
 
-    //TODO make this an non made up number when we have something to test with
+    // TODO make this an non made up number when we have something to test with
     public static final double ELEVATOR_SETPOINT = 20;
 
     public record ModuleConstants(
@@ -49,63 +53,69 @@ public class Constants {
             Translation2d leverArm) {
     }
 
+    //positive x is foward and positive y is left
     public static final ModuleConstants[] MODULE_CONSTANTS = new ModuleConstants[] {
             new ModuleConstants(
-                "BL", 
-                4, 
-                true, 
-                6, 
-                true, 
-                5, 
-                -0.060059, 
-                SensorDirectionValue.CounterClockwise_Positive,
-                0,
-                0, 
-                new Translation2d(Constants.LEVER_ARM_VAL, Constants.LEVER_ARM_VAL)),
+                    "FL",
+                    3,
+                    false,
+                    1,
+                    true,
+                    2,
+                    -0.0185555,
+                    SensorDirectionValue.CounterClockwise_Positive,
+                    3,
+                    0,
+                    new Translation2d(Constants.LEVER_ARM_VAL, Constants.LEVER_ARM_VAL)),
             new ModuleConstants(
-                "BR", 
-                3, 
-                false, 
-                1, 
-                true, 
-                2, 
-                -0.018555, 
-                SensorDirectionValue.CounterClockwise_Positive,
-                3, 
-                0,
-                new Translation2d(Constants.LEVER_ARM_VAL, -Constants.LEVER_ARM_VAL)),
+                    "FR",
+                    4,
+                    true,
+                    6,
+                    true,
+                    5,
+                    -0.060059,
+                    SensorDirectionValue.CounterClockwise_Positive,
+                    0,
+                    0,
+                    new Translation2d(Constants.LEVER_ARM_VAL, -Constants.LEVER_ARM_VAL)),
             new ModuleConstants(
-                "FR", 
-                10, 
-                true, 
-                12, 
-                true, 
-                11, 
-                -0.043457, 
-                SensorDirectionValue.CounterClockwise_Positive,
-                0, 
-                5, 
-                new Translation2d(-Constants.LEVER_ARM_VAL, Constants.LEVER_ARM_VAL)),
+                    "BL",
+                    10,
+                    true,
+                    12,
+                    true,
+                    11,
+                    -0.0434570,
+                    SensorDirectionValue.CounterClockwise_Positive,
+                    0,
+                    0,
+                    new Translation2d(-Constants.LEVER_ARM_VAL, Constants.LEVER_ARM_VAL)),
             new ModuleConstants(
-                "FL", 
-                9, 
-                true, 
-                7, 
-                true, 
-                8, 
-                -0.019287109375,
-                SensorDirectionValue.CounterClockwise_Positive,
-                3,
-                5,
-                new Translation2d(-Constants.LEVER_ARM_VAL, -Constants.LEVER_ARM_VAL))
+                    "BR",
+                    9,
+                    true,
+                    7,
+                    true,
+                    8,
+                    -0.019287109375,
+                    SensorDirectionValue.CounterClockwise_Positive,
+                    3,
+                    5,
+                    new Translation2d(-Constants.LEVER_ARM_VAL, -Constants.LEVER_ARM_VAL))
     };
 
-    public static SwerveModuleIO getRealSwerveModuleIO(ModuleConstants moduleConstants){
-        return new SwerveModuleIOSparkFlex(moduleConstants);
-        // return new SwerveModuleIOSparkMax(moduleConstants);
+    public static SwerveModuleIO getRealSwerveModuleIO(ModuleConstants moduleConstants) {
+        if (ON_SYMPHONY) {
+            return new SwerveModuleIOSparkMax(moduleConstants);
+        } else {
+            return new SwerveModuleIOSparkFlex(moduleConstants);
+        }
+
     }
+
     public static double deadband(double raw, double threshold) {
-        
+
         if (Math.abs(raw) < threshold) {
             return 0;
         } else {
@@ -117,6 +127,7 @@ public class Constants {
         }
 
     }
+
     public static double deadbandAndExponential(double raw) {
         return exponentialDrive(deadband(raw, 0.1));
     }

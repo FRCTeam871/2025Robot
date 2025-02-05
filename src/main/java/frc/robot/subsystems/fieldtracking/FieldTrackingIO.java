@@ -1,4 +1,4 @@
-package frc.robot.subsystems;
+package frc.robot.subsystems.fieldtracking;
 
 import org.littletonrobotics.junction.AutoLog;
 
@@ -8,7 +8,7 @@ public interface FieldTrackingIO {
     @AutoLog
     public static class FieldTrackingIOInputs{
         int tagCount;
-        Pose2d pose;
+        Pose2d pose = new Pose2d();
         double timestampSeconds;
         long tid;
         double[] targetpose_robotspace;

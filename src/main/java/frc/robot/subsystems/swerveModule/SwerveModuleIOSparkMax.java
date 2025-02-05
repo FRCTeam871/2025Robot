@@ -1,4 +1,4 @@
-package frc.robot.subsystems;
+package frc.robot.subsystems.swerveModule;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.hardware.CANcoder;
@@ -6,11 +6,9 @@ import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
-import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-import com.revrobotics.spark.config.SparkFlexConfig;
 
 import edu.wpi.first.units.Units;
 
@@ -19,19 +17,19 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import frc.robot.Constants;
 import frc.robot.Constants.ModuleConstants;
 
-public class SwerveModuleIOSparkFlex implements SwerveModuleIO {
-    private final SparkFlex drive;
+public class SwerveModuleIOSparkMax implements SwerveModuleIO {
+    private final SparkMax drive;
     private final SparkMax steer;
     private final CANcoder steeringEncoder;
     private final RelativeEncoder distanceEncoder;
 
-    public SwerveModuleIOSparkFlex(
+    public SwerveModuleIOSparkMax(
         final ModuleConstants moduleConstants
             ) {
-        this.drive = new SparkFlex(moduleConstants.driveId(), MotorType.kBrushless);
-        SparkFlexConfig driveConfig = new SparkFlexConfig();
+        this.drive = new SparkMax(moduleConstants.driveId(), MotorType.kBrushless);
+        SparkMaxConfig driveConfig = new SparkMaxConfig();
         driveConfig.idleMode(IdleMode.kBrake);
-        driveConfig.inverted(moduleConstants.driveInverted());
+        driveConfig.inverted(!moduleConstants.driveInverted());
         driveConfig.encoder.positionConversionFactor(Constants.SWERVE_POSITION_FACTOR);
         driveConfig.encoder.velocityConversionFactor(Constants.SWERVE_POSITION_FACTOR / 60);
         this.drive.configure(driveConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
@@ -59,7 +57,7 @@ public class SwerveModuleIOSparkFlex implements SwerveModuleIO {
 
     @Override
     public void setDriveSpeed(double speed){
-        drive.set(speed);
+        drive.set(speed*Constants.DRIVE_SPEED_MULTIPLIER);
     }
 
     @Override

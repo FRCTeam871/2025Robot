@@ -1,7 +1,8 @@
-package frc.robot.subsystems;
+package frc.robot.subsystems.manipulator;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.fieldtracking.FieldTracking;
 
 public class Manipulator extends SubsystemBase {
     ManipulatorIO io;
@@ -13,10 +14,10 @@ public class Manipulator extends SubsystemBase {
 
    
     public Command sendPushPistonIn() {
-        return run(() -> io.pushCoral(true)).finallyDo(canceled -> io.pushCoral(false)); 
+        return run(() -> io.pushCoral(true)).finallyDo(canceled -> io.pushCoral(false)).withTimeout(.5); 
     }
     public Command sendHoldPistonIn(){
-        return run(() -> io.holdCoral(true)).finallyDo(canceled -> io.holdCoral(false));
+        return run(() -> io.holdCoral(true)).finallyDo(canceled -> io.holdCoral(false)).withTimeout(.5);
     }
 
     public Command scoreCoral(){

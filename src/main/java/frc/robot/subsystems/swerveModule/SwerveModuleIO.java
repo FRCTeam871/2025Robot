@@ -1,8 +1,8 @@
-package frc.robot.subsystems;
+package frc.robot.subsystems.swerveModule;
 
 import org.littletonrobotics.junction.AutoLog;
 
-import frc.robot.subsystems.FieldTrackingIO.FieldTrackingIOInputs;
+import frc.robot.subsystems.fieldtracking.FieldTrackingIO.FieldTrackingIOInputs;
 
 
 public interface SwerveModuleIO {

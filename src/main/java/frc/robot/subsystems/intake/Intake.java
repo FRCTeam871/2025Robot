@@ -1,4 +1,4 @@
-package frc.robot.subsystems;
+package frc.robot.subsystems.intake;
 
 import java.security.Timestamp;
 
@@ -21,7 +21,7 @@ public class Intake extends SubsystemBase {
     public Intake(IntakeIO io) {
         this.io = io;
 
-        setDefaultCommand(dislodge().ignoringDisable(true));
+        // setDefaultCommand(dislodge().ignoringDisable(true));
         
     }
 

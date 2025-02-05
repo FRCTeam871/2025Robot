@@ -4,51 +4,42 @@
 
 package frc.robot;
 
-import edu.wpi.first.math.controller.ElevatorFeedforward;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.wpilibj.Compressor;
-import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
-import edu.wpi.first.wpilibj.motorcontrol.MotorController;
-import edu.wpi.first.wpilibj.motorcontrol.Talon;
-import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.ConditionalCommand;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.ModuleConstants;
 import frc.robot.controls.IControls;
 import frc.robot.controls.XboxControls;
-import frc.robot.subsystems.Elevator;
-import frc.robot.subsystems.ElevatorIO;
-import frc.robot.subsystems.ElevatorIOReal;
-import frc.robot.subsystems.FieldTracking;
-import frc.robot.subsystems.FieldTrackingIO;
-import frc.robot.subsystems.FieldTrackingIOLimeLight;
-import frc.robot.subsystems.Intake;
-import frc.robot.subsystems.IntakeIO;
-import frc.robot.subsystems.IntakeIOReal;
-import frc.robot.subsystems.SwerveDrive;
-import frc.robot.subsystems.SwerveDriveIO;
-import frc.robot.subsystems.SwerveDriveIOReal;
-import frc.robot.subsystems.SwerveModule;
-import frc.robot.subsystems.SwerveModuleIO;
-import frc.robot.subsystems.SwerveModuleIOSparkFlex;
+import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.elevator.ElevatorIO;
+import frc.robot.subsystems.elevator.ElevatorIOReal;
+import frc.robot.subsystems.fieldtracking.FieldTracking;
+import frc.robot.subsystems.fieldtracking.FieldTrackingIO;
+import frc.robot.subsystems.fieldtracking.FieldTrackingIOLimeLight;
+import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.intake.IntakeIO;
+import frc.robot.subsystems.intake.IntakeIOReal;
+import frc.robot.subsystems.manipulator.Manipulator;
+import frc.robot.subsystems.manipulator.ManipulatorIO;
+import frc.robot.subsystems.manipulator.ManipulatorIOReal;
+import frc.robot.subsystems.sequencing.Sequencing;
+import frc.robot.subsystems.sequencing.SequencingIO;
+import frc.robot.subsystems.sequencing.SequencingIOReal;
+import frc.robot.subsystems.sequencing.Sequencing.LeftOrRight;
+import frc.robot.subsystems.sequencing.Sequencing.ReefLevel;
+import frc.robot.subsystems.sequencing.Sequencing.ReefSides;
+import frc.robot.subsystems.swerveModule.SwerveModule;
+import frc.robot.subsystems.swerveModule.SwerveModuleIO;
+import frc.robot.subsystems.swervedrive.SwerveDrive;
+import frc.robot.subsystems.swervedrive.SwerveDriveIO;
+import frc.robot.subsystems.swervedrive.SwerveDriveIOReal;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Map;
 import java.util.stream.IntStream;
-import java.util.stream.StreamSupport;
-
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
 
@@ -58,6 +49,8 @@ public class RobotContainer {
         IControls controls;
         Intake intake;
         Elevator elevator;
+        Sequencing sequencing;
+        Manipulator manipulator;
 
 
         public RobotContainer() {
@@ -66,90 +59,75 @@ public class RobotContainer {
                 LiveWindow.disableAllTelemetry();
                 // Configure the trigger bindings
 
-                SwerveModuleIO[] moduleIOs;
-                SwerveDriveIO swerveDriveIO;
-                IntakeIO intakeIO;
-                ElevatorIO elevatorIO;
+                SwerveModuleIO[] moduleIOs = Collections.nCopies(4, new SwerveModuleIO() {
+                }).toArray(new SwerveModuleIO[4]);
+                SwerveDriveIO swerveDriveIO = new SwerveDriveIO() {};
+                IntakeIO intakeIO = new IntakeIO() {};
+                ElevatorIO elevatorIO = new ElevatorIO() {};
+                ManipulatorIO   manipulatorIO = new ManipulatorIO() {};
+                SequencingIO sequencingIO = new SequencingIO() {};
+                FieldTrackingIO fieldTrackingIO = new FieldTrackingIO() {};
 
+                
                 if (RobotBase.isReal()) {
 
-                        swerveDriveIO = new SwerveDriveIOReal(new AHRS(NavXComType.kI2C));
+                        swerveDriveIO = new SwerveDriveIOReal(new AHRS(NavXComType.kMXP_SPI));
+                        fieldTrackingIO = new FieldTrackingIOLimeLight();
 
                         moduleIOs = Arrays.stream(Constants.MODULE_CONSTANTS)
                                         .map(Constants::getRealSwerveModuleIO)
                                         .toArray(SwerveModuleIO[]::new);
+
+                        sequencingIO = new SequencingIOReal() {};
                         
-                        intakeIO = new IntakeIOReal();
-
-                        elevatorIO = new ElevatorIOReal();
-
-                } else {
-                        moduleIOs = Collections.nCopies(4, new SwerveModuleIO() {
-                        }).toArray(new SwerveModuleIO[4]);
-                        swerveDriveIO = new SwerveDriveIO() {
-                        };
-
-                        intakeIO = new IntakeIO() {};
-
-                        elevatorIO = new ElevatorIO() {};
+                        if (!Constants.ON_SYMPHONY){
+                                // intakeIO = new IntakeIOReal();
+                                elevatorIO = new ElevatorIOReal();
+                                // manipulatorIO = new ManipulatorIOReal();
+                        }                       
                 }
-
-                ShuffleboardTab swerveShuffleboardTab = Shuffleboard.getTab("Symphony");
-
+                        
+                final SwerveModuleIO[] moduleIOsFinal = moduleIOs;
                 SwerveModule[] swerveModules = IntStream.range(0, moduleIOs.length)
                                 .mapToObj(i -> {
-                                        SwerveModuleIO io = moduleIOs[i];
+                                        SwerveModuleIO io = moduleIOsFinal[i];
                                         ModuleConstants constants = Constants.MODULE_CONSTANTS[i];
-
-                                        ShuffleboardLayout dashboardLayOut = swerveShuffleboardTab
-                                                        .getLayout(constants.label(), BuiltInLayouts.kGrid)
-                                                        .withSize(3, 5)
-                                                        .withProperties(Map.of("Number of columns", 1, "Number of rows",
-                                                                        3))
-                                                        .withPosition(constants.dashBoardX(), constants.dashBoardY());
 
                                         final SwerveModule swerve = new SwerveModule(
                                                         constants.leverArm(),
-                                                        dashboardLayOut, io, constants.label());
+                                                        io, constants.label());
                                         return swerve;
                                 })
                                 .toArray(SwerveModule[]::new);
 
               
 
-                ShuffleboardLayout odometryLayout = swerveShuffleboardTab.getLayout("Odometry", BuiltInLayouts.kGrid)
-                                .withSize(5, 8)
-                                .withProperties(Map.of("Number of columns", 2, "Number of rows", 3))
-                                .withPosition(13, 0);
+               
                 swerveDrive = new SwerveDrive(swerveDriveIO,
-                                odometryLayout,
                                 swerveModules);
-                swerveShuffleboardTab.addCamera("Title", "name", "mjpg:http://10.8.71.86:5800")
-                                .withPosition(6, 0)
-                                .withSize(7, 8)
-                                .withProperties(Map.of("showControls", false));
-
-                if (RobotBase.isReal()) {
-                        fieldTracking = new FieldTracking(swerveDrive, new FieldTrackingIOLimeLight());
-                } else {
-                        fieldTracking = new FieldTracking(swerveDrive, new FieldTrackingIO() {
-                        });
-                }
-
+                fieldTracking = new FieldTracking(swerveDrive, fieldTrackingIO);
                 intake = new Intake(intakeIO);
-
-
-
+                manipulator = new Manipulator(manipulatorIO, fieldTracking);
+                elevator = new Elevator(elevatorIO);
+                sequencing = new Sequencing(elevator, intake, swerveDrive, manipulator, fieldTracking, sequencingIO);
 
                 configureBindings();
         }
 
         private void configureBindings() {
+                swerveDrive.setDefaultCommand(swerveDrive.manualDrive(controls.sideToSideAxis() ,controls.fowardsAndBackAxis(), controls.driveRotation()));
                 controls.goToNearestAprilTag().whileTrue(fieldTracking.followAprilTag());
 
                 // controls.goToNearestAprilTag().whileTrue(intake.sendLeftPistonOut());
+                // controls.manualElevatorMoveDown().onTrue(elevator.goToSetpoint(() -> elevator.getSetPoint().nextDown()));
+                // controls.manualElevatorMoveUp().onTrue(elevator.goToSetpoint(() -> elevator.getSetPoint().nextUp()));
+
+                elevator.setDefaultCommand(elevator.manualControl(controls.elevatorMove()));
                 
-                controls.elevatorMoveToSetPoint().onTrue(elevator.goToSetPoint(Constants.ELEVATOR_SETPOINT));
+                controls.placeCoral().onTrue(sequencing.scoreCoral(ReefSides.Side5, LeftOrRight.Right, ReefLevel.L4)
+                        .until(() -> controls.cancel().getAsBoolean())); 
+                
+                
         }
 
         public Command getAutonomousCommand() {
@@ -157,7 +135,8 @@ public class RobotContainer {
         }
 
         public Command getTeleopCommand() {
-               return fieldTracking.followAprilTag();
+                return  Commands.none();
+        //        return fieldTracking.followAprilTag();
         // //         // return Commands.run(() -> {
         // //         // ChassisSpeeds swerveSpeeds = new ChassisSpeeds(.1, 0, 0);
         // //         // swerveDrive.updateSpeed(swerveSpeeds);

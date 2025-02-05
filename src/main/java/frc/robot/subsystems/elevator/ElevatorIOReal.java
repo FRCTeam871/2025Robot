@@ -1,4 +1,6 @@
-package frc.robot.subsystems;
+package frc.robot.subsystems.elevator;
+
+import java.util.function.DoubleSupplier;
 
 import com.revrobotics.spark.SparkAnalogSensor;
 import com.revrobotics.spark.SparkFlex;
@@ -7,7 +9,6 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.units.Units;
-import frc.robot.subsystems.ElevatorIO;
 
 public class ElevatorIOReal implements ElevatorIO{
 
@@ -19,7 +20,7 @@ public class ElevatorIOReal implements ElevatorIO{
     SparkFlex elevatorMotor;
 
     public ElevatorIOReal() {
-        elevatorMotor = new SparkFlex(1000, MotorType.kBrushless);
+        elevatorMotor = new SparkFlex(13, MotorType.kBrushless);
         encoder = elevatorMotor.getAnalog();
 
         encoderFilter = LinearFilter.singlePoleIIR(.08, .02);
@@ -36,4 +37,5 @@ public class ElevatorIOReal implements ElevatorIO{
         elevatorMotor.set(speed);
         ElevatorIO.super.setElevatorSpeed(speed);
     }
+
 }
