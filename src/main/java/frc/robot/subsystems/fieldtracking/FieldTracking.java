@@ -27,8 +27,8 @@ import frc.robot.subsystems.fieldtracking.FieldTrackingIO.FieldTrackingIOInputs;
 import frc.robot.subsystems.swervedrive.SwerveDrive;
 
 public class FieldTracking extends SubsystemBase {
-    ProfiledPIDController txPidController;
-    ProfiledPIDController tzPidController;
+    ProfiledPIDController sidePidController;
+    ProfiledPIDController forwardPidController;
     ProfiledPIDController yawPidController;
     SwerveDrive swerveDrive;
     FieldTrackingIO io;
@@ -36,23 +36,19 @@ public class FieldTracking extends SubsystemBase {
     AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
 
     public FieldTracking(final SwerveDrive swerveDrive, final FieldTrackingIO io) {
-        txPidController = new ProfiledPIDController(1.5, 0, .1, new Constraints(1000, 1000));
-        tzPidController = new ProfiledPIDController(1.5, 0, .1, new Constraints(1000, 1000));
-        yawPidController = new ProfiledPIDController(0.05, 0, 0, new Constraints(1000, 1000));
+        sidePidController = new ProfiledPIDController(2.5, 0.001, .1, new Constraints(1000, 1000));
+        forwardPidController = new ProfiledPIDController(2.5, 0.001, .1, new Constraints(1000, 1000));
+        yawPidController = new ProfiledPIDController(0.08, 0.001, 0, new Constraints(1000, 1000));
         this.swerveDrive = swerveDrive;
         this.io = io;
-        setDefaultCommand(robotLocalization());
     }
 
     @Override
     public void periodic() {
         io.updateInputs(inputs);
         Logger.processInputs("FieldTracking", inputs);
-    }
-    public Command robotLocalization() {
-        return run(() -> {
-         
-            io.setRobotOrientation(swerveDrive.getEstimatedPose().getRotation().getDegrees());            
+
+        io.setRobotOrientation(swerveDrive.getEstimatedPose().getRotation().getDegrees());            
             // if our angular velocity is greater than 720 degrees per
             // second, ignore vision updates
             if (Math.abs(swerveDrive.getYawRate()) > 720) {
@@ -69,10 +65,10 @@ public class FieldTracking extends SubsystemBase {
                         VecBuilder.fill(.7, .7, 9999999)
                         );
                 
+                //TODO: this .get() causes crashes
                 Logger.recordOutput("FieldTracking/TargetPoses", new Pose3d[]{fieldLayout.getTagPose((int)inputs.tid).get()});
                 Logger.recordOutput("FieldTracking/TargetIDs", new int[]{(int)inputs.tid});
             }
-        }).ignoringDisable(true);
     }
 
     public boolean isAprilTagDetected() {
@@ -114,8 +110,8 @@ public class FieldTracking extends SubsystemBase {
             double roll = inputs.targetpose_robotspace[5];
             Logger.recordOutput("FieldTracking/roll", roll);
             // step two feed values into pids
-            double xout = txPidController.calculate(-tx, 0);
-            double zout = tzPidController.calculate(-tz, 1);
+            double xout = sidePidController.calculate(-tx, 0);
+            double zout = forwardPidController.calculate(-tz, 1);
             double yawout = yawPidController.calculate(-yaw, 0);
 
             
@@ -133,12 +129,14 @@ public class FieldTracking extends SubsystemBase {
             return run(() -> {
                 Logger.recordOutput("FieldTracking/MaintainPose", poseToMaintain);
 
-                double xout = txPidController.calculate(swerveDrive.getEstimatedPose().getX(), poseToMaintain.getX());
+                Pose2d relTgtPose = poseToMaintain.relativeTo(swerveDrive.getEstimatedPose());
+
+                double yout = sidePidController.calculate(0, relTgtPose.getY());
+                Logger.recordOutput("FieldTracking/tyPID", yout);
+                double xout = forwardPidController.calculate(0, relTgtPose.getX());
                 Logger.recordOutput("FieldTracking/txPID", xout);
-                double zout = tzPidController.calculate(swerveDrive.getEstimatedPose().getY(), poseToMaintain.getY());
-                Logger.recordOutput("FieldTracking/tzPID", zout);
-                double yawout = yawPidController.calculate(swerveDrive.getEstimatedPose().getRotation().getDegrees(), poseToMaintain.getRotation().getDegrees());
-                ChassisSpeeds speeds = new ChassisSpeeds(zout, xout, yawout);
+                double yawout = yawPidController.calculate(0,relTgtPose.getRotation().getDegrees());
+                ChassisSpeeds speeds = new ChassisSpeeds(xout, yout, yawout);
                 swerveDrive.updateSpeed(speeds); // this will update the speeed
 
     });
@@ -146,7 +144,7 @@ public class FieldTracking extends SubsystemBase {
     }
     
     public boolean isAtPosition(){
-        return txPidController.atGoal() && tzPidController.atGoal() && yawPidController.atGoal();
+        return sidePidController.atGoal() && forwardPidController.atGoal() && yawPidController.atGoal();
     }
     
 }

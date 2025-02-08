@@ -120,10 +120,11 @@ public class SwerveDrive extends SubsystemBase {
     /** 
      * +x is foward 
      * +y is left
+     * + is ccw
      */
     public void updateSpeed(ChassisSpeeds speeds) {
         Logger.recordOutput("Drive/InputSpeed", speeds);
-        System.out.println(speeds);
+        // System.out.println(speeds);
 
         SwerveModuleState[] states = swerveDriveKinematics.toSwerveModuleStates(speeds);
         setStates(states);
@@ -173,4 +174,7 @@ public class SwerveDrive extends SubsystemBase {
       Matrix<N3, N1> visionMeasurementStdDevs) {
       poseEstimator.addVisionMeasurement(visionRobotPoseMeters, timestampSeconds, visionMeasurementStdDevs);
     }
+
+    
+
 }

@@ -11,6 +11,7 @@ import org.littletonrobotics.junction.Logger;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.path.ConstraintsZone;
 import com.pathplanner.lib.path.EventMarker;
 import com.pathplanner.lib.path.GoalEndState;
 import com.pathplanner.lib.path.PathConstraints;
@@ -20,10 +21,15 @@ import com.pathplanner.lib.path.Waypoint;
 import com.pathplanner.lib.trajectory.PathPlannerTrajectory;
 import com.pathplanner.lib.util.FlippingUtil;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -32,6 +38,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.Constants;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.fieldtracking.FieldTracking;
 import frc.robot.subsystems.intake.Intake;
@@ -39,6 +46,8 @@ import frc.robot.subsystems.manipulator.Manipulator;
 import frc.robot.subsystems.swervedrive.SwerveDrive;
 
 public class Sequencing extends SubsystemBase {
+    private static final Distance ROBOT_X_LENGTH = Units.Inches.of(34.0);
+
     Elevator elevator;
     Intake intake;
     SwerveDrive swerveDrive;
@@ -47,6 +56,7 @@ public class Sequencing extends SubsystemBase {
     Field2d field2d;
     SequencingIO io;
     SequencingIOInputsAutoLogged inputs = new SequencingIOInputsAutoLogged();
+    AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
 
     @AutoLogOutput
     ReefSides reefSide;
@@ -57,22 +67,22 @@ public class Sequencing extends SubsystemBase {
     @AutoLogOutput
     ReefLevel reefLevel;
 
-    HashMap<Pair<ReefSides, LeftOrRight>, Pose2d> waypoints = new HashMap<>() {
-        {
-            put(Pair.of(ReefSides.Side1, LeftOrRight.Left), new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0.0)));
-            put(Pair.of(ReefSides.Side1, LeftOrRight.Right), new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0.0)));
-            put(Pair.of(ReefSides.Side2, LeftOrRight.Left), new Pose2d(3.985, 5.212, Rotation2d.fromDegrees(-60.0)));
-            put(Pair.of(ReefSides.Side2, LeftOrRight.Right), new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0.0)));
-            put(Pair.of(ReefSides.Side3, LeftOrRight.Left), new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0.0)));
-            put(Pair.of(ReefSides.Side3, LeftOrRight.Right), new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0.0)));
-            put(Pair.of(ReefSides.Side4, LeftOrRight.Left), new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0.0)));
-            put(Pair.of(ReefSides.Side4, LeftOrRight.Right), new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0.0)));
-            put(Pair.of(ReefSides.Side5, LeftOrRight.Left), new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0.0)));
-            put(Pair.of(ReefSides.Side5, LeftOrRight.Right), new Pose2d(5.323, 2.953, Rotation2d.fromDegrees(120.0)));
-            put(Pair.of(ReefSides.Side6, LeftOrRight.Left), new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0.0)));
-            put(Pair.of(ReefSides.Side6, LeftOrRight.Right), new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0.0)));
-        }
-    };
+    // HashMap<Pair<ReefSides, LeftOrRight>, Pose2d> waypoints = new HashMap<>() {
+    //     {
+    //         put(Pair.of(ReefSides.Side1, LeftOrRight.Left), new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0.0)));
+    //         put(Pair.of(ReefSides.Side1, LeftOrRight.Right), new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0.0)));
+    //         put(Pair.of(ReefSides.Side2, LeftOrRight.Left), new Pose2d(3.985, 5.212, Rotation2d.fromDegrees(-60.0)));
+    //         put(Pair.of(ReefSides.Side2, LeftOrRight.Right), new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0.0)));
+    //         put(Pair.of(ReefSides.Side3, LeftOrRight.Left), new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0.0)));
+    //         put(Pair.of(ReefSides.Side3, LeftOrRight.Right), new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0.0)));
+    //         put(Pair.of(ReefSides.Side4, LeftOrRight.Left), new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0.0)));
+    //         put(Pair.of(ReefSides.Side4, LeftOrRight.Right), new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0.0)));
+    //         put(Pair.of(ReefSides.Side5, LeftOrRight.Left), new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0.0)));
+    //         put(Pair.of(ReefSides.Side5, LeftOrRight.Right), new Pose2d(5.323, 2.953, Rotation2d.fromDegrees(120.0)));
+    //         put(Pair.of(ReefSides.Side6, LeftOrRight.Left), new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0.0)));
+    //         put(Pair.of(ReefSides.Side6, LeftOrRight.Right), new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0.0)));
+    //     }
+    // };
 
     public Sequencing(Elevator elevator, Intake intake, SwerveDrive swerveDrive, Manipulator manipulator,
             FieldTracking fieldTracking, SequencingIO io) {
@@ -106,7 +116,20 @@ public class Sequencing extends SubsystemBase {
      * side 1 is closest to drivers station and is going clockwise
      */
     public enum ReefSides {
-        Side1, Side2, Side3, Side4, Side5, Side6
+        Side1(18, 7), 
+        Side2(19, 6), 
+        Side3(20,11), 
+        Side4(21, 10), 
+        Side5(22, 9), 
+        Side6(17,8);
+
+        public int blueAprilTagID;
+        public int redAprilTagID;
+
+        ReefSides(int blueAprilTagId, int redAprilTagId) {
+            this.blueAprilTagID = blueAprilTagId;
+            this.redAprilTagID = redAprilTagId;
+        }
     }
 
     public enum LeftOrRight {
@@ -155,10 +178,13 @@ public class Sequencing extends SubsystemBase {
 
     public Command scoreCoral(ReefSides side, LeftOrRight leftOrRight, ReefLevel level) {
         return runOnce(() -> {
-            Pose2d endPose = waypoints.get(Pair.of(side, leftOrRight));
-            if (DriverStation.getAlliance().equals(Optional.of(Alliance.Red))) {
-                endPose = FlippingUtil.flipFieldPose(endPose);
-            }
+            // Pose2d endPose = waypoints.get(Pair.of(side, leftOrRight));
+            // if (DriverStation.getAlliance().equals(Optional.of(Alliance.Red))) {
+            //     endPose = FlippingUtil.flipFieldPose(endPose);
+            // }
+            Pose2d endPose = reefPose(side, leftOrRight);
+
+
 
             // Logger.recordOutput("Sequencing/EndPose", endPose);
 
@@ -167,7 +193,7 @@ public class Sequencing extends SubsystemBase {
             // if (DriverStation.getAlliance().equals(Optional.of(Alliance.Red)));
             // waypoints.set(1, waypoints.get(1).flip());
 
-            PathConstraints constraints = new PathConstraints(3.0, 3.0, 2 * Math.PI, 4 * Math.PI); // The constraints
+            PathConstraints constraints = new PathConstraints(0.5*Constants.DRIVE_SPEED_MULTIPLIER, 0.2, 2 * Math.PI, 4 * Math.PI); // The constraints
                                                                                                    // for this path.
 
             PathPlannerPath path = new PathPlannerPath(
@@ -175,6 +201,7 @@ public class Sequencing extends SubsystemBase {
                     List.of(),
                     List.of(),
                     List.of(),
+                    // List.of(new ConstraintsZone(0.8, 1.0, new PathConstraints(0.5*Constants.DRIVE_SPEED_MULTIPLIER, 0.5, 2 * Math.PI, 4 * Math.PI))),
                     List.of(new EventMarker("Bob", .8, elevator.goToSetpoint(level.setpoint()))),
                     constraints,
                     null, // The ideal starting state, this is only relevant for pre-planned paths, so can
@@ -185,19 +212,19 @@ public class Sequencing extends SubsystemBase {
                     false);
             path.preventFlipping = true;
 
-            // Pose2d[] points = path.generateTrajectory(swerveDrive.getChassisSpeeds(), swerveDrive.getRotation(), swerveDrive.getConfig()).getStates().stream().map(trajectory-> trajectory.pose).toArray(length -> new Pose2d[length] );
-            // Logger.recordOutput("Sequencing/Path", points);
+            Pose2d[] points = path.generateTrajectory(swerveDrive.getChassisSpeeds(), swerveDrive.getRotation(), swerveDrive.getConfig()).getStates().stream().map(trajectory-> trajectory.pose).toArray(length -> new Pose2d[length] );
+            Logger.recordOutput("Sequencing/Path", points);
 
-            System.out.println("!!!!!!!!!!!!!!!");
+            // System.out.println("!!!!!!!!!!!!!!!");
 
-            for (Waypoint waypoints2 : waypoints) {
-                System.out.println("WAYP " + waypoints2.anchor().toString());
-            }
+            // for (Waypoint waypoints2 : waypoints) {
+            //     System.out.println("WAYP " + waypoints2.anchor().toString());
+            // }
 
 
-            for (PathPoint allPathPoints : path.getAllPathPoints()) {
-                System.out.println("POIT " + allPathPoints.position.toString());
-            }
+            // for (PathPoint allPathPoints : path.getAllPathPoints()) {
+            //     System.out.println("POIT " + allPathPoints.position.toString());
+            // }
 
             AutoBuilder.followPath(path)
                     .andThen(
@@ -244,5 +271,22 @@ public class Sequencing extends SubsystemBase {
             }
             // }
         });
+    }
+
+    public Pose2d reefPose(ReefSides reefSides, LeftOrRight leftOrRight) {
+        int aprilTagID;
+        if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue) {
+            aprilTagID = reefSides.blueAprilTagID;
+        } else{
+            aprilTagID = reefSides.redAprilTagID;
+        }
+        
+        Pose2d aprilTagPose = fieldLayout.getTagPose(aprilTagID).get().toPose2d(); //3d no no
+
+        return aprilTagPose.plus(new Transform2d(
+            ROBOT_X_LENGTH.div(2), 
+            Units.Inches.of(leftOrRight == LeftOrRight.Left ? -6.5 : 6.5), 
+            Rotation2d.k180deg)
+        );
     }
 }

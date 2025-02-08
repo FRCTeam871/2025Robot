@@ -74,7 +74,7 @@ public class RobotContainer {
                         swerveDriveIO = new SwerveDriveIOReal(new AHRS(NavXComType.kMXP_SPI));
                         fieldTrackingIO = new FieldTrackingIOLimeLight();
 
-                        moduleIOs = Arrays.stream(Constants.MODULE_CONSTANTS)
+                        moduleIOs = Arrays.stream(Constants.ON_SYMPHONY ? Constants.MODULE_CONSTANTS_SYMPHONY : Constants.MODULE_CONSTANTS)
                                         .map(Constants::getRealSwerveModuleIO)
                                         .toArray(SwerveModuleIO[]::new);
 
@@ -116,7 +116,7 @@ public class RobotContainer {
 
         private void configureBindings() {
                 swerveDrive.setDefaultCommand(swerveDrive.manualDrive(controls.sideToSideAxis() ,controls.fowardsAndBackAxis(), controls.driveRotation()));
-                controls.goToNearestAprilTag().whileTrue(fieldTracking.followAprilTag());
+                // controls.goToNearestAprilTag().whileTrue(fieldTracking.followAprilTag());
 
                 // controls.goToNearestAprilTag().whileTrue(intake.sendLeftPistonOut());
                 // controls.manualElevatorMoveDown().onTrue(elevator.goToSetpoint(() -> elevator.getSetPoint().nextDown()));
@@ -124,7 +124,7 @@ public class RobotContainer {
 
                 elevator.setDefaultCommand(elevator.manualControl(controls.elevatorMove()));
                 
-                controls.placeCoral().onTrue(sequencing.scoreCoral(ReefSides.Side5, LeftOrRight.Right, ReefLevel.L4)
+                controls.placeCoral().onTrue(sequencing.scoreCoral(ReefSides.Side2, LeftOrRight.Right, ReefLevel.L4)
                         .until(() -> controls.cancel().getAsBoolean())); 
                 
                 

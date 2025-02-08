@@ -14,6 +14,7 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -30,6 +31,7 @@ public class Robot extends LoggedRobot {
 
   public Robot() {
     LiveWindow.disableAllTelemetry();
+    DriverStation.silenceJoystickConnectionWarning(true);  //no more koystick wrnaning
 
     Logger.recordMetadata("ProjectName", "2025RobotCode"); // Set a metadata value
 

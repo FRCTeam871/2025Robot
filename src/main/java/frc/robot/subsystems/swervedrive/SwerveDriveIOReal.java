@@ -11,13 +11,13 @@ import edu.wpi.first.wpilibj2.command.Commands;
 public class SwerveDriveIOReal implements SwerveDriveIO {
     AHRS gyro;
     public SwerveDriveIOReal( AHRS gyro){
-        SmartDashboard.putData("resetGyro" , Commands.runOnce(gyro::zeroYaw));
+        SmartDashboard.putData("resetGyro" , Commands.runOnce(gyro::zeroYaw).ignoringDisable(true));
         gyro.zeroYaw();
         this.gyro = gyro;
     }
     @Override
     public void updateInputs(SwerveDriveIOInputs inputs){
-        inputs.gyroRotation = Rotation2d.fromDegrees(-gyro.getYaw()-60);
+        inputs.gyroRotation = Rotation2d.fromDegrees(-gyro.getYaw()+120);
         inputs.isCalibrating = gyro.isCalibrating();
         inputs.gyroRate = gyro.getRate();
     }
