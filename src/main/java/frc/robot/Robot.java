@@ -11,15 +11,8 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
-import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
-
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.PowerDistribution;
-import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
-import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
-import edu.wpi.first.wpilibj.motorcontrol.MotorController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
@@ -38,7 +31,7 @@ public class Robot extends LoggedRobot {
     if (isReal()) {
         // Logger.addDataReceiver(new WPILOGWriter()); // Log to a USB stick ("/U/logs")
         Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
-        new PowerDistribution(1, ModuleType.kRev); // Enables power distribution logging
+        // new PowerDistribution(1, ModuleType.kRev); // Enables power distribution logging
     } else {
         setUseTiming(false); // Run as fast as possible
         String logPath = LogFileUtil.findReplayLog(); // Pull the replay log from AdvantageScope (or prompt the user)
@@ -57,7 +50,9 @@ public class Robot extends LoggedRobot {
   }
 
   @Override
-  public void disabledInit() {}
+  public void disabledInit() {
+    m_robotContainer.disabledInit();
+  }
 
   @Override
   public void disabledPeriodic() {}
@@ -67,6 +62,8 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void autonomousInit() {
+    m_robotContainer.autonomousInit();
+
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
     if (m_autonomousCommand != null) {
@@ -82,6 +79,8 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void teleopInit() {
+    m_robotContainer.teleopInit();
+
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }

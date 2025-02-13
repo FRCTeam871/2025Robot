@@ -1,31 +1,18 @@
 package frc.robot.subsystems.sequencing;
 
-import java.lang.reflect.Field;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
-import java.util.function.Function;
-
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.config.RobotConfig;
-import com.pathplanner.lib.path.ConstraintsZone;
 import com.pathplanner.lib.path.EventMarker;
 import com.pathplanner.lib.path.GoalEndState;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
-import com.pathplanner.lib.path.PathPoint;
 import com.pathplanner.lib.path.Waypoint;
-import com.pathplanner.lib.trajectory.PathPlannerTrajectory;
-import com.pathplanner.lib.util.FlippingUtil;
-
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
-import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.units.Units;
@@ -35,7 +22,6 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
@@ -251,8 +237,11 @@ public class Sequencing extends SubsystemBase {
         t.onTrue(runOnce(() -> {
             // TODO: set reefSide based on apriltag
 
-            if (scoreCommand != null && !scoreCommand.isFinished())
+            if(fieldTracking.isAprilTagDetected())
+
+            if (scoreCommand != null && !scoreCommand.isFinished()){
                 scoreCommand.cancel();
+            }
             scoreCommand = scoreCoral(reefSide, leftOrRight, reefLevel);
 
         }));

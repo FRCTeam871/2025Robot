@@ -1,11 +1,7 @@
 package frc.robot.subsystems.intake;
 
-import java.security.Timestamp;
-
 import org.littletonrobotics.junction.Logger;
 
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.NetworkTablesJNI;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;

@@ -2,16 +2,16 @@ package frc.robot.controls;
 
 import java.util.function.DoubleSupplier;
 
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
 
 public class XboxControls implements IControls {
     CommandXboxController xboxController;
-
+    CommandXboxController xboxController2;
     public XboxControls() {
         xboxController = new CommandXboxController(0);
+        xboxController2 = new CommandXboxController(1);
     }
 
     @Override
@@ -63,6 +63,6 @@ public class XboxControls implements IControls {
 
     @Override
     public DoubleSupplier elevatorMove() {
-        return () -> Constants.deadband(-xboxController.getRightY(), .1);
+        return () -> Constants.deadband(-xboxController2.getRightY(), .1);
     }
 }

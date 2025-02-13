@@ -3,14 +3,12 @@ package frc.robot.subsystems.swervedrive;
 import com.studica.frc.AHRS;
 
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 
-public class SwerveDriveIOReal implements SwerveDriveIO {
+public class SwerveDriveIOYaw implements SwerveDriveIO {
     AHRS gyro;
-    public SwerveDriveIOReal( AHRS gyro){
+    public SwerveDriveIOYaw( AHRS gyro){
         SmartDashboard.putData("resetGyro" , Commands.runOnce(gyro::zeroYaw).ignoringDisable(true));
         gyro.zeroYaw();
         this.gyro = gyro;

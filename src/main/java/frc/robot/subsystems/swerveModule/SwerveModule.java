@@ -46,8 +46,7 @@ public class SwerveModule {
         Logger.processInputs("Drive/Module" + label, inputs);
 
         final double currentSteeringAngle = getDirectionDegrees();
-        final SwerveModuleState optimizedState = SwerveModuleState.optimize(state,
-                Rotation2d.fromDegrees(currentSteeringAngle));
+        final SwerveModuleState optimizedState = SwerveModuleState.optimize(state, Rotation2d.fromDegrees(currentSteeringAngle));
         final double desiredSteeringAngle = optimizedState.angle.getDegrees();
         final double outputSteer = pidController.calculate(currentSteeringAngle, desiredSteeringAngle);
 

@@ -2,7 +2,6 @@ package frc.robot.subsystems.swerveModule;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.hardware.CANcoder;
-import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;

@@ -6,11 +6,14 @@ import edu.wpi.first.wpilibj.PneumaticsModuleType;
 public class ManipulatorIOReal implements ManipulatorIO {
     DoubleSolenoid pushPiston;
     DoubleSolenoid holdPiston;
-    public ManipulatorIOReal(){
-        //TODO find out channels for manipulator pistons when electrical has them
-        pushPiston = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 20, 21);
-        holdPiston = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 22, 23);
+
+    public ManipulatorIOReal() {
+        // TODO find out channels for manipulator pistons when electrical has them 
+        // TODO single solenoids not double
+        pushPiston = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 2000, 2100);
+        holdPiston = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 2200, 2300);
     }
+
     @Override
     public void pushCoral(boolean extend) {
         if (extend) {
@@ -27,5 +30,10 @@ public class ManipulatorIOReal implements ManipulatorIO {
         } else {
             holdPiston.set(DoubleSolenoid.Value.kForward);
         }
+    }
+
+    @Override
+    public void updateInputs(ManipulatorIOInputs inputs) {
+        inputs.isCoralPresent = false;
     }
 }

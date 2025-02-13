@@ -1,8 +1,6 @@
 package frc.robot;
 
 import com.ctre.phoenix6.signals.SensorDirectionValue;
-import com.ctre.phoenix6.swerve.SwerveModule;
-
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Time;
@@ -11,7 +9,7 @@ import frc.robot.subsystems.swerveModule.SwerveModuleIOSparkFlex;
 import frc.robot.subsystems.swerveModule.SwerveModuleIOSparkMax;
 
 public class Constants {
-    public static final boolean ON_SYMPHONY = true;
+    public static final boolean ON_SYMPHONY = false;
 
     // Swerve Constants
     public static final double SWERVE_STEER_KP = 2 / 360.0;
@@ -32,12 +30,16 @@ public class Constants {
 
     public static final double DISTANCE_BETWEEN_WHEELS = 22.75;
     // INTAKE CONSTANTS
-    public static final Time PISTON_THRESHOLD = Units.Second.of(1.0);;
-    public static final Time TARGET_DROP_THRESHOLD = Units.Second.of(0.5);;
+    public static final Time PISTON_THRESHOLD = Units.Second.of(1.0);
+    public static final Time TARGET_DROP_THRESHOLD = Units.Second.of(0.5);
     public static final Time PISTON_OUT_TIME = Units.Second.of(0.25);
 
-    // TODO make this an non made up number when we have something to test with
-    public static final double ELEVATOR_SETPOINT = 20;
+    public static final double BOTTOM = 1; 
+    public static final double L1 = 5;
+    public static final double L2 = 10;
+    public static final double L3 = 25;
+    public static final double L4 = 50; 
+    public static final double CLIMBING_MOUNT = 60;
 
     public record ModuleConstants(
             String label,
@@ -55,55 +57,55 @@ public class Constants {
 
     //positive x is foward and positive y is left
     public static final ModuleConstants[] MODULE_CONSTANTS = new ModuleConstants[] {
-            new ModuleConstants(
-                    "FL",
-                    3,
-                    false,
-                    1,
-                    true,
-                    2,
-                    -0.0185555,
-                    SensorDirectionValue.CounterClockwise_Positive,
-                    3,
-                    0,
-                    new Translation2d(Constants.LEVER_ARM_VAL, Constants.LEVER_ARM_VAL)),
-            new ModuleConstants(
-                    "FR",
-                    4,
-                    true,
-                    6,
-                    true,
-                    5,
-                    -0.060059,
-                    SensorDirectionValue.CounterClockwise_Positive,
-                    0,
-                    0,
-                    new Translation2d(Constants.LEVER_ARM_VAL, -Constants.LEVER_ARM_VAL)),
-            new ModuleConstants(
-                    "BL",
-                    10,
-                    true,
-                    12,
-                    true,
-                    11,
-                    -0.0434570,
-                    SensorDirectionValue.CounterClockwise_Positive,
-                    0,
-                    0,
-                    new Translation2d(-Constants.LEVER_ARM_VAL, Constants.LEVER_ARM_VAL)),
-            new ModuleConstants(
-                    "BR",
-                    9,
-                    true,
-                    7,
-                    true,
-                    8,
-                    -0.019287109375,
-                    SensorDirectionValue.CounterClockwise_Positive,
-                    3,
-                    5,
-                    new Translation2d(-Constants.LEVER_ARM_VAL, -Constants.LEVER_ARM_VAL))
-    };
+        new ModuleConstants(
+                "FL",
+                9,
+                false,
+                7,
+                true,
+                8,
+                -0.360840,
+                SensorDirectionValue.CounterClockwise_Positive,
+                3,
+                0,
+                new Translation2d(Constants.LEVER_ARM_VAL, Constants.LEVER_ARM_VAL)),
+        new ModuleConstants(
+                "FR",
+                12,
+                false,
+                10,
+                true,
+                11,
+                -0.555176,
+                SensorDirectionValue.CounterClockwise_Positive,
+                0,
+                0,
+                new Translation2d(Constants.LEVER_ARM_VAL, -Constants.LEVER_ARM_VAL)),
+        new ModuleConstants(
+                "BL",
+                6,
+                false,
+                4,
+                true,
+                5,
+                0.613037,
+                SensorDirectionValue.CounterClockwise_Positive,
+                0,
+                0,
+                new Translation2d(-Constants.LEVER_ARM_VAL, Constants.LEVER_ARM_VAL)),
+        new ModuleConstants(
+                "BR",
+                3,
+                false,
+                1,
+                true,
+                2,
+                -0.481445,
+                SensorDirectionValue.CounterClockwise_Positive,
+                3,
+                5,
+                new Translation2d(-Constants.LEVER_ARM_VAL, -Constants.LEVER_ARM_VAL))
+};
 
     //positive x is foward and positive y is left
     public static final ModuleConstants[] MODULE_CONSTANTS_SYMPHONY = new ModuleConstants[] {

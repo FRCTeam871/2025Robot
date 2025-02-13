@@ -1,19 +1,15 @@
 package frc.robot.subsystems.intake;
 
-import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
 import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
 
-import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.NetworkTablesJNI;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
-import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
-import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 
@@ -38,6 +34,7 @@ public class IntakeIOReal implements IntakeIO {
     DoubleSolenoid pistonRight;
 
     public IntakeIOReal() {
+        //TODO: make single solenoid
         pistonLeft = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 0, 1);
         pistonRight = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 2, 3);
         mechanism2d = new LoggedMechanism2d(18.5, 14.5);

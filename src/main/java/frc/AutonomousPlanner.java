@@ -1,14 +1,9 @@
 package frc;
 
-import java.text.FieldPosition;
 import java.util.ArrayList;
-import java.util.SortedMap;
 import java.util.function.Function;
 
-import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
-
 import com.pathplanner.lib.path.PathPlannerPath;
-import com.revrobotics.spark.config.SmartMotionConfigAccessor;
 
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -18,7 +13,6 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.manipulator.Manipulator;
-import frc.robot.subsystems.sequencing.SequencingIO;
 import frc.robot.subsystems.sequencing.Sequencing;
 import frc.robot.subsystems.sequencing.Sequencing.LeftOrRight;
 import frc.robot.subsystems.sequencing.Sequencing.ReefLevel;

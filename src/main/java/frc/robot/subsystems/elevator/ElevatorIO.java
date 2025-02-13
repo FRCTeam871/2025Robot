@@ -1,11 +1,8 @@
 package frc.robot.subsystems.elevator;
 
-import java.util.function.DoubleSupplier;
-
 import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.Logger;
 
-import edu.wpi.first.units.DistanceUnit;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -22,8 +19,8 @@ public interface ElevatorIO {
         }
         inputs.currentHeight = Units.Inch.of(SmartDashboard.getNumber("Elevator/Height",  0));
     }
+
     public default void setElevatorSpeed(double speed){
         Logger.recordOutput("Elevator/Speed",speed);
     }
-
 }

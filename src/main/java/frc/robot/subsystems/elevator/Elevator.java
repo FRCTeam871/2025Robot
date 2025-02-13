@@ -62,11 +62,13 @@ public class Elevator extends SubsystemBase{
 
     public void periodic() {
         io.updateInputs(inputs);
-        Logger.processInputs("Intake", inputs);
+        Logger.processInputs("Elevator", inputs); // ??? intake
 
         double outputPID = elevatorPIDController.calculate(inputs.currentHeight.in(Inches));
         if(usePID){
         io.setElevatorSpeed(outputPID); 
+
+        
         }
     }
 
