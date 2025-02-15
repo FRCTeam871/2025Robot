@@ -1,11 +1,5 @@
 package frc.robot.subsystems.swervedrive;
 
-import java.util.Arrays;
-import java.util.function.DoubleSupplier;
-
-import org.littletonrobotics.junction.AutoLogOutput;
-import org.littletonrobotics.junction.Logger;
-
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
@@ -26,6 +20,10 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.subsystems.swerveModule.SwerveModule;
+import java.util.Arrays;
+import java.util.function.DoubleSupplier;
+import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.Logger;
 
 public class SwerveDrive extends SubsystemBase {
     private final SwerveModule[] swerveModules;
@@ -35,45 +33,43 @@ public class SwerveDrive extends SubsystemBase {
     private SwerveDriveIOInputsAutoLogged inputs = new SwerveDriveIOInputsAutoLogged();
     private RobotConfig config;
 
-    public SwerveDrive(SwerveDriveIO io,  final SwerveModule... swerveModules) {
+    public SwerveDrive(SwerveDriveIO io, final SwerveModule... swerveModules) {
         this.swerveModules = swerveModules;
 
         this.io = io;
-        final Translation2d[] leverArmArray = Arrays.stream(swerveModules)
-                .map(SwerveModule::getLeverArm)
-                .toArray(Translation2d[]::new);
+        final Translation2d[] leverArmArray =
+                Arrays.stream(swerveModules).map(SwerveModule::getLeverArm).toArray(Translation2d[]::new);
 
         this.swerveDriveKinematics = new SwerveDriveKinematics(leverArmArray);
-        poseEstimator = new SwerveDrivePoseEstimator(swerveDriveKinematics, getRotation(), getModulePositions(), new Pose2d());         
+        poseEstimator =
+                new SwerveDrivePoseEstimator(swerveDriveKinematics, getRotation(), getModulePositions(), new Pose2d());
 
         try {
             config = RobotConfig.fromGUISettings();
             AutoBuilder.configure(
-                poseEstimator::getEstimatedPosition,
-                this::resetOdometry,
-                this::getChassisSpeeds,
-                this::updateSpeed,
-                new PPHolonomicDriveController(
-                        new PIDConstants(1, 0, 0),
-                        new PIDConstants(1, 0, 0),
-                        4.5
-                ),
-                config,
-                () -> false,
-                this
-            );
+                    poseEstimator::getEstimatedPosition,
+                    this::resetOdometry,
+                    this::getChassisSpeeds,
+                    this::updateSpeed,
+                    new PPHolonomicDriveController(new PIDConstants(1, 0, 0), new PIDConstants(1, 0, 0), 4.5),
+                    config,
+                    () -> false,
+                    this);
         } catch (Exception e) {
             DriverStation.reportError("AutoBuilder.configure failed", e.getStackTrace());
         }
-        
     }
-    public RobotConfig getConfig(){
+
+    public RobotConfig getConfig() {
         return config;
     }
 
     public Command manualDrive(DoubleSupplier vx, DoubleSupplier vy, DoubleSupplier omegarad) {
         return run(() -> {
-            ChassisSpeeds chassisSpeeds = new ChassisSpeeds(vy.getAsDouble()*Constants.MAX_SPEED_MPS, vx.getAsDouble()*Constants.MAX_SPEED_MPS, omegarad.getAsDouble()*Constants.MAX_SPEED_MPS);
+            ChassisSpeeds chassisSpeeds = new ChassisSpeeds(
+                    vy.getAsDouble() * Constants.MAX_SPEED_MPS,
+                    vx.getAsDouble() * Constants.MAX_SPEED_MPS,
+                    omegarad.getAsDouble() * Constants.MAX_SPEED_MPS);
             updateSpeed(chassisSpeeds);
         });
     }
@@ -83,7 +79,6 @@ public class SwerveDrive extends SubsystemBase {
         io.updateInputs(inputs);
         Logger.processInputs("Drive", inputs);
 
-
         poseEstimator.update(getRotation(), getModulePositions());
         for (SwerveModule bob : swerveModules) {
             bob.periodic();
@@ -92,22 +87,17 @@ public class SwerveDrive extends SubsystemBase {
 
     @AutoLogOutput(key = "Drive/ChassisSpeeds")
     public ChassisSpeeds getChassisSpeeds() {
-        return swerveDriveKinematics.toChassisSpeeds(
-                getModuleStates());
+        return swerveDriveKinematics.toChassisSpeeds(getModuleStates());
     }
 
     @AutoLogOutput(key = "Drive/ModuleStates")
     public SwerveModuleState[] getModuleStates() {
-        return Arrays.stream(swerveModules)
-                .map(SwerveModule::getState)
-                .toArray(SwerveModuleState[]::new);
+        return Arrays.stream(swerveModules).map(SwerveModule::getState).toArray(SwerveModuleState[]::new);
     }
 
     @AutoLogOutput(key = "Drive/ModulePositions")
     public SwerveModulePosition[] getModulePositions() {
-        return Arrays.stream(swerveModules)
-                .map(SwerveModule::getPosition)
-                .toArray(SwerveModulePosition[]::new);
+        return Arrays.stream(swerveModules).map(SwerveModule::getPosition).toArray(SwerveModulePosition[]::new);
     }
 
     private void setStates(SwerveModuleState[] states) {
@@ -115,8 +105,8 @@ public class SwerveDrive extends SubsystemBase {
             swerveModules[i].setState(states[i]);
         }
     }
-    /** 
-     * +x is foward 
+    /**
+     * +x is foward
      * +y is left
      * + is ccw
      */
@@ -158,21 +148,16 @@ public class SwerveDrive extends SubsystemBase {
     }
 
     @AutoLogOutput(key = "Drive/EstimatedPose")
-    public Pose2d getEstimatedPose(){
-       return poseEstimator.getEstimatedPosition();
+    public Pose2d getEstimatedPose() {
+        return poseEstimator.getEstimatedPosition();
     }
-    
-    public double getYawRate(){
+
+    public double getYawRate() {
         return inputs.gyroRate;
     }
 
     public void addVisionMeasurement(
-      Pose2d visionRobotPoseMeters,
-      double timestampSeconds,
-      Matrix<N3, N1> visionMeasurementStdDevs) {
-      poseEstimator.addVisionMeasurement(visionRobotPoseMeters, timestampSeconds, visionMeasurementStdDevs);
+            Pose2d visionRobotPoseMeters, double timestampSeconds, Matrix<N3, N1> visionMeasurementStdDevs) {
+        poseEstimator.addVisionMeasurement(visionRobotPoseMeters, timestampSeconds, visionMeasurementStdDevs);
     }
-
-    
-
 }

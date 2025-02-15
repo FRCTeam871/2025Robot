@@ -32,7 +32,7 @@ public class Constants {
     // INTAKE CONSTANTS
     public static final Time PISTON_THRESHOLD = Units.Second.of(1.0);
     public static final Time TARGET_DROP_THRESHOLD = Units.Second.of(0.5);
-    public static final Time PISTON_OUT_TIME = Units.Second.of(0.25); 
+    public static final Time PISTON_OUT_TIME = Units.Second.of(0.25);
 
     public record ModuleConstants(
             String label,
@@ -45,10 +45,9 @@ public class Constants {
             SensorDirectionValue encoderDirection,
             int dashBoardX,
             int dashBoardY,
-            Translation2d leverArm) {
-    }
+            Translation2d leverArm) {}
 
-    //positive x is foward and positive y is left
+    // positive x is foward and positive y is left
     public static final ModuleConstants[] MODULE_CONSTANTS = new ModuleConstants[] {
         new ModuleConstants(
                 "FL",
@@ -98,9 +97,9 @@ public class Constants {
                 3,
                 5,
                 new Translation2d(-Constants.LEVER_ARM_VAL, -Constants.LEVER_ARM_VAL))
-};
+    };
 
-    //positive x is foward and positive y is left
+    // positive x is foward and positive y is left
     public static final ModuleConstants[] MODULE_CONSTANTS_SYMPHONY = new ModuleConstants[] {
         new ModuleConstants(
                 "FL",
@@ -158,7 +157,6 @@ public class Constants {
         } else {
             return new SwerveModuleIOSparkFlex(moduleConstants);
         }
-
     }
 
     public static double deadband(double raw, double threshold) {
@@ -172,7 +170,6 @@ public class Constants {
                 return (raw + threshold) / (1 - threshold);
             }
         }
-
     }
 
     public static double deadbandAndExponential(double raw) {
@@ -192,5 +189,4 @@ public class Constants {
             return -wrappedControllerOutput;
         }
     }
-
 }

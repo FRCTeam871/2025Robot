@@ -19,42 +19,42 @@ public class Teensy {
     // private ICommunicationsInterface comms;
     // private Deque<String> queue = new ArrayDeque<>();
 
-//    I2C i = new I2C(I2C.Port.kMXP, 0);
+    //    I2C i = new I2C(I2C.Port.kMXP, 0);
     SerialPort p = new SerialPort(9600, SerialPort.Port.kMXP);
 
     public Teensy(ICommunicationsInterface comms) {
-        //this.comms = comms;
+        // this.comms = comms;
     }
 
-    public void writeAllLED(TeensyPacket packet){
+    public void writeAllLED(TeensyPacket packet) {
         writeRaw(LED_PREFIX + ALL_PREFIX + DELIMITER + packet.getPayload());
     }
 
-    public void writeLED(int strip, TeensyPacket packet){
+    public void writeLED(int strip, TeensyPacket packet) {
         writeRaw(LED_PREFIX + strip + DELIMITER + packet.getPayload());
     }
 
     public void writeRaw(String str) {
-        if(str.length() > MAX_MSG_LENGTH) {
-            System.err.println("[Teensy] Message exceeds max length! (" + str.length() + "/" + MAX_MSG_LENGTH + "): " + str);
-        }else {
+        if (str.length() > MAX_MSG_LENGTH) {
+            System.err.println(
+                    "[Teensy] Message exceeds max length! (" + str.length() + "/" + MAX_MSG_LENGTH + "): " + str);
+        } else {
             // System.out.println("write \"" + str + "\n\"");
             p.writeString(str + "\n");
             p.flush();
-//            i.writeBulk((str + "\n").getBytes());
-//            queue.add(str);
+            //            i.writeBulk((str + "\n").getBytes());
+            //            queue.add(str);
         }
     }
 
-    public static int color(int r, int g, int b){
+    public static int color(int r, int g, int b) {
         int rgb = r;
         rgb = (rgb << 8) + g;
         rgb = (rgb << 8) + b;
         return rgb;
     }
 
-    public static String hex(int color){
+    public static String hex(int color) {
         return String.format("0x%06X", 0xFFFFFF & color);
     }
-
 }

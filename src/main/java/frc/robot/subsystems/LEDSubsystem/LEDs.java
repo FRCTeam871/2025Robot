@@ -12,10 +12,8 @@ public class LEDs extends SubsystemBase {
     public LEDs(LEDIO io) {
         this.io = io;
         tim = new Thread(this::iAmADog);
-        
     }
 
-    
     @Override
     public void periodic() {
         doUpdate = true;
@@ -40,5 +38,3 @@ public class LEDs extends SubsystemBase {
         }
     }
 }
-
-    

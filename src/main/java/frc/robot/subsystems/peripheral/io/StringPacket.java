@@ -1,6 +1,6 @@
 package frc.robot.subsystems.peripheral.io;
 
-public class StringPacket implements IPacket{
+public class StringPacket implements IPacket {
 
     String payload;
 
@@ -25,12 +25,11 @@ public class StringPacket implements IPacket{
         return payload == null ? 0 : payload.length();
     }
 
-    public void setPayload(String payload){
+    public void setPayload(String payload) {
         this.payload = payload;
     }
 
-    public String getPayload(){
+    public String getPayload() {
         return payload;
     }
-
 }

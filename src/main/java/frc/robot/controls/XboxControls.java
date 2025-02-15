@@ -1,14 +1,14 @@
 package frc.robot.controls;
 
-import java.util.function.DoubleSupplier;
-
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
+import java.util.function.DoubleSupplier;
 
 public class XboxControls implements IControls {
     CommandXboxController xboxController;
     CommandXboxController xboxController2;
+
     public XboxControls() {
         xboxController = new CommandXboxController(0);
         xboxController2 = new CommandXboxController(1);
@@ -31,14 +31,13 @@ public class XboxControls implements IControls {
 
     @Override
     public Trigger manualElevatorMoveUp() {
-       return xboxController.rightBumper();
+        return xboxController.rightBumper();
     }
 
     @Override
     public Trigger manualElevatorMoveDown() {
         return xboxController.leftBumper();
     }
-
 
     @Override
     public Trigger goToNearestAprilTag() {
@@ -48,7 +47,7 @@ public class XboxControls implements IControls {
     @Override
     public Trigger elevatorMoveToSetPoint() {
         return xboxController.povUp();
-    }    
+    }
 
     @Override
     public Trigger cancel() {
@@ -58,7 +57,6 @@ public class XboxControls implements IControls {
     @Override
     public Trigger placeCoral() {
         return xboxController.x();
- 
     }
 
     @Override

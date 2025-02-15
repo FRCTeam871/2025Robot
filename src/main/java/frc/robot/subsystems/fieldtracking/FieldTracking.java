@@ -1,9 +1,5 @@
 package frc.robot.subsystems.fieldtracking;
 
-import java.util.Optional;
-
-import org.littletonrobotics.junction.Logger;
-
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.VecBuilder;
@@ -16,6 +12,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.fieldtracking.FieldTrackingIO.IMUMode;
 import frc.robot.subsystems.swervedrive.SwerveDrive;
+import java.util.Optional;
+import org.littletonrobotics.junction.Logger;
 
 public class FieldTracking extends SubsystemBase {
     ProfiledPIDController sidePidController;
@@ -39,30 +37,27 @@ public class FieldTracking extends SubsystemBase {
         io.updateInputs(inputs);
         Logger.processInputs("FieldTracking", inputs);
 
-        io.setRobotOrientation(swerveDrive.getEstimatedPose().getRotation().getDegrees());            
+        io.setRobotOrientation(swerveDrive.getEstimatedPose().getRotation().getDegrees());
         // if our angular velocity is greater than 720 degrees per
         // second, ignore vision updates
         if (Math.abs(swerveDrive.getYawRate()) > 720) {
-            Logger.recordOutput("FieldTracking/TargetPoses", new Pose3d[]{});
-            Logger.recordOutput("FieldTracking/TargetIDs", new int[]{});
+            Logger.recordOutput("FieldTracking/TargetPoses", new Pose3d[] {});
+            Logger.recordOutput("FieldTracking/TargetIDs", new int[] {});
         } else if (inputs.tagCount == 0) {
-            Logger.recordOutput("FieldTracking/TargetPoses", new Pose3d[]{});
-            Logger.recordOutput("FieldTracking/TargetIDs", new int[]{});
+            Logger.recordOutput("FieldTracking/TargetPoses", new Pose3d[] {});
+            Logger.recordOutput("FieldTracking/TargetIDs", new int[] {});
 
         } else {
-            Optional<Pose3d> pose= fieldLayout.getTagPose((int)inputs.tid);
-            if(pose.isPresent()){
+            Optional<Pose3d> pose = fieldLayout.getTagPose((int) inputs.tid);
+            if (pose.isPresent()) {
                 swerveDrive.addVisionMeasurement(
-                        inputs.pose,
-                        inputs.timestampSeconds,
-                        VecBuilder.fill(.7, .7, 9999999)
-                        );
+                        inputs.pose, inputs.timestampSeconds, VecBuilder.fill(.7, .7, 9999999));
 
-                Logger.recordOutput("FieldTracking/TargetPoses", new Pose3d[]{pose.get()});
-                Logger.recordOutput("FieldTracking/TargetIDs", new int[]{(int)inputs.tid});
+                Logger.recordOutput("FieldTracking/TargetPoses", new Pose3d[] {pose.get()});
+                Logger.recordOutput("FieldTracking/TargetIDs", new int[] {(int) inputs.tid});
             } else {
-                Logger.recordOutput("FieldTracking/TargetPoses", new Pose3d[]{});
-                Logger.recordOutput("FieldTracking/TargetIDs", new int[]{});
+                Logger.recordOutput("FieldTracking/TargetPoses", new Pose3d[] {});
+                Logger.recordOutput("FieldTracking/TargetIDs", new int[] {});
             }
         }
     }
@@ -72,7 +67,7 @@ public class FieldTracking extends SubsystemBase {
         return inputs.tid != -1;
     }
 
-    public long getAprilTag(){
+    public long getAprilTag() {
         return inputs.tid;
     }
     // public Command followAprilTag() {
@@ -85,41 +80,40 @@ public class FieldTracking extends SubsystemBase {
 
     public Command followAprilTag() {
         return run(() -> {
-            if (!isAprilTagDetected()) {
-                ChassisSpeeds speeds = new ChassisSpeeds(0, 0, 0);
-                swerveDrive.updateSpeed(speeds);
-                return;
-            } else {
+                    if (!isAprilTagDetected()) {
+                        ChassisSpeeds speeds = new ChassisSpeeds(0, 0, 0);
+                        swerveDrive.updateSpeed(speeds);
+                        return;
+                    } else {
 
-                // step one read output from limelight
+                        // step one read output from limelight
 
-                // in meters
+                        // in meters
 
-                double tx = -inputs.targetpose_robotspace[0];
-                Logger.recordOutput("FieldTracking/tx", tx);
-                double ty = inputs.targetpose_robotspace[1];
-                Logger.recordOutput("FieldTracking/ty", ty);
-                double tz = inputs.targetpose_robotspace[2];
-                Logger.recordOutput("FieldTracking/tz", tz);
-                // in degrees
-                double pitch = inputs.targetpose_robotspace[3];
-                Logger.recordOutput("FieldTracking/pitch", pitch);
-                double yaw = inputs.targetpose_robotspace[4];
-                Logger.recordOutput("FieldTracking/yaw", yaw);
-                double roll = inputs.targetpose_robotspace[5];
-                Logger.recordOutput("FieldTracking/roll", roll);
-                // step two feed values into pids
-                double xout = sidePidController.calculate(-tx, 0);
-                double zout = forwardPidController.calculate(-tz, 1);
-                double yawout = yawPidController.calculate(-yaw, 0);
+                        double tx = -inputs.targetpose_robotspace[0];
+                        Logger.recordOutput("FieldTracking/tx", tx);
+                        double ty = inputs.targetpose_robotspace[1];
+                        Logger.recordOutput("FieldTracking/ty", ty);
+                        double tz = inputs.targetpose_robotspace[2];
+                        Logger.recordOutput("FieldTracking/tz", tz);
+                        // in degrees
+                        double pitch = inputs.targetpose_robotspace[3];
+                        Logger.recordOutput("FieldTracking/pitch", pitch);
+                        double yaw = inputs.targetpose_robotspace[4];
+                        Logger.recordOutput("FieldTracking/yaw", yaw);
+                        double roll = inputs.targetpose_robotspace[5];
+                        Logger.recordOutput("FieldTracking/roll", roll);
+                        // step two feed values into pids
+                        double xout = sidePidController.calculate(-tx, 0);
+                        double zout = forwardPidController.calculate(-tz, 1);
+                        double yawout = yawPidController.calculate(-yaw, 0);
 
-                // step three take pid values and put it into swervedrive
-                ChassisSpeeds speeds = new ChassisSpeeds(zout, xout, yawout);
+                        // step three take pid values and put it into swervedrive
+                        ChassisSpeeds speeds = new ChassisSpeeds(zout, xout, yawout);
 
-                swerveDrive.updateSpeed(speeds); // this will update the speeed
-
-            }
-        })
+                        swerveDrive.updateSpeed(speeds); // this will update the speeed
+                    }
+                })
                 .until(this::isAtPosition);
     }
 
@@ -133,7 +127,8 @@ public class FieldTracking extends SubsystemBase {
             Logger.recordOutput("FieldTracking/tyPID", yout);
             double xout = forwardPidController.calculate(0, relTgtPose.getX());
             Logger.recordOutput("FieldTracking/txPID", xout);
-            double yawout = yawPidController.calculate(0, relTgtPose.getRotation().getDegrees());
+            double yawout =
+                    yawPidController.calculate(0, relTgtPose.getRotation().getDegrees());
             ChassisSpeeds speeds = new ChassisSpeeds(xout, yout, yawout);
             swerveDrive.updateSpeed(speeds); // this will update the speeed
         });
@@ -145,7 +140,6 @@ public class FieldTracking extends SubsystemBase {
 
     public void setCameraIMUMode(IMUMode imuMode) {
         io.setCameraIMUMode(imuMode);
-
     }
 
     public void setThrottle(int throttle) {

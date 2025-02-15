@@ -9,8 +9,7 @@ public interface ManipulatorIO {
         boolean isCoralPresent;
     }
 
-    public default void updateInputs(ManipulatorIOInputs inputs) {
-    }
+    public default void updateInputs(ManipulatorIOInputs inputs) {}
 
     public default void pushCoral(boolean extend) {
         Logger.recordOutput("Manipulator/PushPiston", extend);

@@ -1,8 +1,7 @@
 package frc.robot.subsystems.fieldtracking;
 
-import org.littletonrobotics.junction.AutoLog;
-
 import edu.wpi.first.math.geometry.Pose2d;
+import org.littletonrobotics.junction.AutoLog;
 
 public interface FieldTrackingIO {
     @AutoLog
@@ -31,11 +30,13 @@ public interface FieldTrackingIO {
         private IMUMode(int limeLightConstant) {
             this.limeLightConstant = limeLightConstant;
         }
-
     }
 
     public default void updateInputs(FieldTrackingIOInputs inputs) {}
+
     public default void setRobotOrientation(double degrees) {}
+
     public default void setCameraIMUMode(IMUMode imuMode) {}
+
     public default void setCameraThrottle(int throttle) {}
 }

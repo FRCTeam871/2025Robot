@@ -1,11 +1,10 @@
 package frc.robot.subsystems.intake;
 
-import org.littletonrobotics.junction.Logger;
-
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import org.littletonrobotics.junction.Logger;
 
 public class Intake extends SubsystemBase {
     IntakeIO io;
@@ -18,7 +17,7 @@ public class Intake extends SubsystemBase {
         this.io = io;
 
         // setDefaultCommand(dislodge().ignoringDisable(true));
-        
+
     }
 
     @Override
@@ -28,11 +27,15 @@ public class Intake extends SubsystemBase {
     }
 
     public Command sendLeftPistonOut() {
-        return run(() -> io.setLeftPistonOut(true)).finallyDo(canceled -> io.setLeftPistonOut(false)).ignoringDisable(true);
+        return run(() -> io.setLeftPistonOut(true))
+                .finallyDo(canceled -> io.setLeftPistonOut(false))
+                .ignoringDisable(true);
     }
 
     public Command sendRightPistonOut() {
-        return run(() -> io.setRightPistonOut(true)).finallyDo(canceled -> io.setRightPistonOut(false)).ignoringDisable(true);
+        return run(() -> io.setRightPistonOut(true))
+                .finallyDo(canceled -> io.setRightPistonOut(false))
+                .ignoringDisable(true);
     }
 
     public Command dislodge() {
@@ -51,21 +54,22 @@ public class Intake extends SubsystemBase {
 
             Logger.recordOutput("Intake/StartTime", detectionStartTime);
             Logger.recordOutput("Intake/EndTime", detectionEndTime);
-            Logger.recordOutput("Intake/LostDuration", (double)(inputs.timeStamp - detectionEndTime) / 1e6);
-            Logger.recordOutput("Intake/DetectDuration", (double)(inputs.timeStamp - detectionStartTime) / 1e6);
+            Logger.recordOutput("Intake/LostDuration", (double) (inputs.timeStamp - detectionEndTime) / 1e6);
+            Logger.recordOutput("Intake/DetectDuration", (double) (inputs.timeStamp - detectionStartTime) / 1e6);
             // if we have target and amount of time is passed
-            if (inputs.isTargetValid && inputs.timeStamp - detectionStartTime > Constants.PISTON_THRESHOLD.in(Units.Microsecond)) {
+            if (inputs.isTargetValid
+                    && inputs.timeStamp - detectionStartTime > Constants.PISTON_THRESHOLD.in(Units.Microsecond)) {
                 // trigger pistons
                 if (inputs.tiltedRight) {
                     sendRightPistonOut().withTimeout(Constants.PISTON_OUT_TIME).schedule();
                 } else {
                     sendLeftPistonOut().withTimeout(Constants.PISTON_OUT_TIME).schedule();
                 }
-                
+
                 detectionStartTime = inputs.timeStamp;
             }
 
-            wasTargetValid = inputs.isTargetValid; 
+            wasTargetValid = inputs.isTargetValid;
         });
     }
 }

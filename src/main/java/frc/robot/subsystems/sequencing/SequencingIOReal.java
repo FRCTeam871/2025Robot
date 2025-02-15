@@ -1,19 +1,19 @@
-
 package frc.robot.subsystems.sequencing;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class SequencingIOReal implements SequencingIO {
-    public SequencingIOReal(){
-        SmartDashboard.putBoolean("leftL1",false);
-        SmartDashboard.putBoolean("leftL2",false);
-        SmartDashboard.putBoolean("leftL3",false);
-        SmartDashboard.putBoolean("leftL4",false);
-        SmartDashboard.putBoolean("rightL1",false);
-        SmartDashboard.putBoolean("rightL2",false);
-        SmartDashboard.putBoolean("rightL3",false);
-        SmartDashboard.putBoolean("rightL4",false);
+    public SequencingIOReal() {
+        SmartDashboard.putBoolean("leftL1", false);
+        SmartDashboard.putBoolean("leftL2", false);
+        SmartDashboard.putBoolean("leftL3", false);
+        SmartDashboard.putBoolean("leftL4", false);
+        SmartDashboard.putBoolean("rightL1", false);
+        SmartDashboard.putBoolean("rightL2", false);
+        SmartDashboard.putBoolean("rightL3", false);
+        SmartDashboard.putBoolean("rightL4", false);
     }
+
     @Override
     public void updateInputs(SequencingIOInputs inputs) {
         inputs.leftL1 = SmartDashboard.getBoolean("leftL1", false);

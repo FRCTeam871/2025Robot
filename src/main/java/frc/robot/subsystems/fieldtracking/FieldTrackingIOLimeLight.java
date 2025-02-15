@@ -7,13 +7,18 @@ public class FieldTrackingIOLimeLight implements FieldTrackingIO {
 
     @Override
     public void updateInputs(FieldTrackingIOInputs inputs) {
-        inputs.tid = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tid").getInteger(-1);
+        inputs.tid = NetworkTableInstance.getDefault()
+                .getTable("limelight")
+                .getEntry("tid")
+                .getInteger(-1);
         LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight");
         inputs.pose = mt2.pose;
         inputs.timestampSeconds = mt2.timestampSeconds;
         inputs.tagCount = mt2.tagCount;
-        inputs.targetpose_robotspace = NetworkTableInstance.getDefault().getTable("limelight")
-                .getEntry("targetpose_robotspace").getDoubleArray(new double[6]);
+        inputs.targetpose_robotspace = NetworkTableInstance.getDefault()
+                .getTable("limelight")
+                .getEntry("targetpose_robotspace")
+                .getDoubleArray(new double[6]);
     }
 
     @Override
@@ -25,6 +30,7 @@ public class FieldTrackingIOLimeLight implements FieldTrackingIO {
     public void setCameraIMUMode(IMUMode imuMode) {
         LimelightHelpers.SetIMUMode("limelight", imuMode.limeLightConstant);
     }
+
     @Override
     public void setCameraThrottle(int throttle) {
         // TODO ADD

@@ -8,7 +8,7 @@ public class ManipulatorIOReal implements ManipulatorIO {
     DoubleSolenoid holdPiston;
 
     public ManipulatorIOReal() {
-        // TODO find out channels for manipulator pistons when electrical has them 
+        // TODO find out channels for manipulator pistons when electrical has them
         // TODO single solenoids not double
         pushPiston = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 2000, 2100);
         holdPiston = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 2200, 2300);

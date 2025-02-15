@@ -1,9 +1,5 @@
 package frc.robot.subsystems.sequencing;
 
-import java.util.List;
-import org.littletonrobotics.junction.AutoLogOutput;
-import org.littletonrobotics.junction.Logger;
-
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.EventMarker;
 import com.pathplanner.lib.path.GoalEndState;
@@ -30,6 +26,9 @@ import frc.robot.subsystems.fieldtracking.FieldTracking;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.manipulator.Manipulator;
 import frc.robot.subsystems.swervedrive.SwerveDrive;
+import java.util.List;
+import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.Logger;
 
 public class Sequencing extends SubsystemBase {
     private static final Distance ROBOT_X_LENGTH = Units.Inches.of(34.0);
@@ -64,14 +63,20 @@ public class Sequencing extends SubsystemBase {
     //         put(Pair.of(ReefSides.Side4, LeftOrRight.Left), new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0.0)));
     //         put(Pair.of(ReefSides.Side4, LeftOrRight.Right), new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0.0)));
     //         put(Pair.of(ReefSides.Side5, LeftOrRight.Left), new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0.0)));
-    //         put(Pair.of(ReefSides.Side5, LeftOrRight.Right), new Pose2d(5.323, 2.953, Rotation2d.fromDegrees(120.0)));
+    //         put(Pair.of(ReefSides.Side5, LeftOrRight.Right), new Pose2d(5.323, 2.953,
+    // Rotation2d.fromDegrees(120.0)));
     //         put(Pair.of(ReefSides.Side6, LeftOrRight.Left), new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0.0)));
     //         put(Pair.of(ReefSides.Side6, LeftOrRight.Right), new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0.0)));
     //     }
     // };
 
-    public Sequencing(Elevator elevator, Intake intake, SwerveDrive swerveDrive, Manipulator manipulator,
-            FieldTracking fieldTracking, SequencingIO io) {
+    public Sequencing(
+            Elevator elevator,
+            Intake intake,
+            SwerveDrive swerveDrive,
+            Manipulator manipulator,
+            FieldTracking fieldTracking,
+            SequencingIO io) {
         this.elevator = elevator;
         this.intake = intake;
         this.swerveDrive = swerveDrive;
@@ -102,12 +107,12 @@ public class Sequencing extends SubsystemBase {
      * side 1 is closest to drivers station and is going clockwise
      */
     public enum ReefSides {
-        Side1(18, 7), 
-        Side2(19, 6), 
-        Side3(20,11), 
-        Side4(21, 10), 
-        Side5(22, 9), 
-        Side6(17,8);
+        Side1(18, 7),
+        Side2(19, 6),
+        Side3(20, 11),
+        Side4(21, 10),
+        Side5(22, 9),
+        Side6(17, 8);
 
         public int blueAprilTagID;
         public int redAprilTagID;
@@ -119,11 +124,15 @@ public class Sequencing extends SubsystemBase {
     }
 
     public enum LeftOrRight {
-        Left, Right
+        Left,
+        Right
     }
 
     public enum ReefLevel {
-        L1, L2, L3, L4;
+        L1,
+        L2,
+        L3,
+        L4;
 
         Elevator.Setpoint setpoint() {
             return switch (this) {
@@ -170,8 +179,6 @@ public class Sequencing extends SubsystemBase {
             // }
             Pose2d endPose = reefPose(side, leftOrRight);
 
-
-
             // Logger.recordOutput("Sequencing/EndPose", endPose);
 
             List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(swerveDrive.getEstimatedPose(), endPose);
@@ -179,26 +186,34 @@ public class Sequencing extends SubsystemBase {
             // if (DriverStation.getAlliance().equals(Optional.of(Alliance.Red)));
             // waypoints.set(1, waypoints.get(1).flip());
 
-            PathConstraints constraints = new PathConstraints(0.5*Constants.DRIVE_SPEED_MULTIPLIER, 0.2, 2 * Math.PI, 4 * Math.PI); // The constraints
-                                                                                                   // for this path.
+            PathConstraints constraints = new PathConstraints(
+                    0.5 * Constants.DRIVE_SPEED_MULTIPLIER, 0.2, 2 * Math.PI, 4 * Math.PI); // The constraints
+            // for this path.
 
             PathPlannerPath path = new PathPlannerPath(
                     waypoints,
                     List.of(),
                     List.of(),
                     List.of(),
-                    // List.of(new ConstraintsZone(0.8, 1.0, new PathConstraints(0.5*Constants.DRIVE_SPEED_MULTIPLIER, 0.5, 2 * Math.PI, 4 * Math.PI))),
+                    // List.of(new ConstraintsZone(0.8, 1.0, new PathConstraints(0.5*Constants.DRIVE_SPEED_MULTIPLIER,
+                    // 0.5, 2 * Math.PI, 4 * Math.PI))),
                     List.of(new EventMarker("Bob", .8, elevator.goToSetpoint(level.setpoint()))),
                     constraints,
                     null, // The ideal starting state, this is only relevant for pre-planned paths, so can
-                          // be null for on-the-fly paths.
+                    // be null for on-the-fly paths.
                     new GoalEndState(0.0, endPose.getRotation()), // Goal end state. You can set a holonomic rotation
-                                                                  // here. If using a differential drivetrain, the
-                                                                  // rotation will have no effect.
+                    // here. If using a differential drivetrain, the
+                    // rotation will have no effect.
                     false);
             path.preventFlipping = true;
 
-            Pose2d[] points = path.generateTrajectory(swerveDrive.getChassisSpeeds(), swerveDrive.getRotation(), swerveDrive.getConfig()).getStates().stream().map(trajectory-> trajectory.pose).toArray(length -> new Pose2d[length] );
+            Pose2d[] points = path
+                    .generateTrajectory(
+                            swerveDrive.getChassisSpeeds(), swerveDrive.getRotation(), swerveDrive.getConfig())
+                    .getStates()
+                    .stream()
+                    .map(trajectory -> trajectory.pose)
+                    .toArray(length -> new Pose2d[length]);
             Logger.recordOutput("Sequencing/Path", points);
 
             // System.out.println("!!!!!!!!!!!!!!!");
@@ -207,19 +222,16 @@ public class Sequencing extends SubsystemBase {
             //     System.out.println("WAYP " + waypoints2.anchor().toString());
             // }
 
-
             // for (PathPoint allPathPoints : path.getAllPathPoints()) {
             //     System.out.println("POIT " + allPathPoints.position.toString());
             // }
 
             AutoBuilder.followPath(path)
-                    .andThen(
-                            (run(() -> {
-                            })
+                    .andThen((run(() -> {})
                                     .until(elevator::isAtSetpoint)
                                     .andThen(manipulator.sendHoldPistonIn())
                                     .andThen(elevator.goToSetpoint(Elevator.Setpoint.Bottom)))
-                                    .deadlineFor(fieldTracking.maintainPose(endPose)))
+                            .deadlineFor(fieldTracking.maintainPose(endPose)))
                     .schedule();
         });
     }
@@ -228,7 +240,6 @@ public class Sequencing extends SubsystemBase {
         return AutoBuilder.followPath(path)
                 .beforeStarting(() -> field2d.getObject("path").setPoses(path.getPathPoses()))
                 .andThen(() -> field2d.getObject("path").setPoses());
-
     }
 
     Command scoreCommand;
@@ -237,15 +248,12 @@ public class Sequencing extends SubsystemBase {
         t.onTrue(runOnce(() -> {
             // TODO: set reefSide based on apriltag
 
-            if(fieldTracking.isAprilTagDetected())
-
-            if (scoreCommand != null && !scoreCommand.isFinished()){
-                scoreCommand.cancel();
-            }
+            if (fieldTracking.isAprilTagDetected())
+                if (scoreCommand != null && !scoreCommand.isFinished()) {
+                    scoreCommand.cancel();
+                }
             scoreCommand = scoreCoral(reefSide, leftOrRight, reefLevel);
-
         }));
-
     }
 
     public Command selectTarget(LeftOrRight leftOrRight, ReefLevel reefLevel) {
@@ -266,16 +274,15 @@ public class Sequencing extends SubsystemBase {
         int aprilTagID;
         if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue) {
             aprilTagID = reefSides.blueAprilTagID;
-        } else{
+        } else {
             aprilTagID = reefSides.redAprilTagID;
         }
-        
-        Pose2d aprilTagPose = fieldLayout.getTagPose(aprilTagID).get().toPose2d(); //3d no no
+
+        Pose2d aprilTagPose = fieldLayout.getTagPose(aprilTagID).get().toPose2d(); // 3d no no
 
         return aprilTagPose.plus(new Transform2d(
-            ROBOT_X_LENGTH.div(2), 
-            Units.Inches.of(leftOrRight == LeftOrRight.Left ? -6.5 : 6.5), 
-            Rotation2d.k180deg)
-        );
+                ROBOT_X_LENGTH.div(2),
+                Units.Inches.of(leftOrRight == LeftOrRight.Left ? -6.5 : 6.5),
+                Rotation2d.k180deg));
     }
 }

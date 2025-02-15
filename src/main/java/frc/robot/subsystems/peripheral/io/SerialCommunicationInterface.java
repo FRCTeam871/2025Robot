@@ -34,5 +34,4 @@ public class SerialCommunicationInterface implements ICommunicationsInterface {
     public boolean numAvailableSupported() {
         return true;
     }
-
 }

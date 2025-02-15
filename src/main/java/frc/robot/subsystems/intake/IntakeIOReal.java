@@ -1,9 +1,5 @@
 package frc.robot.subsystems.intake;
 
-import org.littletonrobotics.junction.Logger;
-import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
-import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
-
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -12,6 +8,9 @@ import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
+import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
 
 public class IntakeIOReal implements IntakeIO {
     LinearFilter topXFilter = LinearFilter.singlePoleIIR(.06, .02);
@@ -23,7 +22,6 @@ public class IntakeIOReal implements IntakeIO {
     LinearFilter leftXFilter = LinearFilter.singlePoleIIR(.06, .02);
     LinearFilter leftYFilter = LinearFilter.singlePoleIIR(.06, .02);
 
-
     LoggedMechanism2d mechanism2d;
     LoggedMechanismLigament2d mechanismLeft;
     LoggedMechanismLigament2d mechanismRight;
@@ -34,25 +32,30 @@ public class IntakeIOReal implements IntakeIO {
     DoubleSolenoid pistonRight;
 
     public IntakeIOReal() {
-        //TODO: make single solenoid
+        // TODO: make single solenoid
         pistonLeft = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 0, 1);
         pistonRight = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 2, 3);
         mechanism2d = new LoggedMechanism2d(18.5, 14.5);
-        mechanismLeft = mechanism2d.getRoot("left", 6, 0).append(
-                new LoggedMechanismLigament2d("left ligament", 15.74, 180 - 66.7, 50, new Color8Bit(Color.kYellow)));
-        mechanismRight = mechanism2d.getRoot("right", 18.5 - 6, 0)
+        mechanismLeft = mechanism2d
+                .getRoot("left", 6, 0)
+                .append(new LoggedMechanismLigament2d(
+                        "left ligament", 15.74, 180 - 66.7, 50, new Color8Bit(Color.kYellow)));
+        mechanismRight = mechanism2d
+                .getRoot("right", 18.5 - 6, 0)
                 .append(new LoggedMechanismLigament2d("right ligament", 15.74, 66.7, 50, new Color8Bit(Color.kGray)));
-        mechanismPistonLeft = mechanism2d.getRoot("left piston start", 3, 0)
+        mechanismPistonLeft = mechanism2d
+                .getRoot("left piston start", 3, 0)
                 .append(new LoggedMechanismLigament2d("left piston", 6, 90, 30, new Color8Bit(Color.kAliceBlue)));
-        mechanismPistonRight = mechanism2d.getRoot("Right piston start", 18.5 - 3, 0)
+        mechanismPistonRight = mechanism2d
+                .getRoot("Right piston start", 18.5 - 3, 0)
                 .append(new LoggedMechanismLigament2d("Right piston", 6, 90, 30, new Color8Bit(Color.kBurlywood)));
-
-        
     }
 
     @Override
     public void updateInputs(IntakeIOInputs inputs) {
-        double[] corn = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tcornxy")
+        double[] corn = NetworkTableInstance.getDefault()
+                .getTable("limelight")
+                .getEntry("tcornxy")
                 .getDoubleArray(new double[8]);
         if (corn.length >= 8) {
             Translation2d bottomRight = new Translation2d(corn[0], corn[1]);
@@ -82,8 +85,11 @@ public class IntakeIOReal implements IntakeIO {
             // purposefully leave inputs.tiltedRight the same as last update
         }
 
-        inputs.isTargetValid = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tv")
-                .getInteger(0) == 1;
+        inputs.isTargetValid = NetworkTableInstance.getDefault()
+                        .getTable("limelight")
+                        .getEntry("tv")
+                        .getInteger(0)
+                == 1;
         inputs.timeStamp = NetworkTablesJNI.now();
 
         Logger.recordOutput("Intake/Mechanism", mechanism2d);

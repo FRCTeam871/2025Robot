@@ -14,5 +14,6 @@ public interface SequencingIO {
         boolean rightL3;
         boolean rightL4;
     }
-    public default void updateInputs(SequencingIOInputs inputs){}
+
+    public default void updateInputs(SequencingIOInputs inputs) {}
 }

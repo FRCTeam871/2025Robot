@@ -1,10 +1,6 @@
 package frc;
 
-import java.util.ArrayList;
-import java.util.function.Function;
-
 import com.pathplanner.lib.path.PathPlannerPath;
-
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -18,16 +14,25 @@ import frc.robot.subsystems.sequencing.Sequencing.LeftOrRight;
 import frc.robot.subsystems.sequencing.Sequencing.ReefLevel;
 import frc.robot.subsystems.sequencing.Sequencing.ReefSides;
 import frc.robot.subsystems.swervedrive.SwerveDrive;
+import java.util.ArrayList;
+import java.util.function.Function;
 
 public class AutonomousPlanner {
 
     public enum FieldPosition {
-        StartLeft, StartMiddle, StartRight,
+        StartLeft,
+        StartMiddle,
+        StartRight,
 
-        ReefSide1, ReefSide2, ReefSide3,
-        ReefSide4, ReefSide5, ReefSide6,
+        ReefSide1,
+        ReefSide2,
+        ReefSide3,
+        ReefSide4,
+        ReefSide5,
+        ReefSide6,
 
-        CoralStationLeft, CoralStationRight
+        CoralStationLeft,
+        CoralStationRight
     }
 
     private final Sequencing sequencing;
@@ -38,7 +43,8 @@ public class AutonomousPlanner {
     private final ArrayList<SendableChooser<Function<ReefSides, Command>>> actions = new ArrayList<>();
     private final SendableChooser<FieldPosition> start;
 
-    public AutonomousPlanner(Elevator elevator, Intake intake, Manipulator manipulator, SwerveDrive swerveDrive, Sequencing sequencing) {
+    public AutonomousPlanner(
+            Elevator elevator, Intake intake, Manipulator manipulator, SwerveDrive swerveDrive, Sequencing sequencing) {
         this.sequencing = sequencing;
         this.manipulator = manipulator;
         this.swerveDrive = swerveDrive;
@@ -66,12 +72,12 @@ public class AutonomousPlanner {
         }
         return chooser;
     }
-        
+
     private SendableChooser<Function<ReefSides, Command>> actionDropdown() {
         SendableChooser<Function<ReefSides, Command>> choose = new SendableChooser<>();
         choose.addOption("None", side -> Commands.none());
-        for(ReefLevel level : ReefLevel.values()){
-            choose.addOption(level + " Left" ,side -> sequencing.scoreCoral(side, LeftOrRight.Left, level));
+        for (ReefLevel level : ReefLevel.values()) {
+            choose.addOption(level + " Left", side -> sequencing.scoreCoral(side, LeftOrRight.Left, level));
         }
         return choose;
     }
@@ -88,7 +94,8 @@ public class AutonomousPlanner {
         final SequentialCommandGroup scg = new SequentialCommandGroup();
         FieldPosition currentPosition = start.getSelected();
         for (int i = 0; i < 7; i++) {
-            boolean continueLoop = generateStage(scg, currentPosition, positions.get(i).getSelected());
+            boolean continueLoop =
+                    generateStage(scg, currentPosition, positions.get(i).getSelected());
             if (!continueLoop) {
                 scg.addCommands(swerveDrive.manualDrive(() -> 0, () -> 0, () -> 0));
                 break;
@@ -97,8 +104,8 @@ public class AutonomousPlanner {
         return scg;
     }
 
-    private boolean generateStage(final SequentialCommandGroup scg, final FieldPosition start,
-            final FieldPosition end) {
+    private boolean generateStage(
+            final SequentialCommandGroup scg, final FieldPosition start, final FieldPosition end) {
         String pathFileName = start + "-" + end;
         PathPlannerPath path = loadPath(pathFileName.toLowerCase());
         System.out.println(pathFileName + " " + path);
