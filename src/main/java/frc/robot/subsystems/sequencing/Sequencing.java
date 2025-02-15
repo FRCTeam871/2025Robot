@@ -53,21 +53,32 @@ public class Sequencing extends SubsystemBase {
     private ReefLevel reefLevel;
 
     // HashMap<Pair<ReefSides, LeftOrRight>, Pose2d> waypoints = new HashMap<>() {
-    //     {
-    //         put(Pair.of(ReefSides.Side1, LeftOrRight.Left), new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0.0)));
-    //         put(Pair.of(ReefSides.Side1, LeftOrRight.Right), new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0.0)));
-    //         put(Pair.of(ReefSides.Side2, LeftOrRight.Left), new Pose2d(3.985, 5.212, Rotation2d.fromDegrees(-60.0)));
-    //         put(Pair.of(ReefSides.Side2, LeftOrRight.Right), new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0.0)));
-    //         put(Pair.of(ReefSides.Side3, LeftOrRight.Left), new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0.0)));
-    //         put(Pair.of(ReefSides.Side3, LeftOrRight.Right), new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0.0)));
-    //         put(Pair.of(ReefSides.Side4, LeftOrRight.Left), new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0.0)));
-    //         put(Pair.of(ReefSides.Side4, LeftOrRight.Right), new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0.0)));
-    //         put(Pair.of(ReefSides.Side5, LeftOrRight.Left), new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0.0)));
-    //         put(Pair.of(ReefSides.Side5, LeftOrRight.Right), new Pose2d(5.323, 2.953,
+    // {
+    // put(Pair.of(ReefSides.Side1, LeftOrRight.Left), new Pose2d(0.0, 0.0,
+    // Rotation2d.fromDegrees(0.0)));
+    // put(Pair.of(ReefSides.Side1, LeftOrRight.Right), new Pose2d(0.0, 0.0,
+    // Rotation2d.fromDegrees(0.0)));
+    // put(Pair.of(ReefSides.Side2, LeftOrRight.Left), new Pose2d(3.985, 5.212,
+    // Rotation2d.fromDegrees(-60.0)));
+    // put(Pair.of(ReefSides.Side2, LeftOrRight.Right), new Pose2d(0.0, 0.0,
+    // Rotation2d.fromDegrees(0.0)));
+    // put(Pair.of(ReefSides.Side3, LeftOrRight.Left), new Pose2d(0.0, 0.0,
+    // Rotation2d.fromDegrees(0.0)));
+    // put(Pair.of(ReefSides.Side3, LeftOrRight.Right), new Pose2d(0.0, 0.0,
+    // Rotation2d.fromDegrees(0.0)));
+    // put(Pair.of(ReefSides.Side4, LeftOrRight.Left), new Pose2d(0.0, 0.0,
+    // Rotation2d.fromDegrees(0.0)));
+    // put(Pair.of(ReefSides.Side4, LeftOrRight.Right), new Pose2d(0.0, 0.0,
+    // Rotation2d.fromDegrees(0.0)));
+    // put(Pair.of(ReefSides.Side5, LeftOrRight.Left), new Pose2d(0.0, 0.0,
+    // Rotation2d.fromDegrees(0.0)));
+    // put(Pair.of(ReefSides.Side5, LeftOrRight.Right), new Pose2d(5.323, 2.953,
     // Rotation2d.fromDegrees(120.0)));
-    //         put(Pair.of(ReefSides.Side6, LeftOrRight.Left), new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0.0)));
-    //         put(Pair.of(ReefSides.Side6, LeftOrRight.Right), new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0.0)));
-    //     }
+    // put(Pair.of(ReefSides.Side6, LeftOrRight.Left), new Pose2d(0.0, 0.0,
+    // Rotation2d.fromDegrees(0.0)));
+    // put(Pair.of(ReefSides.Side6, LeftOrRight.Right), new Pose2d(0.0, 0.0,
+    // Rotation2d.fromDegrees(0.0)));
+    // }
     // };
 
     /**
@@ -176,14 +187,14 @@ public class Sequencing extends SubsystemBase {
         return runOnce(() -> {
             // Pose2d endPose = waypoints.get(Pair.of(side, leftOrRight));
             // if (DriverStation.getAlliance().equals(Optional.of(Alliance.Red))) {
-            //     endPose = FlippingUtil.flipFieldPose(endPose);
+            // endPose = FlippingUtil.flipFieldPose(endPose);
             // }
             final Pose2d endPose = reefPose(side, leftOrRight);
 
             // Logger.recordOutput("Sequencing/EndPose", endPose);
 
-            final List<Waypoint> waypoints =
-                    PathPlannerPath.waypointsFromPoses(swerveDrive.getEstimatedPose(), endPose);
+            final List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(swerveDrive.getEstimatedPose(),
+                    endPose);
 
             // if (DriverStation.getAlliance().equals(Optional.of(Alliance.Red)));
             // waypoints.set(1, waypoints.get(1).flip());
@@ -197,7 +208,8 @@ public class Sequencing extends SubsystemBase {
                     List.of(),
                     List.of(),
                     List.of(),
-                    // List.of(new ConstraintsZone(0.8, 1.0, new PathConstraints(0.5*Constants.DRIVE_SPEED_MULTIPLIER,
+                    // List.of(new ConstraintsZone(0.8, 1.0, new
+                    // PathConstraints(0.5*Constants.DRIVE_SPEED_MULTIPLIER,
                     // 0.5, 2 * Math.PI, 4 * Math.PI))),
                     List.of(new EventMarker("Bob", .8, elevator.goToSetpoint(level.setpoint()))),
                     constraints,
@@ -221,18 +233,19 @@ public class Sequencing extends SubsystemBase {
             // System.out.println("!!!!!!!!!!!!!!!");
 
             // for (Waypoint waypoints2 : waypoints) {
-            //     System.out.println("WAYP " + waypoints2.anchor().toString());
+            // System.out.println("WAYP " + waypoints2.anchor().toString());
             // }
 
             // for (PathPoint allPathPoints : path.getAllPathPoints()) {
-            //     System.out.println("POIT " + allPathPoints.position.toString());
+            // System.out.println("POIT " + allPathPoints.position.toString());
             // }
 
             AutoBuilder.followPath(path)
-                    .andThen((run(() -> {})
-                                    .until(elevator::isAtSetpoint)
-                                    .andThen(manipulator.sendHoldPistonIn())
-                                    .andThen(elevator.goToSetpoint(Elevator.Setpoint.Bottom)))
+                    .andThen((run(() -> {
+                    })
+                            .until(elevator::isAtSetpoint)
+                            .andThen(manipulator.releaseCoral().withTimeout(.5))
+                            .andThen(elevator.goToSetpoint(Elevator.Setpoint.Bottom)))
                             .deadlineFor(fieldTracking.maintainPose(endPose)))
                     .schedule();
         });
@@ -248,14 +261,26 @@ public class Sequencing extends SubsystemBase {
 
     public void bindScoreCoral(final Trigger t) {
         t.onTrue(runOnce(() -> {
-            // TODO: set reefSide based on apriltag
 
-            if (fieldTracking.isAprilTagDetected())
-                if (scoreCommand != null && !scoreCommand.isFinished()) {
-                    scoreCommand.cancel();
+            if (fieldTracking.isAprilTagDetected()) {
+                long currentAprilTag = fieldTracking.getAprilTag();
+                for (ReefSides reefSides : ReefSides.values()) {
+                    if ((reefSides.blueAprilTagID == currentAprilTag && DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue) 
+                    || (reefSides.redAprilTagID == currentAprilTag && DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red)) {
+                        reefSide = reefSides;
+                        cancelScoreCoral();
+                        scoreCommand = scoreCoral(reefSide, leftOrRight, reefLevel);
+                    }
                 }
-            scoreCommand = scoreCoral(reefSide, leftOrRight, reefLevel);
+
+            }
         }));
+    }
+
+    public void cancelScoreCoral(){
+        if (scoreCommand != null && !scoreCommand.isFinished()) {
+            scoreCommand.cancel();
+        }
     }
 
     public Command selectTarget(final LeftOrRight leftOrRight, final ReefLevel reefLevel) {
@@ -280,7 +305,9 @@ public class Sequencing extends SubsystemBase {
             aprilTagID = reefSides.redAprilTagID;
         }
 
-        // TODO: There is a bug here.  You need to check isPresent()
+        // the april tag ids hard coded into the enum are assumed to be valid
+        assert fieldLayout.getTagPose(aprilTagID).isPresent();
+
         final Pose2d aprilTagPose = fieldLayout.getTagPose(aprilTagID).get().toPose2d(); // 3d no no
 
         return aprilTagPose.plus(new Transform2d(

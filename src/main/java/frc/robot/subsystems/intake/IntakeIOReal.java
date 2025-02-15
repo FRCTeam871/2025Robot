@@ -2,6 +2,7 @@ package frc.robot.subsystems.intake;
 
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.NetworkTablesJNI;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
@@ -32,7 +33,6 @@ public class IntakeIOReal implements IntakeIO {
     private final DoubleSolenoid pistonRight;
 
     public IntakeIOReal() {
-        // TODO: make single solenoid
         this.pistonLeft = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 0, 1);
         this.pistonRight = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 2, 3);
         this.mechanism2d = new LoggedMechanism2d(18.5, 14.5);
@@ -53,10 +53,14 @@ public class IntakeIOReal implements IntakeIO {
 
     @Override
     public void updateInputs(final IntakeIOInputs inputs) {
-        final double[] corn = NetworkTableInstance.getDefault()
-                .getTable("limelight")
-                .getEntry("tcornxy")
-                .getDoubleArray(new double[8]);
+        NetworkTable limelightIntakeTable = NetworkTableInstance.getDefault().getTable("limelight-indexer");
+
+        if (!limelightIntakeTable.containsKey("tcornxy")) {
+            return; // ABORT MISSION
+        }
+
+        final double[] corn = limelightIntakeTable.getEntry("tcornxy").getDoubleArray(new double[8]);
+
         if (corn.length >= 8) {
             final Translation2d bottomRight = new Translation2d(corn[0], corn[1]);
             final Translation2d bottomLeft = new Translation2d(corn[2], corn[3]);
@@ -89,11 +93,7 @@ public class IntakeIOReal implements IntakeIO {
             // purposefully leave inputs.tiltedRight the same as last update
         }
 
-        inputs.isTargetValid = NetworkTableInstance.getDefault()
-                        .getTable("limelight")
-                        .getEntry("tv")
-                        .getInteger(0)
-                == 1;
+        inputs.isTargetValid = limelightIntakeTable.getEntry("tv").getInteger(0) == 1;     
         inputs.timeStamp = NetworkTablesJNI.now();
 
         Logger.recordOutput("Intake/Mechanism", mechanism2d);
@@ -104,9 +104,9 @@ public class IntakeIOReal implements IntakeIO {
         IntakeIO.super.setLeftPistonOut(extend); // ??
         mechanismPistonLeft.setLength(extend ? 9 : 6);
         if (extend) {
-            pistonLeft.set(DoubleSolenoid.Value.kForward);
-        } else {
             pistonLeft.set(DoubleSolenoid.Value.kReverse);
+        } else {
+            pistonLeft.set(DoubleSolenoid.Value.kForward);
         }
     }
 
@@ -115,9 +115,9 @@ public class IntakeIOReal implements IntakeIO {
         IntakeIO.super.setRightPistonOut(extend);
         mechanismPistonRight.setLength(extend ? 9 : 6);
         if (extend) {
-            pistonRight.set(DoubleSolenoid.Value.kForward);
-        } else {
             pistonRight.set(DoubleSolenoid.Value.kReverse);
+        } else {
+            pistonRight.set(DoubleSolenoid.Value.kForward);
         }
     }
 }

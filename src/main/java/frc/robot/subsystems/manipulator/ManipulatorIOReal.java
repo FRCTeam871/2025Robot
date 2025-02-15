@@ -2,34 +2,25 @@ package frc.robot.subsystems.manipulator;
 
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
+import edu.wpi.first.wpilibj.Solenoid;
 
 public class ManipulatorIOReal implements ManipulatorIO {
-    private final DoubleSolenoid pushPiston;
-    private final DoubleSolenoid holdPiston;
+    private final Solenoid pushPiston;
+    private final Solenoid holdPiston;
 
     public ManipulatorIOReal() {
-        // TODO find out channels for manipulator pistons when electrical has them
-        // TODO single solenoids not double
-        this.pushPiston = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 2000, 2100);
-        this.holdPiston = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 2200, 2300);
+        this.pushPiston = new Solenoid(1, PneumaticsModuleType.CTREPCM, 0);
+        this.holdPiston = new Solenoid(1, PneumaticsModuleType.CTREPCM, 1);
     }
 
     @Override
     public void pushCoral(final boolean extend) {
-        if (extend) {
-            pushPiston.set(DoubleSolenoid.Value.kReverse);
-        } else {
-            pushPiston.set(DoubleSolenoid.Value.kForward);
-        }
+        pushPiston.set(extend);
     }
 
     @Override
     public void holdCoral(final boolean extend) {
-        if (extend) {
-            holdPiston.set(DoubleSolenoid.Value.kReverse);
-        } else {
-            holdPiston.set(DoubleSolenoid.Value.kForward);
-        }
+        holdPiston.set(!extend);
     }
 
     @Override

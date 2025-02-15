@@ -6,7 +6,12 @@ package frc.robot;
 
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
+
+import edu.wpi.first.wpilibj.Compressor;
+import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants.ModuleConstants;
@@ -22,8 +27,10 @@ import frc.robot.subsystems.fieldtracking.FieldTrackingIO;
 import frc.robot.subsystems.fieldtracking.FieldTrackingIO.IMUMode;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIO;
+import frc.robot.subsystems.intake.IntakeIOReal;        
 import frc.robot.subsystems.manipulator.Manipulator;
 import frc.robot.subsystems.manipulator.ManipulatorIO;
+import frc.robot.subsystems.manipulator.ManipulatorIOReal;
 import frc.robot.subsystems.sequencing.Sequencing;
 import frc.robot.subsystems.sequencing.Sequencing.LeftOrRight;
 import frc.robot.subsystems.sequencing.Sequencing.ReefLevel;
@@ -48,17 +55,18 @@ public class RobotContainer {
     final Sequencing sequencing;
     final Manipulator manipulator;
     final LEDs led;
-
+    final Compressor compressor;
+    
     public RobotContainer() {
         this.controls = new XboxControls();
-
+        compressor = new Compressor(PneumaticsModuleType.CTREPCM);
         SwerveModuleIO[] moduleIOs =
                 Collections.nCopies(4, SwerveModuleIO.EMPTY).toArray(SwerveModuleIO[]::new);
         ;
         SwerveDriveIO swerveDriveIO = SwerveDriveIO.EMPTY;
         ElevatorIO elevatorIO = ElevatorIO.EMPTY;
         SequencingIO sequencingIO = SequencingIO.EMPTY;
-
+        
         ManipulatorIO manipulatorIO = ManipulatorIO.EMPTY;
         ;
         IntakeIO intakeIO = IntakeIO.EMPTY;
@@ -76,8 +84,8 @@ public class RobotContainer {
             } else {
                 swerveDriveIO = new SwerveDriveIORoll(new AHRS(NavXComType.kMXP_SPI));
                 elevatorIO = new ElevatorIOReal();
-                // intakeIO = new IntakeIOReal();
-                // manipulatorIO = new ManipulatorIOReal();
+                intakeIO = new IntakeIOReal();
+                manipulatorIO = new ManipulatorIOReal();
             }
             // fieldTrackingIO = new FieldTrackingIOLimeLight();
             // ledio = new LEDIOReal();
@@ -99,7 +107,7 @@ public class RobotContainer {
         elevator = new Elevator(elevatorIO);
         sequencing = new Sequencing(elevator, intake, swerveDrive, manipulator, fieldTracking, sequencingIO);
         led = new LEDs(ledio);
-
+        compressor.enableDigital();
         configureBindings();
     }
 
@@ -126,11 +134,23 @@ public class RobotContainer {
                 .onTrue(sequencing
                         .scoreCoral(ReefSides.Side2, LeftOrRight.Right, ReefLevel.L4)
                         .until(() -> controls.cancel().getAsBoolean()));
+        
+        // sequencing.bindScoreCoral(controls.placeCoral());
+        // controls.cancel().onTrue(Commands.runOnce(()-> sequencing.cancelScoreCoral()));
 
         // elevator.setDefaultCommand(elevator.manualControl(controls.elevatorMove()));
+        controls.switchManualElevator().toggleOnTrue(elevator.manualControl(controls.elevatorMove()));
         // controls.goToNearestAprilTag().whileTrue(fieldTracking.followAprilTag());
         // controls.goToNearestAprilTag().whileTrue(intake.sendLeftPistonOut());
+
+        controls.pushCoral().whileTrue(manipulator.pushCoral());
+        controls.releaseCoral().whileTrue(manipulator.releaseCoral());
+
+        controls.intakePiston1().whileTrue(intake.sendLeftPistonOut());
+        controls.intakePiston2().whileTrue(intake.sendRightPistonOut());
     }
+
+
 
     public Command getAutonomousCommand() {
         return null;

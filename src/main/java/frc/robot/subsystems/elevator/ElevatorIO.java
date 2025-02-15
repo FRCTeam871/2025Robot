@@ -6,12 +6,15 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.Logger;
 
+import com.revrobotics.RelativeEncoder;
+
 public interface ElevatorIO {
     ElevatorIO EMPTY = new ElevatorIO() {};
 
     @AutoLog
     class ElevatorIOInputs {
         Distance currentHeight = Units.Inch.of(0);
+        Distance currentHeightRelative = Units.Inch.of(0);
     }
 
     default void updateInputs(ElevatorIOInputs inputs) {
@@ -23,5 +26,9 @@ public interface ElevatorIO {
 
     default void setElevatorSpeed(double speed) {
         Logger.recordOutput("Elevator/Speed", speed);
+    }
+
+    default void resetRelativeEncoder(){
+        
     }
 }

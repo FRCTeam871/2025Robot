@@ -6,61 +6,82 @@ import frc.robot.Constants;
 import java.util.function.DoubleSupplier;
 
 public class XboxControls implements IControls {
-    CommandXboxController xboxController;
-    CommandXboxController xboxController2;
+
+    CommandXboxController driveXboxController;
+    CommandXboxController systemXboxController;
 
     public XboxControls() {
-        xboxController = new CommandXboxController(0);
-        xboxController2 = new CommandXboxController(1);
+        driveXboxController = new CommandXboxController(0); // xboxcontroller 1
+        systemXboxController = new CommandXboxController(1); //xbox controlr 2
     }
 
     @Override
     public DoubleSupplier fowardsAndBackAxis() {
-        return () -> Constants.deadbandAndExponential(-xboxController.getLeftY());
+        return () -> Constants.deadbandAndExponential(-driveXboxController.getLeftY());
     }
 
     @Override
     public DoubleSupplier sideToSideAxis() {
-        return () -> Constants.deadbandAndExponential(-xboxController.getLeftX());
+        return () -> Constants.deadbandAndExponential(-driveXboxController.getLeftX());
     }
 
     @Override
     public DoubleSupplier driveRotation() {
-        return () -> Constants.deadbandAndExponential(-xboxController.getRightX());
+        return () -> Constants.deadbandAndExponential(-driveXboxController.getRightX());
     }
 
     @Override
     public Trigger manualElevatorMoveUp() {
-        return xboxController.rightBumper();
+        return driveXboxController.rightBumper();
     }
 
     @Override
     public Trigger manualElevatorMoveDown() {
-        return xboxController.leftBumper();
+        return driveXboxController.leftBumper();
     }
 
     @Override
     public Trigger goToNearestAprilTag() {
-        return xboxController.b();
-    }
-
-    @Override
-    public Trigger elevatorMoveToSetPoint() {
-        return xboxController.povUp();
+        return driveXboxController.povRight();
     }
 
     @Override
     public Trigger cancel() {
-        return xboxController.a();
+        return driveXboxController.b();
     }
 
     @Override
     public Trigger placeCoral() {
-        return xboxController.x();
+        return driveXboxController.x();
     }
 
     @Override
     public DoubleSupplier elevatorMove() {
-        return () -> Constants.deadband(-xboxController2.getRightY(), .1);
+        return () -> Constants.deadband(-systemXboxController.getRightY(), .1);
+    }
+
+    @Override
+    public Trigger switchManualElevator() {
+        return systemXboxController.start();
+    }
+
+    @Override
+    public Trigger intakePiston1() {
+        return systemXboxController.a();
+    }
+
+    @Override
+    public Trigger intakePiston2() {
+        return systemXboxController.b();
+    }
+
+    @Override
+    public Trigger pushCoral() {
+        return driveXboxController.y();
+    }
+
+    @Override
+    public Trigger releaseCoral() {
+        return driveXboxController.a();
     }
 }

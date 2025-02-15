@@ -2,6 +2,7 @@ package frc.robot.subsystems.intake;
 
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import org.littletonrobotics.junction.Logger;
@@ -15,7 +16,9 @@ public class Intake extends SubsystemBase {
 
     public Intake(IntakeIO io) {
         this.io = io;
-        // setDefaultCommand(dislodge().ignoringDisable(true));
+        setDefaultCommand(dislodge().ignoringDisable(true));
+        io.setLeftPistonOut(false);
+        io.setRightPistonOut(false);
     }
 
     @Override
@@ -25,13 +28,13 @@ public class Intake extends SubsystemBase {
     }
 
     public Command sendLeftPistonOut() {
-        return run(() -> io.setLeftPistonOut(true))
+        return Commands.run(() -> io.setLeftPistonOut(true))
                 .finallyDo(canceled -> io.setLeftPistonOut(false))
                 .ignoringDisable(true);
     }
 
     public Command sendRightPistonOut() {
-        return run(() -> io.setRightPistonOut(true))
+        return Commands.run(() -> io.setRightPistonOut(true))
                 .finallyDo(canceled -> io.setRightPistonOut(false))
                 .ignoringDisable(true);
     }

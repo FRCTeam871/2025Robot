@@ -4,6 +4,7 @@ import static edu.wpi.first.units.Units.Inches;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.function.DoubleSupplier;
@@ -15,7 +16,7 @@ public class Elevator extends SubsystemBase {
     private final ElevatorIOInputsAutoLogged inputs = new ElevatorIOInputsAutoLogged();
     private final ProfiledPIDController elevatorPIDController;
     private Setpoint goal = Setpoint.Bottom;
-    private boolean usePID;
+    private boolean usePID = true;
 
     public enum Setpoint {
         // very magical numbers (inches)
@@ -59,6 +60,7 @@ public class Elevator extends SubsystemBase {
         this.io = io;
         this.elevatorPIDController = new ProfiledPIDController(.1, 0, 0.02, new TrapezoidProfile.Constraints(100, 250));
         elevatorPIDController.setGoal(goal.value);
+        SmartDashboard.putData("Elevator/PID", elevatorPIDController);
     }
 
     @Override
@@ -90,7 +92,7 @@ public class Elevator extends SubsystemBase {
 
     public Command goToSetpoint(final Supplier<Setpoint> setpointSupplier) {
         return runOnce(() -> {
-            usePID = true;
+            // usePID = true;
             goal = setpointSupplier.get();
             elevatorPIDController.setGoal(goal.value);
         });
