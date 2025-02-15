@@ -23,7 +23,7 @@ public class SwerveModuleIOSparkFlex implements SwerveModuleIO {
 
     public SwerveModuleIOSparkFlex(final ModuleConstants moduleConstants) {
         this.drive = new SparkFlex(moduleConstants.driveId(), MotorType.kBrushless);
-        SparkFlexConfig driveConfig = new SparkFlexConfig();
+        final SparkFlexConfig driveConfig = new SparkFlexConfig();
         driveConfig.idleMode(IdleMode.kBrake);
         driveConfig.inverted(moduleConstants.driveInverted());
         driveConfig.encoder.positionConversionFactor(Constants.SWERVE_POSITION_FACTOR);
@@ -32,7 +32,7 @@ public class SwerveModuleIOSparkFlex implements SwerveModuleIO {
         this.distanceEncoder = drive.getEncoder();
 
         this.steer = new SparkMax(moduleConstants.steerId(), MotorType.kBrushless);
-        SparkMaxConfig steerConfig = new SparkMaxConfig();
+        final SparkMaxConfig steerConfig = new SparkMaxConfig();
         steerConfig.idleMode(IdleMode.kBrake);
         steerConfig.inverted(moduleConstants.steerInverted());
         this.steer.configure(steerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
@@ -45,7 +45,7 @@ public class SwerveModuleIOSparkFlex implements SwerveModuleIO {
     }
 
     @Override
-    public void updateInputs(SwerveModuleIOInputs inputs) {
+    public void updateInputs(final SwerveModuleIOInputs inputs) {
         inputs.drivePosition = distanceEncoder.getPosition();
         inputs.driveVelocity = distanceEncoder.getVelocity();
         inputs.steeringAngleDegrees =
@@ -53,12 +53,12 @@ public class SwerveModuleIOSparkFlex implements SwerveModuleIO {
     }
 
     @Override
-    public void setDriveSpeed(double speed) {
+    public void setDriveSpeed(final double speed) {
         drive.set(speed * Constants.DRIVE_SPEED_MULTIPLIER);
     }
 
     @Override
-    public void setSteerSpeed(double speed) {
+    public void setSteerSpeed(final double speed) {
         steer.set(speed);
     }
 }

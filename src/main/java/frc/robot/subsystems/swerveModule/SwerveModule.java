@@ -14,11 +14,11 @@ public class SwerveModule {
     private final ProfiledPIDController pidController;
     private final Translation2d leverArm;
     private SwerveModuleState state = new SwerveModuleState(0, new Rotation2d(0));
-    private SwerveModuleIO io;
-    SwerveModuleIOInputsAutoLogged inputs = new SwerveModuleIOInputsAutoLogged();
-    private String label;
+    private final SwerveModuleIO io;
+    private final SwerveModuleIOInputsAutoLogged inputs = new SwerveModuleIOInputsAutoLogged();
+    private final String label;
 
-    public SwerveModule(final Translation2d leverArm, SwerveModuleIO io, String label) {
+    public SwerveModule(final Translation2d leverArm, final SwerveModuleIO io, final String label) {
         this.leverArm = leverArm;
         this.io = io;
         this.label = label;
@@ -36,14 +36,14 @@ public class SwerveModule {
         Logger.processInputs("Drive/Module" + label, inputs);
 
         final double currentSteeringAngle = getDirectionDegrees();
-        final SwerveModuleState optimizedState =
-                SwerveModuleState.optimize(state, Rotation2d.fromDegrees(currentSteeringAngle));
-        final double desiredSteeringAngle = optimizedState.angle.getDegrees();
+        state.optimize(Rotation2d.fromDegrees(currentSteeringAngle));
+
+        final double desiredSteeringAngle = state.angle.getDegrees();
         final double outputSteer = pidController.calculate(currentSteeringAngle, desiredSteeringAngle);
 
-        io.setDriveSpeed(optimizedState.speedMetersPerSecond / Constants.MAX_SPEED_MPS);
+        io.setDriveSpeed(state.speedMetersPerSecond / Constants.MAX_SPEED_MPS);
         Logger.recordOutput(
-                "Drive/Module" + label + "/DriveSpeed", optimizedState.speedMetersPerSecond / Constants.MAX_SPEED_MPS);
+                "Drive/Module" + label + "/DriveSpeed", state.speedMetersPerSecond / Constants.MAX_SPEED_MPS);
         io.setSteerSpeed(outputSteer);
         Logger.recordOutput("Steer/Module" + label + "/SteerSpeed", outputSteer);
     }

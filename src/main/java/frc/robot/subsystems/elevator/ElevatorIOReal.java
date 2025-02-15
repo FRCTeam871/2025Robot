@@ -27,16 +27,17 @@ public class ElevatorIOReal implements ElevatorIO {
     private final SparkAnalogSensor encoder;
     private final LinearFilter encoderFilter;
 
-    SparkFlex elevatorMotor;
+    final SparkFlex elevatorMotor;
 
     public ElevatorIOReal() {
-        elevatorMotor = new SparkFlex(13, MotorType.kBrushless);
-        encoder = elevatorMotor.getAnalog();
-        SparkFlexConfig config = new SparkFlexConfig();
+        this.elevatorMotor = new SparkFlex(13, MotorType.kBrushless);
+        this.encoder = elevatorMotor.getAnalog();
+        this.encoderFilter = LinearFilter.singlePoleIIR(.2, .02);
+
+        final SparkFlexConfig config = new SparkFlexConfig();
         config.idleMode(IdleMode.kBrake);
         // TODO: current limit
         elevatorMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-        encoderFilter = LinearFilter.singlePoleIIR(.2, .02);
     }
 
     @Override

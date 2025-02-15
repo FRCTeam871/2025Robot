@@ -6,16 +6,16 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Commands;
 
 public class SwerveDriveIOYaw implements SwerveDriveIO {
-    AHRS gyro;
+    private final AHRS gyro;
 
-    public SwerveDriveIOYaw(AHRS gyro) {
+    public SwerveDriveIOYaw(final AHRS gyro) {
+        this.gyro = gyro;
         SmartDashboard.putData("resetGyro", Commands.runOnce(gyro::zeroYaw).ignoringDisable(true));
         gyro.zeroYaw();
-        this.gyro = gyro;
     }
 
     @Override
-    public void updateInputs(SwerveDriveIOInputs inputs) {
+    public void updateInputs(final SwerveDriveIOInputs inputs) {
         inputs.gyroRotation = Rotation2d.fromDegrees(-gyro.getYaw() + 120);
         inputs.isCalibrating = gyro.isCalibrating();
         inputs.gyroRate = gyro.getRate();

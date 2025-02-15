@@ -4,8 +4,10 @@ import edu.wpi.first.math.geometry.Pose2d;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface FieldTrackingIO {
+    FieldTrackingIO EMPTY = new FieldTrackingIO() {};
+
     @AutoLog
-    public static class FieldTrackingIOInputs {
+    class FieldTrackingIOInputs {
         int tagCount;
         Pose2d pose = new Pose2d();
         double timestampSeconds;
@@ -13,7 +15,7 @@ public interface FieldTrackingIO {
         double[] targetpose_robotspace;
     }
 
-    public enum IMUMode {
+    enum IMUMode {
         /** Only external (navx) angle used */
         ExternalOnly(0),
         /** External angle used, internal angle reset to match */
@@ -27,16 +29,16 @@ public interface FieldTrackingIO {
 
         public int limeLightConstant;
 
-        private IMUMode(int limeLightConstant) {
+        IMUMode(int limeLightConstant) {
             this.limeLightConstant = limeLightConstant;
         }
     }
 
-    public default void updateInputs(FieldTrackingIOInputs inputs) {}
+    default void updateInputs(FieldTrackingIOInputs inputs) {}
 
-    public default void setRobotOrientation(double degrees) {}
+    default void setRobotOrientation(double degrees) {}
 
-    public default void setCameraIMUMode(IMUMode imuMode) {}
+    default void setCameraIMUMode(IMUMode imuMode) {}
 
-    public default void setCameraThrottle(int throttle) {}
+    default void setCameraThrottle(int throttle) {}
 }

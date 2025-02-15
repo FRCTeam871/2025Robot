@@ -29,23 +29,22 @@ public class SwerveDrive extends SubsystemBase {
     private final SwerveModule[] swerveModules;
     private final SwerveDriveKinematics swerveDriveKinematics;
     private final SwerveDrivePoseEstimator poseEstimator;
-    private SwerveDriveIO io;
-    private SwerveDriveIOInputsAutoLogged inputs = new SwerveDriveIOInputsAutoLogged();
+    private final SwerveDriveIO io;
+    private final SwerveDriveIOInputsAutoLogged inputs = new SwerveDriveIOInputsAutoLogged();
     private RobotConfig config;
 
-    public SwerveDrive(SwerveDriveIO io, final SwerveModule... swerveModules) {
+    public SwerveDrive(final SwerveDriveIO io, final SwerveModule... swerveModules) {
         this.swerveModules = swerveModules;
-
         this.io = io;
         final Translation2d[] leverArmArray =
                 Arrays.stream(swerveModules).map(SwerveModule::getLeverArm).toArray(Translation2d[]::new);
 
         this.swerveDriveKinematics = new SwerveDriveKinematics(leverArmArray);
-        poseEstimator =
+        this.poseEstimator =
                 new SwerveDrivePoseEstimator(swerveDriveKinematics, getRotation(), getModulePositions(), new Pose2d());
 
         try {
-            config = RobotConfig.fromGUISettings();
+            this.config = RobotConfig.fromGUISettings();
             AutoBuilder.configure(
                     poseEstimator::getEstimatedPosition,
                     this::resetOdometry,
@@ -64,9 +63,9 @@ public class SwerveDrive extends SubsystemBase {
         return config;
     }
 
-    public Command manualDrive(DoubleSupplier vx, DoubleSupplier vy, DoubleSupplier omegarad) {
+    public Command manualDrive(final DoubleSupplier vx, final DoubleSupplier vy, final DoubleSupplier omegarad) {
         return run(() -> {
-            ChassisSpeeds chassisSpeeds = new ChassisSpeeds(
+            final ChassisSpeeds chassisSpeeds = new ChassisSpeeds(
                     vy.getAsDouble() * Constants.MAX_SPEED_MPS,
                     vx.getAsDouble() * Constants.MAX_SPEED_MPS,
                     omegarad.getAsDouble() * Constants.MAX_SPEED_MPS);
@@ -80,7 +79,7 @@ public class SwerveDrive extends SubsystemBase {
         Logger.processInputs("Drive", inputs);
 
         poseEstimator.update(getRotation(), getModulePositions());
-        for (SwerveModule bob : swerveModules) {
+        for (final SwerveModule bob : swerveModules) {
             bob.periodic();
         }
     }
@@ -100,22 +99,20 @@ public class SwerveDrive extends SubsystemBase {
         return Arrays.stream(swerveModules).map(SwerveModule::getPosition).toArray(SwerveModulePosition[]::new);
     }
 
-    private void setStates(SwerveModuleState[] states) {
+    private void setStates(final SwerveModuleState[] states) {
         for (int i = 0; i < swerveModules.length; i++) {
             swerveModules[i].setState(states[i]);
         }
     }
+
     /**
      * +x is foward
      * +y is left
      * + is ccw
      */
-    public void updateSpeed(ChassisSpeeds speeds) {
+    public void updateSpeed(final ChassisSpeeds speeds) {
         Logger.recordOutput("Drive/InputSpeed", speeds);
-        // System.out.println(speeds);
-
-        SwerveModuleState[] states = swerveDriveKinematics.toSwerveModuleStates(speeds);
-        setStates(states);
+        setStates(swerveDriveKinematics.toSwerveModuleStates(speeds));
     }
 
     public Command resetOdometryCommand() {
@@ -124,7 +121,7 @@ public class SwerveDrive extends SubsystemBase {
         return robert;
     }
 
-    public Command resetOdometryCommand(Pose2d trajectory) {
+    public Command resetOdometryCommand(final Pose2d trajectory) {
         return runOnce(() -> resetOdometry(trajectory.getTranslation(), trajectory.getRotation()))
                 .ignoringDisable(true);
     }
@@ -133,11 +130,11 @@ public class SwerveDrive extends SubsystemBase {
         resetOdometry(new Translation2d(0, 0), Rotation2d.fromDegrees(0));
     }
 
-    public void resetOdometry(Pose2d pose) {
+    public void resetOdometry(final Pose2d pose) {
         resetOdometry(pose.getTranslation(), pose.getRotation());
     }
 
-    public void resetOdometry(Translation2d position, Rotation2d direction) {
+    public void resetOdometry(final Translation2d position, final Rotation2d direction) {
         poseEstimator.resetPose(new Pose2d(position, direction));
         // swerveDriveOdometry.resetPosition(getRotation(), getModulePositions(), new Pose2d(position, direction));
     }
@@ -157,7 +154,9 @@ public class SwerveDrive extends SubsystemBase {
     }
 
     public void addVisionMeasurement(
-            Pose2d visionRobotPoseMeters, double timestampSeconds, Matrix<N3, N1> visionMeasurementStdDevs) {
+            final Pose2d visionRobotPoseMeters,
+            final double timestampSeconds,
+            final Matrix<N3, N1> visionMeasurementStdDevs) {
         poseEstimator.addVisionMeasurement(visionRobotPoseMeters, timestampSeconds, visionMeasurementStdDevs);
     }
 }

@@ -7,19 +7,21 @@ import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.Logger;
 
 public interface ElevatorIO {
+    ElevatorIO EMPTY = new ElevatorIO() {};
+
     @AutoLog
-    public static class ElevatorIOInputs {
+    class ElevatorIOInputs {
         Distance currentHeight = Units.Inch.of(0);
     }
 
-    public default void updateInputs(ElevatorIOInputs inputs) {
+    default void updateInputs(ElevatorIOInputs inputs) {
         if (!SmartDashboard.containsKey("Elevator/Height")) {
             SmartDashboard.putNumber("Elevator/Height", 0);
         }
         inputs.currentHeight = Units.Inch.of(SmartDashboard.getNumber("Elevator/Height", 0));
     }
 
-    public default void setElevatorSpeed(double speed) {
+    default void setElevatorSpeed(double speed) {
         Logger.recordOutput("Elevator/Speed", speed);
     }
 }

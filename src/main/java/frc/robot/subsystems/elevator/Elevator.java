@@ -4,7 +4,6 @@ import static edu.wpi.first.units.Units.Inches;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.function.DoubleSupplier;
@@ -12,21 +11,13 @@ import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
 public class Elevator extends SubsystemBase {
-    ElevatorIO io;
-    ElevatorIOInputsAutoLogged inputs = new ElevatorIOInputsAutoLogged();
+    private final ElevatorIO io;
+    private final ElevatorIOInputsAutoLogged inputs = new ElevatorIOInputsAutoLogged();
     private final ProfiledPIDController elevatorPIDController;
-    Setpoint goal = Setpoint.Bottom;
-    boolean usePID;
-
-    public Elevator(ElevatorIO io) {
-        this.io = io;
-        elevatorPIDController = new ProfiledPIDController(.1, 0, 0.02, new TrapezoidProfile.Constraints(100, 250));
-        SmartDashboard.putData("Elevator/PID", elevatorPIDController);
-        elevatorPIDController.setGoal(goal.value);
-    }
+    private Setpoint goal = Setpoint.Bottom;
+    private boolean usePID;
 
     public enum Setpoint {
-
         // very magical numbers (inches)
         Bottom(18.25),
         L1(18.25),
@@ -35,9 +26,9 @@ public class Elevator extends SubsystemBase {
         L4(74), // good enuf
         ClimbingMount(77.25); // good enuf
 
-        double value;
+        final double value;
 
-        Setpoint(double value) {
+        Setpoint(final double value) {
             this.value = value;
         }
 
@@ -64,18 +55,27 @@ public class Elevator extends SubsystemBase {
         }
     }
 
-    public void periodic() {
-        io.updateInputs(inputs);
-        Logger.processInputs("Elevator", inputs); // intake???
-
-        double outputPID = elevatorPIDController.calculate(inputs.currentHeight.in(Inches));
-        Logger.recordOutput("Elevator/PID", outputPID);
-        if (usePID) {
-            io.setElevatorSpeed(outputPID);
-        }
+    public Elevator(final ElevatorIO io) {
+        this.io = io;
+        this.elevatorPIDController = new ProfiledPIDController(.1, 0, 0.02, new TrapezoidProfile.Constraints(100, 250));
+        elevatorPIDController.setGoal(goal.value);
     }
 
-    public Command manualControl(DoubleSupplier speed) {
+    @Override
+    public void periodic() {
+        io.updateInputs(inputs);
+        Logger.processInputs("Elevator", inputs);
+
+        double outputPID = 0;
+        if (usePID) {
+            outputPID = elevatorPIDController.calculate(inputs.currentHeight.in(Inches));
+            io.setElevatorSpeed(outputPID);
+        }
+        Logger.recordOutput("Elevator/usePID", usePID);
+        Logger.recordOutput("Elevator/PID", outputPID);
+    }
+
+    public Command manualControl(final DoubleSupplier speed) {
         return run(() -> {
                     usePID = false;
                     io.setElevatorSpeed(speed.getAsDouble());
@@ -84,11 +84,11 @@ public class Elevator extends SubsystemBase {
                 .ignoringDisable(true);
     }
 
-    public Command goToSetpoint(Setpoint setpoint) {
+    public Command goToSetpoint(final Setpoint setpoint) {
         return goToSetpoint(() -> setpoint);
     }
 
-    public Command goToSetpoint(Supplier<Setpoint> setpointSupplier) {
+    public Command goToSetpoint(final Supplier<Setpoint> setpointSupplier) {
         return runOnce(() -> {
             usePID = true;
             goal = setpointSupplier.get();

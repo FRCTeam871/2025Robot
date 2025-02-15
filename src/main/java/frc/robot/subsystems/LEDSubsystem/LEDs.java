@@ -5,13 +5,13 @@ import frc.robot.subsystems.peripheral.LEDStripMode;
 import frc.robot.subsystems.peripheral.Teensy;
 
 public class LEDs extends SubsystemBase {
-    LEDIO io;
+    private final LEDIO io;
     private final Thread tim;
     private volatile boolean doUpdate = false;
 
-    public LEDs(LEDIO io) {
+    public LEDs(final LEDIO io) {
         this.io = io;
-        tim = new Thread(this::iAmADog);
+        this.tim = new Thread(this::iAmADog);
     }
 
     @Override

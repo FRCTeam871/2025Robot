@@ -4,12 +4,14 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface SwerveDriveIO {
+    SwerveDriveIO EMPTY = new SwerveDriveIO() {};
+
     @AutoLog
-    public static class SwerveDriveIOInputs {
+    class SwerveDriveIOInputs {
         Rotation2d gyroRotation = new Rotation2d(0);
         boolean isCalibrating;
         double gyroRate;
     }
 
-    public default void updateInputs(SwerveDriveIOInputs inputs) {}
+    default void updateInputs(SwerveDriveIOInputs inputs) {}
 }

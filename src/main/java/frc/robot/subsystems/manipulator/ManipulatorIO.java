@@ -4,18 +4,20 @@ import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.Logger;
 
 public interface ManipulatorIO {
+    ManipulatorIO EMPTY = new ManipulatorIO() {};
+
     @AutoLog
-    public static class ManipulatorIOInputs {
+    class ManipulatorIOInputs {
         boolean isCoralPresent;
     }
 
-    public default void updateInputs(ManipulatorIOInputs inputs) {}
+    default void updateInputs(ManipulatorIOInputs inputs) {}
 
-    public default void pushCoral(boolean extend) {
+    default void pushCoral(boolean extend) {
         Logger.recordOutput("Manipulator/PushPiston", extend);
     }
 
-    public default void holdCoral(boolean extend) {
+    default void holdCoral(boolean extend) {
         Logger.recordOutput("Manipulator/HoldPiston", extend);
     }
 }

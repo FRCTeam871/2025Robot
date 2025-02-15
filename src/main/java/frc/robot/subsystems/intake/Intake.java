@@ -7,17 +7,15 @@ import frc.robot.Constants;
 import org.littletonrobotics.junction.Logger;
 
 public class Intake extends SubsystemBase {
-    IntakeIO io;
-    IntakeIOInputsAutoLogged inputs = new IntakeIOInputsAutoLogged();
-    long detectionStartTime;
-    long detectionEndTime;
-    boolean wasTargetValid;
+    private final IntakeIO io;
+    private final IntakeIOInputsAutoLogged inputs = new IntakeIOInputsAutoLogged();
+    private long detectionStartTime;
+    private long detectionEndTime;
+    private boolean wasTargetValid;
 
     public Intake(IntakeIO io) {
         this.io = io;
-
         // setDefaultCommand(dislodge().ignoringDisable(true));
-
     }
 
     @Override

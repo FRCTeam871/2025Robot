@@ -5,10 +5,10 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.fieldtracking.FieldTracking;
 
 public class Manipulator extends SubsystemBase {
-    ManipulatorIO io;
-    FieldTracking fieldTracking;
+    private final ManipulatorIO io;
+    private final FieldTracking fieldTracking;
 
-    public Manipulator(ManipulatorIO io, FieldTracking fieldTracking) {
+    public Manipulator(final ManipulatorIO io, final FieldTracking fieldTracking) {
         this.io = io;
         this.fieldTracking = fieldTracking;
     }

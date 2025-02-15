@@ -11,7 +11,7 @@ public class LEDIOReal implements LEDIO {
     }
 
     @Override
-    public void writeAllLED(TeensyPacket robert) {
+    public void writeAllLED(final TeensyPacket robert) {
         teensy.writeAllLED(robert);
     }
 }

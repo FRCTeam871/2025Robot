@@ -1,6 +1,7 @@
 package frc.robot;
 
 import com.ctre.phoenix6.signals.SensorDirectionValue;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Time;
@@ -33,6 +34,8 @@ public class Constants {
     public static final Time PISTON_THRESHOLD = Units.Second.of(1.0);
     public static final Time TARGET_DROP_THRESHOLD = Units.Second.of(0.5);
     public static final Time PISTON_OUT_TIME = Units.Second.of(0.25);
+    public static final Pose3d[] EMPTY_POSE_ARRAY = {};
+    public static final int[] EMPTY_INT_ARRAY = {};
 
     public record ModuleConstants(
             String label,

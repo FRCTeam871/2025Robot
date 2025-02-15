@@ -3,16 +3,18 @@ package frc.robot.subsystems.swerveModule;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface SwerveModuleIO {
+    SwerveModuleIO EMPTY = new SwerveModuleIO() {};
+
     @AutoLog
-    public static class SwerveModuleIOInputs {
+    class SwerveModuleIOInputs {
         double steeringAngleDegrees;
         double driveVelocity;
         double drivePosition;
     }
 
-    public default void updateInputs(SwerveModuleIOInputs inputs) {}
+    default void updateInputs(final SwerveModuleIOInputs inputs) {}
 
-    public default void setDriveSpeed(double speed) {}
+    default void setDriveSpeed(final double speed) {}
 
-    public default void setSteerSpeed(double speed) {}
+    default void setSteerSpeed(final double speed) {}
 }

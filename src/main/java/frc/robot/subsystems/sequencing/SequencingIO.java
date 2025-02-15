@@ -3,8 +3,10 @@ package frc.robot.subsystems.sequencing;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface SequencingIO {
+    SequencingIO EMPTY = new SequencingIO() {};
+
     @AutoLog
-    public static class SequencingIOInputs {
+    class SequencingIOInputs {
         boolean leftL1;
         boolean leftL2;
         boolean leftL3;
@@ -15,5 +17,5 @@ public interface SequencingIO {
         boolean rightL4;
     }
 
-    public default void updateInputs(SequencingIOInputs inputs) {}
+    default void updateInputs(SequencingIOInputs inputs) {}
 }

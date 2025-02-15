@@ -7,7 +7,6 @@ package frc.robot;
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
 import edu.wpi.first.wpilibj.RobotBase;
-import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants.ModuleConstants;
@@ -30,7 +29,6 @@ import frc.robot.subsystems.sequencing.Sequencing.LeftOrRight;
 import frc.robot.subsystems.sequencing.Sequencing.ReefLevel;
 import frc.robot.subsystems.sequencing.Sequencing.ReefSides;
 import frc.robot.subsystems.sequencing.SequencingIO;
-import frc.robot.subsystems.sequencing.SequencingIOReal;
 import frc.robot.subsystems.swerveModule.SwerveModule;
 import frc.robot.subsystems.swerveModule.SwerveModuleIO;
 import frc.robot.subsystems.swervedrive.SwerveDrive;
@@ -42,61 +40,55 @@ import java.util.Collections;
 import java.util.stream.IntStream;
 
 public class RobotContainer {
-    SwerveDrive swerveDrive;
-    FieldTracking fieldTracking;
-    IControls controls;
-    Intake intake;
-    Elevator elevator;
-    Sequencing sequencing;
-    Manipulator manipulator;
-    LEDs led;
+    final SwerveDrive swerveDrive;
+    final FieldTracking fieldTracking;
+    final IControls controls;
+    final Intake intake;
+    final Elevator elevator;
+    final Sequencing sequencing;
+    final Manipulator manipulator;
+    final LEDs led;
 
     public RobotContainer() {
-
-        controls = new XboxControls();
-        LiveWindow.disableAllTelemetry();
-        // Configure the trigger bindings
+        this.controls = new XboxControls();
 
         SwerveModuleIO[] moduleIOs =
-                Collections.nCopies(4, new SwerveModuleIO() {}).toArray(new SwerveModuleIO[4]);
-        SwerveDriveIO swerveDriveIO = new SwerveDriveIO() {};
-        IntakeIO intakeIO = new IntakeIO() {};
-        ElevatorIO elevatorIO = new ElevatorIO() {};
-        ManipulatorIO manipulatorIO = new ManipulatorIO() {};
-        SequencingIO sequencingIO = new SequencingIO() {};
-        FieldTrackingIO fieldTrackingIO = new FieldTrackingIO() {};
-        LEDIO ledio = new LEDIO() {};
+                Collections.nCopies(4, SwerveModuleIO.EMPTY).toArray(SwerveModuleIO[]::new);
+        ;
+        SwerveDriveIO swerveDriveIO = SwerveDriveIO.EMPTY;
+        ElevatorIO elevatorIO = ElevatorIO.EMPTY;
+        SequencingIO sequencingIO = SequencingIO.EMPTY;
+
+        ManipulatorIO manipulatorIO = ManipulatorIO.EMPTY;
+        ;
+        IntakeIO intakeIO = IntakeIO.EMPTY;
+        FieldTrackingIO fieldTrackingIO = FieldTrackingIO.EMPTY;
+        LEDIO ledio = LEDIO.EMPTY;
 
         if (RobotBase.isReal()) {
-
-            // fieldTrackingIO = new FieldTrackingIOLimeLight();
-
             moduleIOs = Arrays.stream(
                             Constants.ON_SYMPHONY ? Constants.MODULE_CONSTANTS_SYMPHONY : Constants.MODULE_CONSTANTS)
                     .map(Constants::getRealSwerveModuleIO)
                     .toArray(SwerveModuleIO[]::new);
 
-            sequencingIO = new SequencingIOReal() {};
-            // ledio = new LEDIOReal();
-
             if (Constants.ON_SYMPHONY) {
                 swerveDriveIO = new SwerveDriveIOYaw(new AHRS(NavXComType.kMXP_SPI));
             } else {
                 swerveDriveIO = new SwerveDriveIORoll(new AHRS(NavXComType.kMXP_SPI));
-                // intakeIO = new IntakeIOReal();
                 elevatorIO = new ElevatorIOReal();
+                // intakeIO = new IntakeIOReal();
                 // manipulatorIO = new ManipulatorIOReal();
             }
+            // fieldTrackingIO = new FieldTrackingIOLimeLight();
+            // ledio = new LEDIOReal();
         }
 
         final SwerveModuleIO[] moduleIOsFinal = moduleIOs;
-        SwerveModule[] swerveModules = IntStream.range(0, moduleIOs.length)
+        final SwerveModule[] swerveModules = IntStream.range(0, moduleIOs.length)
                 .mapToObj(i -> {
-                    SwerveModuleIO io = moduleIOsFinal[i];
-                    ModuleConstants constants = Constants.MODULE_CONSTANTS[i];
-
-                    final SwerveModule swerve = new SwerveModule(constants.leverArm(), io, constants.label());
-                    return swerve;
+                    final SwerveModuleIO io = moduleIOsFinal[i];
+                    final ModuleConstants constants = Constants.MODULE_CONSTANTS[i];
+                    return new SwerveModule(constants.leverArm(), io, constants.label());
                 })
                 .toArray(SwerveModule[]::new);
 
@@ -114,9 +106,7 @@ public class RobotContainer {
     private void configureBindings() {
         swerveDrive.setDefaultCommand(swerveDrive.manualDrive(
                 controls.sideToSideAxis(), controls.fowardsAndBackAxis(), controls.driveRotation()));
-        // controls.goToNearestAprilTag().whileTrue(fieldTracking.followAprilTag());
 
-        // controls.goToNearestAprilTag().whileTrue(intake.sendLeftPistonOut());
         controls.manualElevatorMoveDown()
                 .onTrue(elevator.goToSetpoint(() -> {
                             System.out.println(elevator.getSetPoint().nextDown());
@@ -132,12 +122,14 @@ public class RobotContainer {
                         })
                         .ignoringDisable(true));
 
-        // elevator.setDefaultCommand(elevator.manualControl(controls.elevatorMove()));
-
         controls.placeCoral()
                 .onTrue(sequencing
                         .scoreCoral(ReefSides.Side2, LeftOrRight.Right, ReefLevel.L4)
                         .until(() -> controls.cancel().getAsBoolean()));
+
+        // elevator.setDefaultCommand(elevator.manualControl(controls.elevatorMove()));
+        // controls.goToNearestAprilTag().whileTrue(fieldTracking.followAprilTag());
+        // controls.goToNearestAprilTag().whileTrue(intake.sendLeftPistonOut());
     }
 
     public Command getAutonomousCommand() {
