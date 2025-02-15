@@ -31,12 +31,12 @@ public class XboxControls implements IControls {
 
     @Override
     public Trigger manualElevatorMoveUp() {
-       return xboxController.x();
+       return xboxController.rightBumper();
     }
 
     @Override
     public Trigger manualElevatorMoveDown() {
-        return xboxController.y();
+        return xboxController.leftBumper();
     }
 
 
@@ -57,7 +57,7 @@ public class XboxControls implements IControls {
 
     @Override
     public Trigger placeCoral() {
-        return xboxController.rightBumper();
+        return xboxController.x();
  
     }
 

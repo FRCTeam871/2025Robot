@@ -1,5 +1,7 @@
 package frc.robot.subsystems.elevator;
 
+import static edu.wpi.first.units.Units.Inches;
+
 import java.lang.module.Configuration;
 
 import org.littletonrobotics.junction.Logger;
@@ -16,30 +18,39 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.Distance;
 
 public class ElevatorIOReal implements ElevatorIO{
 
-    private final double ZERO_VOLTAGE_VALUE = .112; 
-    private final double INCHES_PER_VOLT = 1 / -.0931; 
+    private final double INPUT_BOTTOM = 4.4315;
+    private final double INPUT_TOP = .633;
+    private final Distance OUTPUT_BOTTOM = Units.Inches.of(18.25); 
+    private final Distance OUTPUT_TOP = Units.Inches.of(77.25); 
+    private final double SLOPE = (OUTPUT_TOP.in(Units.Inches) - OUTPUT_BOTTOM.in(Units.Inches)) / (INPUT_TOP - INPUT_BOTTOM);
+    private final double INTERCEPT = OUTPUT_TOP.in(Units.Inches) - (SLOPE * INPUT_TOP);
+    
+
     private final SparkAnalogSensor encoder;
     private final LinearFilter encoderFilter;
 
     SparkFlex elevatorMotor;
 
     public ElevatorIOReal() {
-        //TODO: brake mode
-        elevatorMotor = new SparkFlex(13, MotorType.kBrushless);
+        elevatorMotor = new SparkFlex(13, MotorType.kBrushless); 
         encoder = elevatorMotor.getAnalog();    
         SparkFlexConfig config = new SparkFlexConfig();
         config.idleMode(IdleMode.kBrake);
+        // TODO: current limit
         elevatorMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-        encoderFilter = LinearFilter.singlePoleIIR(.08, .02);
+        encoderFilter = LinearFilter.singlePoleIIR(.2, .02);
     }
 
     @Override
     public void updateInputs(ElevatorIOInputs inputs) {
-        final double rawEncoder = (encoder.getPosition() - ZERO_VOLTAGE_VALUE) * INCHES_PER_VOLT;
+        final double rawEncoder = (encoder.getPosition() * SLOPE) + INTERCEPT;
+        Logger.recordOutput("Elevator/RawEncoder", encoder.getPosition());
         inputs.currentHeight = Units.Inches.of(encoderFilter.calculate(rawEncoder));
+        Logger.recordOutput("Elevator/CurrentHeightInches", inputs.currentHeight.in(Inches));
     }
 
 

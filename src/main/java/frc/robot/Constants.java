@@ -32,14 +32,7 @@ public class Constants {
     // INTAKE CONSTANTS
     public static final Time PISTON_THRESHOLD = Units.Second.of(1.0);
     public static final Time TARGET_DROP_THRESHOLD = Units.Second.of(0.5);
-    public static final Time PISTON_OUT_TIME = Units.Second.of(0.25);
-
-    public static final double BOTTOM = 1; 
-    public static final double L1 = 5;
-    public static final double L2 = 10;
-    public static final double L3 = 25;
-    public static final double L4 = 50; 
-    public static final double CLIMBING_MOUNT = 60;
+    public static final Time PISTON_OUT_TIME = Units.Second.of(0.25); 
 
     public record ModuleConstants(
             String label,

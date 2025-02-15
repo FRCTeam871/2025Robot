@@ -124,10 +124,19 @@ public class RobotContainer {
                 // controls.goToNearestAprilTag().whileTrue(fieldTracking.followAprilTag());
 
                 // controls.goToNearestAprilTag().whileTrue(intake.sendLeftPistonOut());
-                // controls.manualElevatorMoveDown().onTrue(elevator.goToSetpoint(() -> elevator.getSetPoint().nextDown()));
-                // controls.manualElevatorMoveUp().onTrue(elevator.goToSetpoint(() -> elevator.getSetPoint().nextUp()));
+                controls.manualElevatorMoveDown().onTrue(elevator.goToSetpoint(() -> {
+                        System.out.println(elevator.getSetPoint().nextDown());
+                        System.out.println(elevator.getSetPoint());
+                        return elevator.getSetPoint().nextDown();
+                }).ignoringDisable(true));
+                controls.manualElevatorMoveUp().onTrue(elevator.goToSetpoint(() -> {
+                        System.out.println(elevator.getSetPoint().nextUp());
+                        System.out.println(elevator.getSetPoint());
+                        return elevator.getSetPoint().nextUp();
+                }).ignoringDisable(true));
+                
 
-                elevator.setDefaultCommand(elevator.manualControl(controls.elevatorMove()));
+                // elevator.setDefaultCommand(elevator.manualControl(controls.elevatorMove()));
                 
                 controls.placeCoral().onTrue(sequencing.scoreCoral(ReefSides.Side2, LeftOrRight.Right, ReefLevel.L4)
                         .until(() -> controls.cancel().getAsBoolean())); 
