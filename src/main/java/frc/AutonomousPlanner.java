@@ -78,6 +78,7 @@ public class AutonomousPlanner {
         choose.addOption("None", side -> Commands.none());
         for (ReefLevel level : ReefLevel.values()) {
             choose.addOption(level + " Left", side -> sequencing.scoreCoral(side, LeftOrRight.Left, level));
+            choose.addOption(level + " Right", side -> sequencing.scoreCoral(side, LeftOrRight.Right, level));
         }
         return choose;
     }
