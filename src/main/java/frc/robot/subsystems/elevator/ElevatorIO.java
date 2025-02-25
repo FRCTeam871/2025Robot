@@ -15,6 +15,7 @@ public interface ElevatorIO {
     class ElevatorIOInputs {
         Distance currentHeight = Units.Inch.of(0);
         Distance currentHeightRelative = Units.Inch.of(0);
+        double currentHeightNormalized; 
     }
 
     default void updateInputs(ElevatorIOInputs inputs) {
@@ -29,6 +30,6 @@ public interface ElevatorIO {
     }
 
     default void resetRelativeEncoder(){
-        
+
     }
 }

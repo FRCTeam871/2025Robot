@@ -4,12 +4,16 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.Kinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -18,7 +22,10 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.ChangableSlewRateLimiter;
 import frc.robot.Constants;
+import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.elevator.ElevatorIO;
 import frc.robot.subsystems.swerveModule.SwerveModule;
 import java.util.Arrays;
 import java.util.function.DoubleSupplier;
@@ -31,10 +38,15 @@ public class SwerveDrive extends SubsystemBase {
     private final SwerveDrivePoseEstimator poseEstimator;
     private final SwerveDriveIO io;
     private final SwerveDriveIOInputsAutoLogged inputs = new SwerveDriveIOInputsAutoLogged();
+    private final Elevator elevator;
     private RobotConfig config;
-
-    public SwerveDrive(final SwerveDriveIO io, final SwerveModule... swerveModules) {
+    private ChangableSlewRateLimiter forwardRateLimiter;
+    private ChangableSlewRateLimiter sideRateLimiter;
+    public SwerveDrive(final SwerveDriveIO io, final Elevator elevator,final SwerveModule... swerveModules) {
         this.swerveModules = swerveModules;
+        this.elevator = elevator;
+        forwardRateLimiter = new ChangableSlewRateLimiter(Constants.MAX_SPEED_MPS);
+        sideRateLimiter = new ChangableSlewRateLimiter(Constants.MAX_SPEED_MPS);
         this.io = io;
         final Translation2d[] leverArmArray =
                 Arrays.stream(swerveModules).map(SwerveModule::getLeverArm).toArray(Translation2d[]::new);
@@ -104,14 +116,35 @@ public class SwerveDrive extends SubsystemBase {
             swerveModules[i].setState(states[i]);
         }
     }
-
+    
     /**
      * +x is foward
      * +y is left
      * + is ccw
      */
+
     public void updateSpeed(final ChassisSpeeds speeds) {
+        double multiplerRateLimiter = (-elevator.getCurrentHeightNormalized()+1.25)*Constants.MAX_SPEED_MPS;
+        Logger.recordOutput("Drive/RateMultiplier", multiplerRateLimiter);
         Logger.recordOutput("Drive/InputSpeed", speeds);
+        forwardRateLimiter.setRate(multiplerRateLimiter);
+        sideRateLimiter.setRate(multiplerRateLimiter);
+        speeds.vxMetersPerSecond = forwardRateLimiter.calculate(speeds.vxMetersPerSecond);
+        speeds.vyMetersPerSecond = sideRateLimiter.calculate(speeds.vyMetersPerSecond);
+        
+
+        //strat 1
+        double speedMultiplier = (-.8*elevator.getCurrentHeightNormalized())+1;
+        speeds.vxMetersPerSecond = speeds.vxMetersPerSecond*speedMultiplier;
+        speeds.vyMetersPerSecond = speeds.vyMetersPerSecond*speedMultiplier;
+        
+        // //strat 2
+        // double speedMultiplier2 = -.8*elevator.getCurrentHeightNormalized()+1;
+        // double maxSpeed = speedMultiplier2*Constants.MAX_SPEED_MPS;   
+        // speeds.vxMetersPerSecond = MathUtil.clamp(speeds.vxMetersPerSecond, -maxSpeed , maxSpeed);
+        // speeds.vyMetersPerSecond = MathUtil.clamp(speeds.vyMetersPerSecond, -maxSpeed , maxSpeed);
+
+        Logger.recordOutput("Drive/SpeedFiltered", speeds);
         setStates(swerveDriveKinematics.toSwerveModuleStates(speeds));
     }
 

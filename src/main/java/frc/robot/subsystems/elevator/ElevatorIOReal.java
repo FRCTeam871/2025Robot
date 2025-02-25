@@ -12,6 +12,7 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import edu.wpi.first.math.filter.LinearFilter;
+import edu.wpi.first.units.DistanceUnit;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Distance;
 import org.littletonrobotics.junction.Logger;
@@ -53,6 +54,7 @@ public class ElevatorIOReal implements ElevatorIO {
         Logger.recordOutput("Elevator/RawAbsolutePot", absolutePot.getPosition());
         inputs.currentHeight = Units.Inches.of(absolutePotFilter.calculate(rawEncoder));
         Logger.recordOutput("Elevator/CurrentHeightInches", inputs.currentHeight.in(Inches));
+        inputs.currentHeightNormalized = inputs.currentHeight.minus(OUTPUT_BOTTOM).div(OUTPUT_TOP.minus(OUTPUT_BOTTOM)).in(Units.Value);
     }
 
     @Override

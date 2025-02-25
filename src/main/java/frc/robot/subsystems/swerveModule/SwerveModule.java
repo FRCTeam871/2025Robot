@@ -27,7 +27,7 @@ public class SwerveModule {
                 Constants.SWERVE_STEER_KP,
                 Constants.SWERVE_STEER_KI,
                 Constants.SWERVE_STEER_KD,
-                new TrapezoidProfile.Constraints(Constants.MAX_VELOCITY, Constants.MAX_ACCELERATION));
+                new TrapezoidProfile.Constraints(Constants.MAX_STEER_VELOCITY, Constants.MAX_STEER_ACCELERATION));
         this.pidController.enableContinuousInput(0, 360);
     }
 

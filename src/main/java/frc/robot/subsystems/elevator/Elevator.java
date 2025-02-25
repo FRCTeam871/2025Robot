@@ -105,4 +105,7 @@ public class Elevator extends SubsystemBase {
     public boolean isAtSetpoint() {
         return elevatorPIDController.atGoal();
     }
+    public double getCurrentHeightNormalized(){
+        return inputs.currentHeightNormalized;
+    }
 }

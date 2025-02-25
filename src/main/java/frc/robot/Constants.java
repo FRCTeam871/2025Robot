@@ -17,8 +17,8 @@ public class Constants {
     public static final double SWERVE_STEER_KI = 0.000;
     public static final double SWERVE_STEER_KD = 0;
 
-    public static final double MAX_VELOCITY = 36000;
-    public static final double MAX_ACCELERATION = 100000;
+    public static final double MAX_STEER_VELOCITY = 36000;
+    public static final double MAX_STEER_ACCELERATION = 100000;
 
     public static final double DRIVE_SPEED_MULTIPLIER = 1.0;
 

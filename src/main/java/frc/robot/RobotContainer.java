@@ -99,12 +99,12 @@ public class RobotContainer {
                     return new SwerveModule(constants.leverArm(), io, constants.label());
                 })
                 .toArray(SwerveModule[]::new);
-
-        swerveDrive = new SwerveDrive(swerveDriveIO, swerveModules);
+                
+        elevator = new Elevator(elevatorIO);
+        swerveDrive = new SwerveDrive(swerveDriveIO, elevator,swerveModules);
         fieldTracking = new FieldTracking(swerveDrive, fieldTrackingIO);
         intake = new Intake(intakeIO);
         manipulator = new Manipulator(manipulatorIO, fieldTracking);
-        elevator = new Elevator(elevatorIO);
         sequencing = new Sequencing(elevator, intake, swerveDrive, manipulator, fieldTracking, sequencingIO);
         led = new LEDs(ledio);
         compressor.enableDigital();
