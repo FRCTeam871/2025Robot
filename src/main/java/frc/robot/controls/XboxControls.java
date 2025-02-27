@@ -84,4 +84,9 @@ public class XboxControls implements IControls {
     public Trigger releaseCoral() {
         return driveXboxController.a();
     }
+
+    @Override
+    public Trigger compressorToggle(){
+        return driveXboxController.back();
+    }
 }

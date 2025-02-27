@@ -33,4 +33,6 @@ public interface IControls {
     public Trigger pushCoral();
 
     public Trigger releaseCoral();
+
+    public Trigger compressorToggle();
 }

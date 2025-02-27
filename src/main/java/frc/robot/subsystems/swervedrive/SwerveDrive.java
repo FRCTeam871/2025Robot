@@ -124,7 +124,7 @@ public class SwerveDrive extends SubsystemBase {
      */
 
     public void updateSpeed(final ChassisSpeeds speeds) {
-        double multiplerRateLimiter = (-elevator.getCurrentHeightNormalized()+1.25)*Constants.MAX_SPEED_MPS;
+        double multiplerRateLimiter = (-elevator.getCurrentHeightNormalized()*1.1+1.25)*Constants.MAX_SPEED_MPS/.4;
         Logger.recordOutput("Drive/RateMultiplier", multiplerRateLimiter);
         Logger.recordOutput("Drive/InputSpeed", speeds);
         forwardRateLimiter.setRate(multiplerRateLimiter);
@@ -134,7 +134,7 @@ public class SwerveDrive extends SubsystemBase {
         
 
         //strat 1
-        double speedMultiplier = (-.8*elevator.getCurrentHeightNormalized())+1;
+        double speedMultiplier = (-.6*elevator.getCurrentHeightNormalized())+1;
         speeds.vxMetersPerSecond = speeds.vxMetersPerSecond*speedMultiplier;
         speeds.vyMetersPerSecond = speeds.vyMetersPerSecond*speedMultiplier;
         

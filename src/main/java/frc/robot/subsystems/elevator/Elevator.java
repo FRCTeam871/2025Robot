@@ -22,9 +22,9 @@ public class Elevator extends SubsystemBase {
         // very magical numbers (inches)
         Bottom(18.25),
         L1(18.25),
-        L2(30),
-        L3(49),
-        L4(74), // good enuf
+        L2(35),
+        L3(50),
+        L4(75), // good enuf
         ClimbingMount(77.25); // good enuf
 
         final double value;
@@ -39,7 +39,7 @@ public class Elevator extends SubsystemBase {
                 case L1 -> L2;
                 case L2 -> L3;
                 case L3 -> L4;
-                case L4 -> ClimbingMount;
+                case L4 -> L4;
                 case ClimbingMount -> ClimbingMount;
             };
         }
@@ -58,7 +58,7 @@ public class Elevator extends SubsystemBase {
 
     public Elevator(final ElevatorIO io) {
         this.io = io;
-        this.elevatorPIDController = new ProfiledPIDController(.1, 0, 0.02, new TrapezoidProfile.Constraints(100, 250));
+        this.elevatorPIDController = new ProfiledPIDController(.11, 0, 0.02, new TrapezoidProfile.Constraints(100, 250));
         elevatorPIDController.setGoal(goal.value);
         SmartDashboard.putData("Elevator/PID", elevatorPIDController);
     }

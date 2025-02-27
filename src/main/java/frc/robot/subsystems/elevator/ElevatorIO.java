@@ -29,6 +29,8 @@ public interface ElevatorIO {
         Logger.recordOutput("Elevator/Speed", speed);
     }
 
+    default void setBrakeMode(boolean isBrakeOn){}
+
     default void resetRelativeEncoder(){
 
     }

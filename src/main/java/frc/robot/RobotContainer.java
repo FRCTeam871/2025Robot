@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import frc.robot.Constants.ModuleConstants;
 import frc.robot.controls.IControls;
 import frc.robot.controls.XboxControls;
@@ -22,12 +23,13 @@ import frc.robot.subsystems.LEDSubsystem.LEDs;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorIO;
 import frc.robot.subsystems.elevator.ElevatorIOReal;
+import frc.robot.subsystems.elevator.Elevator.Setpoint;
 import frc.robot.subsystems.fieldtracking.FieldTracking;
 import frc.robot.subsystems.fieldtracking.FieldTrackingIO;
 import frc.robot.subsystems.fieldtracking.FieldTrackingIO.IMUMode;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIO;
-import frc.robot.subsystems.intake.IntakeIOReal;        
+import frc.robot.subsystems.intake.IntakeIOReal;
 import frc.robot.subsystems.manipulator.Manipulator;
 import frc.robot.subsystems.manipulator.ManipulatorIO;
 import frc.robot.subsystems.manipulator.ManipulatorIOReal;
@@ -56,17 +58,16 @@ public class RobotContainer {
     final Manipulator manipulator;
     final LEDs led;
     final Compressor compressor;
-    
+
     public RobotContainer() {
         this.controls = new XboxControls();
         compressor = new Compressor(PneumaticsModuleType.CTREPCM);
-        SwerveModuleIO[] moduleIOs =
-                Collections.nCopies(4, SwerveModuleIO.EMPTY).toArray(SwerveModuleIO[]::new);
+        SwerveModuleIO[] moduleIOs = Collections.nCopies(4, SwerveModuleIO.EMPTY).toArray(SwerveModuleIO[]::new);
         ;
         SwerveDriveIO swerveDriveIO = SwerveDriveIO.EMPTY;
         ElevatorIO elevatorIO = ElevatorIO.EMPTY;
         SequencingIO sequencingIO = SequencingIO.EMPTY;
-        
+
         ManipulatorIO manipulatorIO = ManipulatorIO.EMPTY;
         ;
         IntakeIO intakeIO = IntakeIO.EMPTY;
@@ -75,7 +76,7 @@ public class RobotContainer {
 
         if (RobotBase.isReal()) {
             moduleIOs = Arrays.stream(
-                            Constants.ON_SYMPHONY ? Constants.MODULE_CONSTANTS_SYMPHONY : Constants.MODULE_CONSTANTS)
+                    Constants.ON_SYMPHONY ? Constants.MODULE_CONSTANTS_SYMPHONY : Constants.MODULE_CONSTANTS)
                     .map(Constants::getRealSwerveModuleIO)
                     .toArray(SwerveModuleIO[]::new);
 
@@ -99,15 +100,14 @@ public class RobotContainer {
                     return new SwerveModule(constants.leverArm(), io, constants.label());
                 })
                 .toArray(SwerveModule[]::new);
-                
+
         elevator = new Elevator(elevatorIO);
-        swerveDrive = new SwerveDrive(swerveDriveIO, elevator,swerveModules);
+        swerveDrive = new SwerveDrive(swerveDriveIO, elevator, swerveModules);
         fieldTracking = new FieldTracking(swerveDrive, fieldTrackingIO);
         intake = new Intake(intakeIO);
         manipulator = new Manipulator(manipulatorIO, fieldTracking);
         sequencing = new Sequencing(elevator, intake, swerveDrive, manipulator, fieldTracking, sequencingIO);
         led = new LEDs(ledio);
-        compressor.enableDigital();
         configureBindings();
     }
 
@@ -117,40 +117,50 @@ public class RobotContainer {
 
         controls.manualElevatorMoveDown()
                 .onTrue(elevator.goToSetpoint(() -> {
-                            System.out.println(elevator.getSetPoint().nextDown());
-                            System.out.println(elevator.getSetPoint());
-                            return elevator.getSetPoint().nextDown();
-                        })
+                    System.out.println(elevator.getSetPoint().nextDown());
+                    System.out.println(elevator.getSetPoint());
+                    return elevator.getSetPoint().nextDown();
+                })
                         .ignoringDisable(true));
         controls.manualElevatorMoveUp()
                 .onTrue(elevator.goToSetpoint(() -> {
-                            System.out.println(elevator.getSetPoint().nextUp());
-                            System.out.println(elevator.getSetPoint());
-                            return elevator.getSetPoint().nextUp();
-                        })
+                    System.out.println(elevator.getSetPoint().nextUp());
+                    System.out.println(elevator.getSetPoint());
+                    return elevator.getSetPoint().nextUp();
+                })
                         .ignoringDisable(true));
 
         controls.placeCoral()
                 .onTrue(sequencing
-                        .scoreCoral(ReefSides.Side2, LeftOrRight.Right, ReefLevel.L4)
+                        .scoreCoral(ReefSides.Side1, LeftOrRight.Right, ReefLevel.L4)
                         .until(() -> controls.cancel().getAsBoolean()));
-        
+
         // sequencing.bindScoreCoral(controls.placeCoral());
-        // controls.cancel().onTrue(Commands.runOnce(()-> sequencing.cancelScoreCoral()));
+        // controls.cancel().onTrue(Commands.runOnce(()->
+        // sequencing.cancelScoreCoral()));
 
         // elevator.setDefaultCommand(elevator.manualControl(controls.elevatorMove()));
         controls.switchManualElevator().toggleOnTrue(elevator.manualControl(controls.elevatorMove()));
         // controls.goToNearestAprilTag().whileTrue(fieldTracking.followAprilTag());
         // controls.goToNearestAprilTag().whileTrue(intake.sendLeftPistonOut());
 
-        controls.pushCoral().whileTrue(manipulator.pushCoral());
-        controls.releaseCoral().whileTrue(manipulator.releaseCoral());
+        controls.pushCoral().whileTrue((new ConditionalCommand(Commands.run(()->{}),manipulator.pushCoral(), ()-> elevator.getSetPoint() == Setpoint.L4)).beforeStarting(Commands.run(() -> {
+        }).withTimeout(.02)).alongWith(manipulator.releaseCoral()).withTimeout(.8).andThen(elevator.goToSetpoint(Setpoint.Bottom)));
+        // controls.releaseCoral().whileTrue(manipulator.releaseCoral().andThen(elevator.goToSetpoint(Setpoint.Bottom)));
+        // controls.pushCoral().whileTrue(manipulator.pushCoral());
 
         controls.intakePiston1().whileTrue(intake.sendLeftPistonOut());
         controls.intakePiston2().whileTrue(intake.sendRightPistonOut());
+
+        controls.compressorToggle().onTrue(
+                Commands.runOnce(() -> {
+                    if (compressor.isEnabled()) {
+                        compressor.disable();      
+                    } else {
+                        compressor.enableDigital();
+                    }
+                }));
     }
-
-
 
     public Command getAutonomousCommand() {
         return null;
@@ -158,12 +168,12 @@ public class RobotContainer {
 
     public Command getTeleopCommand() {
         return Commands.none();
-        //        return fieldTracking.followAprilTag();
-        // //         // return Commands.run(() -> {
-        // //         // ChassisSpeeds swerveSpeeds = new ChassisSpeeds(.1, 0, 0);
-        // //         // swerveDrive.updateSpeed(swerveSpeeds);
+        // return fieldTracking.followAprilTag();
+        // // // return Commands.run(() -> {
+        // // // ChassisSpeeds swerveSpeeds = new ChassisSpeeds(.1, 0, 0);
+        // // // swerveDrive.updateSpeed(swerveSpeeds);
 
-        // //         // }, swerveDrive);
+        // // // }, swerveDrive);
 
     }
 
