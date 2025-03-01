@@ -145,7 +145,7 @@ public class RobotContainer {
         // controls.goToNearestAprilTag().whileTrue(intake.sendLeftPistonOut());
 
         controls.pushCoral().onTrue((new ConditionalCommand(Commands.run(()->{}),manipulator.pushCoral(), ()-> elevator.getSetPoint() == Setpoint.L4)).beforeStarting(Commands.run(() -> {
-        }).withTimeout(.02)).alongWith(manipulator.releaseCoral()).withTimeout(.8).finallyDo(() -> elevator.goToSetpoint(Setpoint.Bottom).schedule();));
+        }).withTimeout(.02)).alongWith(manipulator.releaseCoral()).withTimeout(.8).finallyDo(() -> elevator.goToSetpoint(Setpoint.Bottom).schedule()));
         // controls.releaseCoral().whileTrue(manipulator.releaseCoral().andThen(elevator.goToSetpoint(Setpoint.Bottom)));
         // controls.pushCoral().whileTrue(manipulator.pushCoral());
 
