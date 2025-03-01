@@ -21,7 +21,7 @@ public class Elevator extends SubsystemBase {
     public enum Setpoint {
         // very magical numbers (inches)
         Bottom(18.25),
-        L1(18.25),
+        L1(25.25),
         L2(35),
         L3(50),
         L4(75), // good enuf
@@ -58,7 +58,7 @@ public class Elevator extends SubsystemBase {
 
     public Elevator(final ElevatorIO io) {
         this.io = io;
-        this.elevatorPIDController = new ProfiledPIDController(.11, 0, 0.02, new TrapezoidProfile.Constraints(100, 250));
+        this.elevatorPIDController = new ProfiledPIDController(.125, 0, 0.02, new TrapezoidProfile.Constraints(100, 250));
         elevatorPIDController.setGoal(goal.value);
         SmartDashboard.putData("Elevator/PID", elevatorPIDController);
     }
