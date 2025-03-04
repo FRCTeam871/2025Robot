@@ -56,7 +56,9 @@ public class Robot extends LoggedRobot {
     }
 
     @Override
-    public void disabledPeriodic() {}
+    public void disabledPeriodic() {
+        m_robotContainer.disabledPeriodic();
+    }
 
     @Override
     public void disabledExit() {}

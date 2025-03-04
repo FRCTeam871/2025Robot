@@ -192,4 +192,8 @@ public class SwerveDrive extends SubsystemBase {
             final Matrix<N3, N1> visionMeasurementStdDevs) {
         poseEstimator.addVisionMeasurement(visionRobotPoseMeters, timestampSeconds, visionMeasurementStdDevs);
     }
+
+    public void setCurrentAngle(double angle){
+        io.setCurrentAngle(angle);
+    }
 }

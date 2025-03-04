@@ -7,6 +7,7 @@ package frc.robot;
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -178,7 +179,7 @@ public class RobotContainer {
     }
 
     public void disabledInit() {
-        fieldTracking.setCameraIMUMode(IMUMode.ExternalReset); // TODO: use InternalMT1Assist when LL update comes out
+        fieldTracking.setCameraIMUMode(IMUMode.InternalMT1Assist);
         fieldTracking.setThrottle(6);
     }
 
@@ -190,5 +191,9 @@ public class RobotContainer {
     public void teleopInit() {
         fieldTracking.setCameraIMUMode(IMUMode.InternalMT1Assist);
         fieldTracking.setThrottle(0);
+    }
+    public void disabledPeriodic() {
+        Pose2d cameraPose = fieldTracking.getLimeLightPose();
+        swerveDrive.setCurrentAngle(cameraPose.getRotation().getDegrees());
     }
 }

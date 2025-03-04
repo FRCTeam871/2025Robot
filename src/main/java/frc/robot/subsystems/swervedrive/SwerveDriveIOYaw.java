@@ -20,4 +20,10 @@ public class SwerveDriveIOYaw implements SwerveDriveIO {
         inputs.isCalibrating = gyro.isCalibrating();
         inputs.gyroRate = gyro.getRate();
     }
+
+    @Override
+    public void setCurrentAngle(double angle) {
+        // TODO: make it work
+    }
+    
 }

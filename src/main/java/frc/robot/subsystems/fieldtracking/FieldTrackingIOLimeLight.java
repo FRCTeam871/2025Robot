@@ -33,6 +33,6 @@ public class FieldTrackingIOLimeLight implements FieldTrackingIO {
 
     @Override
     public void setCameraThrottle(int throttle) {
-        // TODO ADD
+        LimelightHelpers.SetThrottle("limelight", throttle);
     }
 }

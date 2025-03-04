@@ -16,6 +16,11 @@ public class SwerveDriveIORoll implements SwerveDriveIO {
     }
 
     @Override
+    public void setCurrentAngle(double angle){
+        gyroZero = gyro.getRoll() - angle;
+    }
+
+    @Override
     public void updateInputs(final SwerveDriveIOInputs inputs) {
         inputs.gyroRotation = Rotation2d.fromDegrees(gyro.getRoll() - gyroZero);
         inputs.isCalibrating = gyro.isCalibrating();

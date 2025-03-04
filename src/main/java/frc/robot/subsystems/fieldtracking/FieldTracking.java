@@ -71,6 +71,9 @@ public class FieldTracking extends SubsystemBase {
     public long getAprilTag() {
         return inputs.tid;
     }
+    public Pose2d getLimeLightPose() {
+        return inputs.pose;
+    }
     // public Command followAprilTag() {
     // return run(() -> {
     // if (!isAprilTagDetected()) {
