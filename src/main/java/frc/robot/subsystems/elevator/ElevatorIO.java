@@ -31,7 +31,5 @@ public interface ElevatorIO {
 
     default void setBrakeMode(boolean isBrakeOn){}
 
-    default void resetRelativeEncoder(){
-
-    }
+    default void resetRelativeEncoder(ElevatorIOInputs inputs){}
 }

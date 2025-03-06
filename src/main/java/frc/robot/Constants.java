@@ -1,9 +1,14 @@
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Inches;
+
+import java.lang.reflect.Type;
+
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Time;
 import frc.robot.subsystems.swerveModule.SwerveModuleIO;
 import frc.robot.subsystems.swerveModule.SwerveModuleIOSparkFlex;
@@ -27,7 +32,10 @@ public class Constants {
     public static final double SWERVE_POSITION_FACTOR = RADIUS_IN_METERS * 2 * Math.PI * SWERVE_DRIVE_RATIO;
     public static final double NEO_MAX_RPM = 5676;
     public static final double MAX_SPEED_MPS = (NEO_MAX_RPM / 60.0d) * SWERVE_POSITION_FACTOR;
+    public static final double MAX_ROTATION_SPEED_RDPS = 2 * Math.PI * 2;
     public static final double LEVER_ARM_VAL = (Constants.DISTANCE_BETWEEN_WHEELS / 39.37) / 2;
+
+    public static final Distance ELEVATOR_TOLERANCE = Inches.of(3);
 
     public static final double DISTANCE_BETWEEN_WHEELS = 22.75;
     // INTAKE CONSTANTS

@@ -43,8 +43,7 @@ public class AutonomousPlanner {
     private final ArrayList<SendableChooser<Function<ReefSides, Command>>> actions = new ArrayList<>();
     private final SendableChooser<FieldPosition> start;
 
-    public AutonomousPlanner(
-            Elevator elevator, Intake intake, Manipulator manipulator, SwerveDrive swerveDrive, Sequencing sequencing) {
+    public AutonomousPlanner(Elevator elevator, Intake intake, Manipulator manipulator, SwerveDrive swerveDrive, Sequencing sequencing) {
         this.sequencing = sequencing;
         this.manipulator = manipulator;
         this.swerveDrive = swerveDrive;

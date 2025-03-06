@@ -7,6 +7,8 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -19,8 +21,10 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.ChangableSlewRateLimiter;
 import frc.robot.Constants;
@@ -42,11 +46,17 @@ public class SwerveDrive extends SubsystemBase {
     private RobotConfig config;
     private ChangableSlewRateLimiter forwardRateLimiter;
     private ChangableSlewRateLimiter sideRateLimiter;
+    private ChangableSlewRateLimiter rotationRateLimiter;
+    private boolean headingHoldEnabled;
+    private Rotation2d headingHold;
+    private ProfiledPIDController yawPidController = new ProfiledPIDController(0.08, 0.001, 0, new Constraints(1000, 1000));
+
     public SwerveDrive(final SwerveDriveIO io, final Elevator elevator,final SwerveModule... swerveModules) {
         this.swerveModules = swerveModules;
         this.elevator = elevator;
         forwardRateLimiter = new ChangableSlewRateLimiter(Constants.MAX_SPEED_MPS);
         sideRateLimiter = new ChangableSlewRateLimiter(Constants.MAX_SPEED_MPS);
+        rotationRateLimiter = new ChangableSlewRateLimiter(Constants.MAX_ROTATION_SPEED_RDPS);
         this.io = io;
         final Translation2d[] leverArmArray =
                 Arrays.stream(swerveModules).map(SwerveModule::getLeverArm).toArray(Translation2d[]::new);
@@ -77,10 +87,16 @@ public class SwerveDrive extends SubsystemBase {
 
     public Command manualDrive(final DoubleSupplier vx, final DoubleSupplier vy, final DoubleSupplier omegarad) {
         return run(() -> {
-            final ChassisSpeeds chassisSpeeds = new ChassisSpeeds(
+            ChassisSpeeds chassisSpeeds = new ChassisSpeeds(
                     vy.getAsDouble() * Constants.MAX_SPEED_MPS,
                     vx.getAsDouble() * Constants.MAX_SPEED_MPS,
-                    omegarad.getAsDouble() * Constants.MAX_SPEED_MPS);
+                    omegarad.getAsDouble() * Constants.MAX_ROTATION_SPEED_RDPS);
+
+            //might not want to make this zero
+                if(headingHoldEnabled && chassisSpeeds.omegaRadiansPerSecond == 0){
+                    final double yawout = yawPidController.calculate(getEstimatedPose().getRotation().getDegrees(), headingHold.getDegrees());
+                    chassisSpeeds.omegaRadiansPerSecond = yawout;
+                }
             updateSpeed(chassisSpeeds);
         });
     }
@@ -118,25 +134,32 @@ public class SwerveDrive extends SubsystemBase {
     }
     
     /**
-     * +x is foward
+     * +x is fowrard
      * +y is left
      * + is ccw
      */
 
     public void updateSpeed(final ChassisSpeeds speeds) {
-        double multiplerRateLimiter = (-elevator.getCurrentHeightNormalized()*1.1+1.25)*Constants.MAX_SPEED_MPS/.4;
-        Logger.recordOutput("Drive/RateMultiplier", multiplerRateLimiter);
+        double multiplerRateLimit = (-elevator.getCurrentHeightNormalized()*1.1+1.25)*Constants.MAX_SPEED_MPS/.4;
+        double rotationRateLimit = (-elevator.getCurrentHeightNormalized()*1.1+1.25)*Constants.MAX_ROTATION_SPEED_RDPS/.4;
+        Logger.recordOutput("Drive/RateMultiplier", multiplerRateLimit);
         Logger.recordOutput("Drive/InputSpeed", speeds);
-        forwardRateLimiter.setRate(multiplerRateLimiter);
-        sideRateLimiter.setRate(multiplerRateLimiter);
+
+
+        forwardRateLimiter.setRate(multiplerRateLimit);
+        sideRateLimiter.setRate(multiplerRateLimit);
+        rotationRateLimiter.setRate(rotationRateLimit);
+        
         speeds.vxMetersPerSecond = forwardRateLimiter.calculate(speeds.vxMetersPerSecond);
         speeds.vyMetersPerSecond = sideRateLimiter.calculate(speeds.vyMetersPerSecond);
-        
+        speeds.omegaRadiansPerSecond = rotationRateLimiter.calculate(speeds.omegaRadiansPerSecond);
 
         //strat 1
         double speedMultiplier = (-.6*elevator.getCurrentHeightNormalized())+1;
         speeds.vxMetersPerSecond = speeds.vxMetersPerSecond*speedMultiplier;
         speeds.vyMetersPerSecond = speeds.vyMetersPerSecond*speedMultiplier;
+        speeds.omegaRadiansPerSecond = speeds.omegaRadiansPerSecond*speedMultiplier;
+
         
         // //strat 2
         // double speedMultiplier2 = -.8*elevator.getCurrentHeightNormalized()+1;
@@ -195,5 +218,14 @@ public class SwerveDrive extends SubsystemBase {
 
     public void setCurrentAngle(double angle){
         io.setCurrentAngle(angle);
+    }
+
+    public Command doHeadingHold(Rotation2d rotation){
+        return Commands.runOnce(()-> {
+            headingHoldEnabled = true;
+            headingHold = rotation;
+        }).andThen(Commands.run(()->{})).finallyDo(()->{
+            headingHoldEnabled = false;
+        });
     }
 }

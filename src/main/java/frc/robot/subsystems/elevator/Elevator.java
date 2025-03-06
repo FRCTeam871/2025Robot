@@ -7,6 +7,8 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
+
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
@@ -17,12 +19,12 @@ public class Elevator extends SubsystemBase {
     private final ProfiledPIDController elevatorPIDController;
     private Setpoint goal = Setpoint.Bottom;
     private boolean usePID = true;
+    private boolean isElevatorStopped = false;
 
     public enum Setpoint {
-        // very magical numbers (inches)
-        Bottom(18.25),
-        L1(25.25),
-        L2(35),
+        Bottom(22.25),
+        L1(30),
+        L2(36),
         L3(50),
         L4(75), // good enuf
         ClimbingMount(77.25); // good enuf
@@ -62,16 +64,31 @@ public class Elevator extends SubsystemBase {
         elevatorPIDController.setGoal(goal.value);
         SmartDashboard.putData("Elevator/PID", elevatorPIDController);
     }
+    public void stopElevator(){
+        // isElevatorStopped = true;
+    }
 
     @Override
     public void periodic() {
+
         io.updateInputs(inputs);
         Logger.processInputs("Elevator", inputs);
+        
+        if(!inputs.currentHeight.isNear(inputs.currentHeightRelative,Constants.ELEVATOR_TOLERANCE)){
+            stopElevator();
+        }
+        if (isElevatorStopped){
+            io.setElevatorSpeed(0);
+            io.setBrakeMode(false);
+
+        }
 
         double outputPID = 0;
         if (usePID) {
             outputPID = elevatorPIDController.calculate(inputs.currentHeight.in(Inches));
-            io.setElevatorSpeed(outputPID);
+            if (!isElevatorStopped) {
+                io.setElevatorSpeed(outputPID);
+            }
         }
         Logger.recordOutput("Elevator/usePID", usePID);
         Logger.recordOutput("Elevator/PID", outputPID);
@@ -80,7 +97,9 @@ public class Elevator extends SubsystemBase {
     public Command manualControl(final DoubleSupplier speed) {
         return run(() -> {
                     usePID = false;
-                    io.setElevatorSpeed(speed.getAsDouble());
+                    if (!isElevatorStopped) {
+                        io.setElevatorSpeed(speed.getAsDouble());
+                    }
                 })
                 .finallyDo(() -> usePID = true)
                 .ignoringDisable(true);
@@ -93,6 +112,7 @@ public class Elevator extends SubsystemBase {
     public Command goToSetpoint(final Supplier<Setpoint> setpointSupplier) {
         return runOnce(() -> {
             // usePID = true;
+            io.resetRelativeEncoder(inputs);
             goal = setpointSupplier.get();
             elevatorPIDController.setGoal(goal.value);
         });

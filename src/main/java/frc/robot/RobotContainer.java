@@ -8,9 +8,12 @@ import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -28,6 +31,7 @@ import frc.robot.subsystems.elevator.Elevator.Setpoint;
 import frc.robot.subsystems.fieldtracking.FieldTracking;
 import frc.robot.subsystems.fieldtracking.FieldTrackingIO;
 import frc.robot.subsystems.fieldtracking.FieldTrackingIO.IMUMode;
+import frc.robot.subsystems.fieldtracking.FieldTrackingIOLimeLight;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.intake.IntakeIOReal;
@@ -45,6 +49,8 @@ import frc.robot.subsystems.swervedrive.SwerveDrive;
 import frc.robot.subsystems.swervedrive.SwerveDriveIO;
 import frc.robot.subsystems.swervedrive.SwerveDriveIORoll;
 import frc.robot.subsystems.swervedrive.SwerveDriveIOYaw;
+import frc.robot.subsystems.zoneOperator.ZoneOperator;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.stream.IntStream;
@@ -59,22 +65,21 @@ public class RobotContainer {
     final Manipulator manipulator;
     final LEDs led;
     final Compressor compressor;
+    final ZoneOperator zoneOperator;
 
     public RobotContainer() {
         this.controls = new XboxControls();
         compressor = new Compressor(PneumaticsModuleType.CTREPCM);
         SwerveModuleIO[] moduleIOs = Collections.nCopies(4, SwerveModuleIO.EMPTY).toArray(SwerveModuleIO[]::new);
-        ;
         SwerveDriveIO swerveDriveIO = SwerveDriveIO.EMPTY;
         ElevatorIO elevatorIO = ElevatorIO.EMPTY;
         SequencingIO sequencingIO = SequencingIO.EMPTY;
 
         ManipulatorIO manipulatorIO = ManipulatorIO.EMPTY;
-        ;
+        
         IntakeIO intakeIO = IntakeIO.EMPTY;
         FieldTrackingIO fieldTrackingIO = FieldTrackingIO.EMPTY;
         LEDIO ledio = LEDIO.EMPTY;
-
         if (RobotBase.isReal()) {
             moduleIOs = Arrays.stream(
                     Constants.ON_SYMPHONY ? Constants.MODULE_CONSTANTS_SYMPHONY : Constants.MODULE_CONSTANTS)
@@ -89,7 +94,7 @@ public class RobotContainer {
                 intakeIO = new IntakeIOReal();
                 manipulatorIO = new ManipulatorIOReal();
             }
-            // fieldTrackingIO = new FieldTrackingIOLimeLight();
+            fieldTrackingIO = new FieldTrackingIOLimeLight();
             // ledio = new LEDIOReal();
         }
 
@@ -108,8 +113,10 @@ public class RobotContainer {
         intake = new Intake(intakeIO);
         manipulator = new Manipulator(manipulatorIO, fieldTracking);
         sequencing = new Sequencing(elevator, intake, swerveDrive, manipulator, fieldTracking, sequencingIO);
+        zoneOperator = new ZoneOperator(swerveDrive);
         led = new LEDs(ledio);
         configureBindings();
+        configureZones();
     }
 
     private void configureBindings() {
@@ -162,6 +169,12 @@ public class RobotContainer {
                     }
                 }));
     }
+    private void configureZones (){
+       zoneOperator.addCircle(
+        new Translation2d(4.483, 3.995), 
+        Units.Meters.of(2), 
+        elevator.goToSetpoint(Setpoint.L3).andThen(Commands.run(()->{})).finallyDo(()-> elevator.goToSetpoint(Setpoint.L1)));
+    }
 
     public Command getAutonomousCommand() {
         return null;
@@ -180,7 +193,7 @@ public class RobotContainer {
 
     public void disabledInit() {
         fieldTracking.setCameraIMUMode(IMUMode.InternalMT1Assist);
-        fieldTracking.setThrottle(6);
+        fieldTracking.setThrottle(0);
     }
 
     public void autonomousInit() {
