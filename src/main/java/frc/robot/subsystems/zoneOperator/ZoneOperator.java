@@ -28,14 +28,15 @@ public class ZoneOperator extends SubsystemBase {
         // copeputer numerical copetrol
         Command command;
         Function<Pose2d, Boolean> condition;
+        String label;
 
-        public Zone(Function<Pose2d, Boolean> condition, Command command) {
+        public Zone(Function<Pose2d, Boolean> condition, Command command, String label) {
             this.condition = condition;
             this.command = command;
+            this.label = label;
         }
 
         private void zonePeriodic() {
-
             if (command == null || condition == null) {
                 return;
             }
@@ -48,8 +49,10 @@ public class ZoneOperator extends SubsystemBase {
 
             if (condition.apply(pose) && !command.isScheduled()) {
                 command.schedule();
+                System.out.println("zone canceled -> " + label);
             } else if (!condition.apply(pose) && command.isScheduled()) {
                 command.cancel();
+                System.out.println("zone canceled -> " + label);
             }
         }
     }
@@ -57,23 +60,22 @@ public class ZoneOperator extends SubsystemBase {
     List<Zone> zoneList;
     SwerveDrive swerveDrive;
 
-    // El0evator elevator;
+    // Elevator elevator;
     // Sequencing sequencing;
     // FieldTracking fieldTracking;
     public ZoneOperator(SwerveDrive swerveDrive) {
         this.swerveDrive = swerveDrive;
         zoneList = new ArrayList<Zone>();
-
     }
 
     /**From blue teams perspective */
-    public void addZone(Function<Pose2d, Boolean> predicate, Command command) {
-        Zone zone = new Zone(predicate, command);
+    public void addZone(Function<Pose2d, Boolean> predicate, Command command, String label) {
+        Zone zone = new Zone(predicate, command, label);
         zoneList.add(zone);
     }
 
     /**From blue teams perspective */
-    public void addCircle(Translation2d center, Distance radius, Command command) {
+    public void addCircle(Translation2d center, Distance radius, Command command, String label) {
         this.addZone((currentPose) -> {
             if (center.getDistance(currentPose.getTranslation()) < radius.in(Meters)) {
                 return true;
@@ -81,7 +83,7 @@ public class ZoneOperator extends SubsystemBase {
                 return false;
             }
 
-        }, command);
+        }, command, label);
 
     }
 

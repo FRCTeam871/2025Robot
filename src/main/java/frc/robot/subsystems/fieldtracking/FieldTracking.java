@@ -29,6 +29,7 @@ public class FieldTracking extends SubsystemBase {
         this.sidePidController = new ProfiledPIDController(2.5, 0.001, .1, new Constraints(1000, 1000));
         this.forwardPidController = new ProfiledPIDController(2.5, 0.001, .1, new Constraints(1000, 1000));
         this.yawPidController = new ProfiledPIDController(0.08, 0.001, 0, new Constraints(1000, 1000));
+        yawPidController.enableContinuousInput(0, 360);
         this.swerveDrive = swerveDrive;
         this.io = io;
     }

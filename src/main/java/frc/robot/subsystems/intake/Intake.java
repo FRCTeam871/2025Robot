@@ -5,6 +5,9 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.elevator.Elevator.Setpoint;
+
 import org.littletonrobotics.junction.Logger;
 
 public class Intake extends SubsystemBase {
@@ -13,8 +16,10 @@ public class Intake extends SubsystemBase {
     private long detectionStartTime;
     private long detectionEndTime;
     private boolean wasTargetValid;
-
-    public Intake(IntakeIO io) {
+    Elevator elevator;
+    // Command 
+    public Intake(IntakeIO io, Elevator elevator) {
+        this.elevator = elevator;
         this.io = io;
         setDefaultCommand(dislodge().ignoringDisable(true));
         io.setLeftPistonOut(false);
@@ -41,6 +46,7 @@ public class Intake extends SubsystemBase {
 
     public Command dislodge() {
         return run(() -> {
+            if(elevator.getSetPoint() == Setpoint.Bottom){
             // if target newly detected
             if (inputs.isTargetValid && !wasTargetValid) {
                 // reset start time only if not detected for n micros
@@ -52,7 +58,7 @@ public class Intake extends SubsystemBase {
             if (!inputs.isTargetValid && wasTargetValid) {
                 detectionEndTime = inputs.timeStamp;
             }
-
+            
             Logger.recordOutput("Intake/StartTime", detectionStartTime);
             Logger.recordOutput("Intake/EndTime", detectionEndTime);
             Logger.recordOutput("Intake/LostDuration", (double) (inputs.timeStamp - detectionEndTime) / 1e6);
@@ -71,6 +77,9 @@ public class Intake extends SubsystemBase {
             }
 
             wasTargetValid = inputs.isTargetValid;
+        } else{
+
+        }
         });
     }
 }

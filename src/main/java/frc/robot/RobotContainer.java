@@ -8,6 +8,7 @@ import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.Compressor;
@@ -90,7 +91,7 @@ public class RobotContainer {
                 swerveDriveIO = new SwerveDriveIOYaw(new AHRS(NavXComType.kMXP_SPI));
             } else {
                 swerveDriveIO = new SwerveDriveIORoll(new AHRS(NavXComType.kMXP_SPI));
-                elevatorIO = new ElevatorIOReal();
+                // elevatorIO = new ElevatorIOReal();
                 intakeIO = new IntakeIOReal();
                 manipulatorIO = new ManipulatorIOReal();
             }
@@ -110,7 +111,7 @@ public class RobotContainer {
         elevator = new Elevator(elevatorIO);
         swerveDrive = new SwerveDrive(swerveDriveIO, elevator, swerveModules);
         fieldTracking = new FieldTracking(swerveDrive, fieldTrackingIO);
-        intake = new Intake(intakeIO);
+        intake = new Intake(intakeIO, elevator);
         manipulator = new Manipulator(manipulatorIO, fieldTracking);
         sequencing = new Sequencing(elevator, intake, swerveDrive, manipulator, fieldTracking, sequencingIO);
         zoneOperator = new ZoneOperator(swerveDrive);
@@ -169,11 +170,20 @@ public class RobotContainer {
                     }
                 }));
     }
-    private void configureZones (){
-       zoneOperator.addCircle(
-        new Translation2d(4.483, 3.995), 
-        Units.Meters.of(2), 
-        elevator.goToSetpoint(Setpoint.L3).andThen(Commands.run(()->{})).finallyDo(()-> elevator.goToSetpoint(Setpoint.L1)));
+
+    private void configureZones() {
+        zoneOperator.addCircle(
+            new Translation2d(4.483, 3.995), 
+            Units.Meters.of(2), 
+            elevator.goToSetpoint(Setpoint.L3).andThen(Commands.run(()->{})).finallyDo(()-> elevator.goToSetpoint(Setpoint.L1)),
+            "ReefZone"
+        );
+        zoneOperator.addCircle(
+            new Translation2d(1.103, 6.944), 
+            Units.Meters.of(2), 
+            swerveDrive.doHeadingHold(Rotation2d.fromDegrees(-55)),
+            "CoralStationLeft"
+        );
     }
 
     public Command getAutonomousCommand() {

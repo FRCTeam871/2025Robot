@@ -16,7 +16,7 @@ public class SwerveDriveIOYaw implements SwerveDriveIO {
 
     @Override
     public void updateInputs(final SwerveDriveIOInputs inputs) {
-        inputs.gyroRotation = Rotation2d.fromDegrees(-gyro.getYaw() + 120);
+        inputs.gyroRotation = Rotation2d.fromDegrees(-gyro.getYaw());
         inputs.isCalibrating = gyro.isCalibrating();
         inputs.gyroRate = gyro.getRate();
     }

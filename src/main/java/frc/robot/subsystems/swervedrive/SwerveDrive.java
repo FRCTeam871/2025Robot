@@ -52,6 +52,7 @@ public class SwerveDrive extends SubsystemBase {
     private ProfiledPIDController yawPidController = new ProfiledPIDController(0.08, 0.001, 0, new Constraints(1000, 1000));
 
     public SwerveDrive(final SwerveDriveIO io, final Elevator elevator,final SwerveModule... swerveModules) {
+        yawPidController.enableContinuousInput(0, 360);
         this.swerveModules = swerveModules;
         this.elevator = elevator;
         forwardRateLimiter = new ChangableSlewRateLimiter(Constants.MAX_SPEED_MPS);
