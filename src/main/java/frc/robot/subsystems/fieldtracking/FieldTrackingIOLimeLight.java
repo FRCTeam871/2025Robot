@@ -32,6 +32,11 @@ public class FieldTrackingIOLimeLight implements FieldTrackingIO {
     }
 
     @Override
+    public void setIMUAssistAlpha(double alpha){
+        LimelightHelpers.SetIMUAssistAlpha("limelight", alpha);
+    }
+
+    @Override
     public void setCameraThrottle(int throttle) {
         LimelightHelpers.SetThrottle("limelight", throttle);
     }

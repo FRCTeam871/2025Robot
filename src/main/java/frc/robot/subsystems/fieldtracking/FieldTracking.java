@@ -150,4 +150,7 @@ public class FieldTracking extends SubsystemBase {
     public void setThrottle(final int throttle) {
         io.setCameraThrottle(throttle);
     }
+    public void setIMUAssistAlpha(final double alpha){
+        io.setIMUAssistAlpha(alpha);
+    }
 }

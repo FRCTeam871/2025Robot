@@ -4,6 +4,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.util.FlippingUtil;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
@@ -23,6 +24,7 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -96,7 +98,7 @@ public class SwerveDrive extends SubsystemBase {
             //might not want to make this zero
                 if(headingHoldEnabled && chassisSpeeds.omegaRadiansPerSecond == 0){
                     final double yawout = yawPidController.calculate(getEstimatedPose().getRotation().getDegrees(), headingHold.getDegrees());
-                    chassisSpeeds.omegaRadiansPerSecond = yawout;
+                    chassisSpeeds.omegaRadiansPerSecond = yawout * .5;
                 }
             updateSpeed(chassisSpeeds);
         });
@@ -221,10 +223,14 @@ public class SwerveDrive extends SubsystemBase {
         io.setCurrentAngle(angle);
     }
 
-    public Command doHeadingHold(Rotation2d rotation){
+    public Command doHeadingHoldBlueRelative(Rotation2d rotation){
         return Commands.runOnce(()-> {
+            Rotation2d rotation2 = rotation;
+            if(DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red){
+                rotation2 = FlippingUtil.flipFieldRotation(rotation2);
+            }
             headingHoldEnabled = true;
-            headingHold = rotation;
+            headingHold = rotation2;
         }).andThen(Commands.run(()->{})).finallyDo(()->{
             headingHoldEnabled = false;
         });

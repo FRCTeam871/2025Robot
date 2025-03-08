@@ -1,5 +1,8 @@
 package frc.robot.subsystems.swervedrive;
 
+
+import org.littletonrobotics.junction.Logger;
+
 import com.studica.frc.AHRS;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -17,17 +20,18 @@ public class SwerveDriveIORoll implements SwerveDriveIO {
 
     @Override
     public void setCurrentAngle(double angle){
-        gyroZero = gyro.getRoll() - angle;
+        gyroZero = -(gyro.getYaw()) - angle;
     }
 
     @Override
     public void updateInputs(final SwerveDriveIOInputs inputs) {
-        inputs.gyroRotation = Rotation2d.fromDegrees(gyro.getRoll() - gyroZero);
+        Logger.recordOutput("Drive/gyroZero",gyroZero);
+        inputs.gyroRotation = Rotation2d.fromDegrees(-(gyro.getYaw()) - gyroZero);
         inputs.isCalibrating = gyro.isCalibrating();
         inputs.gyroRate = gyro.getRate();
     }
 
     public void zeroRoll() {
-        gyroZero = gyro.getRoll();
+        gyroZero = -(gyro.getYaw());
     }
 }

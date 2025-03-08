@@ -180,8 +180,8 @@ public class RobotContainer {
         );
         zoneOperator.addCircle(
             new Translation2d(1.103, 6.944), 
-            Units.Meters.of(2), 
-            swerveDrive.doHeadingHold(Rotation2d.fromDegrees(-55)),
+            Units.Meters.of(2),
+            swerveDrive.doHeadingHoldBlueRelative(Rotation2d.fromDegrees(-55)),
             "CoralStationLeft"
         );
     }
@@ -203,7 +203,8 @@ public class RobotContainer {
 
     public void disabledInit() {
         fieldTracking.setCameraIMUMode(IMUMode.InternalMT1Assist);
-        fieldTracking.setThrottle(0);
+        fieldTracking.setThrottle(6);
+        fieldTracking.setIMUAssistAlpha(.1);
     }
 
     public void autonomousInit() {
@@ -214,9 +215,12 @@ public class RobotContainer {
     public void teleopInit() {
         fieldTracking.setCameraIMUMode(IMUMode.InternalMT1Assist);
         fieldTracking.setThrottle(0);
+        fieldTracking.setIMUAssistAlpha(.005);
     }
     public void disabledPeriodic() {
         Pose2d cameraPose = fieldTracking.getLimeLightPose();
+        if(fieldTracking.isAprilTagDetected()){
         swerveDrive.setCurrentAngle(cameraPose.getRotation().getDegrees());
+        }
     }
 }
