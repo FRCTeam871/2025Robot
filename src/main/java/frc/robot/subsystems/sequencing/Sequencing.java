@@ -223,7 +223,7 @@ public class Sequencing extends SubsystemBase {
 
             final Pose2d[] points = path
                     .generateTrajectory(
-                            swerveDrive.getChassisSpeeds(), swerveDrive.getRotation(), swerveDrive.getConfig())
+                            swerveDrive.getChassisSpeeds(), swerveDrive.getGyroRotation(), swerveDrive.getConfig())
                     .getStates()
                     .stream()
                     .map(trajectory -> trajectory.pose)

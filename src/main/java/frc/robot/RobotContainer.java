@@ -91,7 +91,7 @@ public class RobotContainer {
                 swerveDriveIO = new SwerveDriveIOYaw(new AHRS(NavXComType.kMXP_SPI));
             } else {
                 swerveDriveIO = new SwerveDriveIORoll(new AHRS(NavXComType.kMXP_SPI));
-                // elevatorIO = new ElevatorIOReal();
+                elevatorIO = new ElevatorIOReal();
                 intakeIO = new IntakeIOReal();
                 manipulatorIO = new ManipulatorIOReal();
             }
@@ -144,6 +144,14 @@ public class RobotContainer {
                         .scoreCoral(ReefSides.Side1, LeftOrRight.Right, ReefLevel.L4)
                         .until(() -> controls.cancel().getAsBoolean()));
 
+        controls.fieldOrientationToggle().onTrue(Commands.runOnce(()-> {
+            if(swerveDrive.isFieldOrientation()){
+                swerveDrive.setFieldOrientation(false);
+            } else{
+                swerveDrive.setFieldOrientation(true);
+            }
+        }));
+
         // sequencing.bindScoreCoral(controls.placeCoral());
         // controls.cancel().onTrue(Commands.runOnce(()->
         // sequencing.cancelScoreCoral()));
@@ -184,6 +192,13 @@ public class RobotContainer {
             swerveDrive.doHeadingHoldBlueRelative(Rotation2d.fromDegrees(-55)),
             "CoralStationLeft"
         );
+        zoneOperator.addCircle(
+            new Translation2d(3.194, 4.205), 
+            Units.Meters.of(1),
+            swerveDrive.doPoseHoldBlueRelative(new Pose2d(3.194, 4.205, Rotation2d.kZero)).alongWith(swerveDrive.doHeadingHoldBlueRelative(Rotation2d.fromDegrees(0))),
+            "CoralStationRight"
+        );
+        
     }
 
     public Command getAutonomousCommand() {

@@ -33,12 +33,19 @@ import frc.robot.Constants;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorIO;
 import frc.robot.subsystems.swerveModule.SwerveModule;
+
+import static edu.wpi.first.units.Units.Rotation;
+
 import java.util.Arrays;
 import java.util.function.DoubleSupplier;
+
+import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class SwerveDrive extends SubsystemBase {
+    @AutoLogOutput(key = "Drive/fieldOrientation")
+    private boolean fieldOrientation; 
     private final SwerveModule[] swerveModules;
     private final SwerveDriveKinematics swerveDriveKinematics;
     private final SwerveDrivePoseEstimator poseEstimator;
@@ -49,9 +56,15 @@ public class SwerveDrive extends SubsystemBase {
     private ChangableSlewRateLimiter forwardRateLimiter;
     private ChangableSlewRateLimiter sideRateLimiter;
     private ChangableSlewRateLimiter rotationRateLimiter;
+
     private boolean headingHoldEnabled;
     private Rotation2d headingHold;
     private ProfiledPIDController yawPidController = new ProfiledPIDController(0.08, 0.001, 0, new Constraints(1000, 1000));
+
+    private boolean poseHoldEnabled;
+    private Pose2d poseHold;
+    private ProfiledPIDController sidePidController = new ProfiledPIDController(4, 0.001, .1, new Constraints(1000, 1000));
+    private ProfiledPIDController forwardPidController = new ProfiledPIDController(2.5, 0.001, .1, new Constraints(1000, 1000));
 
     public SwerveDrive(final SwerveDriveIO io, final Elevator elevator,final SwerveModule... swerveModules) {
         yawPidController.enableContinuousInput(0, 360);
@@ -66,7 +79,7 @@ public class SwerveDrive extends SubsystemBase {
 
         this.swerveDriveKinematics = new SwerveDriveKinematics(leverArmArray);
         this.poseEstimator =
-                new SwerveDrivePoseEstimator(swerveDriveKinematics, getRotation(), getModulePositions(), new Pose2d());
+                new SwerveDrivePoseEstimator(swerveDriveKinematics, getGyroRotation(), getModulePositions(), new Pose2d());
 
         try {
             this.config = RobotConfig.fromGUISettings();
@@ -91,15 +104,36 @@ public class SwerveDrive extends SubsystemBase {
     public Command manualDrive(final DoubleSupplier vx, final DoubleSupplier vy, final DoubleSupplier omegarad) {
         return run(() -> {
             ChassisSpeeds chassisSpeeds = new ChassisSpeeds(
-                    vy.getAsDouble() * Constants.MAX_SPEED_MPS,
-                    vx.getAsDouble() * Constants.MAX_SPEED_MPS,
-                    omegarad.getAsDouble() * Constants.MAX_ROTATION_SPEED_RDPS);
-
-            //might not want to make this zero
-                if(headingHoldEnabled && chassisSpeeds.omegaRadiansPerSecond == 0){
-                    final double yawout = yawPidController.calculate(getEstimatedPose().getRotation().getDegrees(), headingHold.getDegrees());
-                    chassisSpeeds.omegaRadiansPerSecond = yawout * .5;
+                vy.getAsDouble() * Constants.MAX_SPEED_MPS ,
+                vx.getAsDouble() * Constants.MAX_SPEED_MPS,
+                omegarad.getAsDouble() * Constants.MAX_ROTATION_SPEED_RDPS);
+            if(fieldOrientation){
+                Rotation2d rotation = getEstimatedPose().getRotation();
+                if(DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red){
+                    rotation = rotation.plus(Rotation2d.fromDegrees(180));
                 }
+                chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(chassisSpeeds, rotation);
+            }
+            //might not want to make this zero
+            if(headingHoldEnabled && chassisSpeeds.omegaRadiansPerSecond == 0){
+                final double yawout = yawPidController.calculate(getEstimatedPose().getRotation().getDegrees(), headingHold.getDegrees());
+                chassisSpeeds.omegaRadiansPerSecond = yawout * .5;
+            }
+
+            if(poseHoldEnabled && chassisSpeeds.vxMetersPerSecond == 0 && chassisSpeeds.vyMetersPerSecond == 0){
+                Logger.recordOutput("Drive/HoldPose", poseHold);
+
+                final Pose2d relTgtPose = poseHold.relativeTo(getEstimatedPose());
+    
+                final double yout = sidePidController.calculate(0, relTgtPose.getY());
+                final double xout = forwardPidController.calculate(0, relTgtPose.getX());
+                Logger.recordOutput("Drive/tyPID", yout);
+                Logger.recordOutput("Drive/txPID", xout);
+
+                chassisSpeeds.vxMetersPerSecond = xout;
+                chassisSpeeds.vyMetersPerSecond = yout;
+            }
+
             updateSpeed(chassisSpeeds);
         });
     }
@@ -109,7 +143,7 @@ public class SwerveDrive extends SubsystemBase {
         io.updateInputs(inputs);
         Logger.processInputs("Drive", inputs);
 
-        poseEstimator.update(getRotation(), getModulePositions());
+        poseEstimator.update(getGyroRotation(), getModulePositions());
         for (final SwerveModule bob : swerveModules) {
             bob.periodic();
         }
@@ -199,7 +233,7 @@ public class SwerveDrive extends SubsystemBase {
     }
 
     @AutoLogOutput(key = "Drive/Rotation")
-    public Rotation2d getRotation() {
+    public Rotation2d getGyroRotation() {
         return inputs.gyroRotation;
     }
 
@@ -219,6 +253,14 @@ public class SwerveDrive extends SubsystemBase {
         poseEstimator.addVisionMeasurement(visionRobotPoseMeters, timestampSeconds, visionMeasurementStdDevs);
     }
 
+    public boolean isFieldOrientation() {
+        return fieldOrientation;
+    }
+
+    public void setFieldOrientation(boolean fieldOrientation) {
+        this.fieldOrientation = fieldOrientation;
+    }
+
     public void setCurrentAngle(double angle){
         io.setCurrentAngle(angle);
     }
@@ -233,6 +275,19 @@ public class SwerveDrive extends SubsystemBase {
             headingHold = rotation2;
         }).andThen(Commands.run(()->{})).finallyDo(()->{
             headingHoldEnabled = false;
+        });
+    }
+    
+    public Command doPoseHoldBlueRelative(Pose2d pose){
+        return Commands.runOnce(()-> {
+            Pose2d pose2 = pose;
+            if(DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red){
+                pose2 = FlippingUtil.flipFieldPose(pose2);
+            }
+            poseHoldEnabled = true;
+            poseHold = pose2;
+        }).andThen(Commands.run(()->{})).finallyDo(()->{
+            poseHoldEnabled = false;
         });
     }
 }

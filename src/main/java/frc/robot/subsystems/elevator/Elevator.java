@@ -22,7 +22,7 @@ public class Elevator extends SubsystemBase {
     private boolean isElevatorStopped = false;
 
     public enum Setpoint {
-        Bottom(22.25),
+        Bottom(18.25),
         L1(30),
         L2(36),
         L3(50),

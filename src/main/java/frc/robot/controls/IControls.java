@@ -35,4 +35,6 @@ public interface IControls {
     public Trigger releaseCoral();
 
     public Trigger compressorToggle();
+
+    public Trigger fieldOrientationToggle();
 }

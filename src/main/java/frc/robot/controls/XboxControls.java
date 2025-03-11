@@ -5,6 +5,8 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
 import java.util.function.DoubleSupplier;
 
+import org.littletonrobotics.conduit.schema.SystemData;
+
 public class XboxControls implements IControls {
 
     CommandXboxController driveXboxController;
@@ -88,5 +90,10 @@ public class XboxControls implements IControls {
     @Override
     public Trigger compressorToggle(){
         return driveXboxController.back();
+    }
+    
+    @Override
+    public Trigger fieldOrientationToggle(){
+        return systemXboxController.b();
     }
 }

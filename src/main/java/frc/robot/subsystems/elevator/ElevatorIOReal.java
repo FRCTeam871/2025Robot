@@ -19,16 +19,16 @@ import org.littletonrobotics.junction.Logger;
 
 public class ElevatorIOReal implements ElevatorIO {
    
-    private final double INPUT_BOTTOM = 4.43;
-    private final double INPUT_TOP = .72;
+    private final double INPUT_BOTTOM = 4.44;
+    private final double INPUT_TOP = .7455;
     private final Distance OUTPUT_BOTTOM = Units.Inches.of(18.25);
     private final Distance OUTPUT_TOP = Units.Inches.of(77.25);
     private final double SLOPE =
             (OUTPUT_TOP.in(Units.Inches) - OUTPUT_BOTTOM.in(Units.Inches)) / (INPUT_TOP - INPUT_BOTTOM);
     private final double INTERCEPT = OUTPUT_TOP.in(Units.Inches) - (SLOPE * INPUT_TOP);
      //TODO: find relative input actual
-    private final double RELATIVE_INPUT_BOTTOM = -27.46;
-    private final double RELATIVE_INPUT_TOP = 176.72;
+    private final double RELATIVE_INPUT_BOTTOM = 0;
+    private final double RELATIVE_INPUT_TOP = 203.28;
     private final double RELATIVE_SLOPE = 
     (OUTPUT_TOP.in(Units.Inches) - OUTPUT_BOTTOM.in(Units.Inches)) / (RELATIVE_INPUT_TOP - RELATIVE_INPUT_BOTTOM);
     private final double RELATIVE_INTERCEPT = OUTPUT_TOP.in(Units.Inches) - (SLOPE * RELATIVE_INPUT_TOP);
