@@ -21,6 +21,7 @@ import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.fieldtracking.FieldTracking;
 import frc.robot.subsystems.sequencing.Sequencing;
 import frc.robot.subsystems.swervedrive.SwerveDrive;
+import java.awt.Polygon;
 
 public class ZoneOperator extends SubsystemBase {
 
@@ -85,6 +86,23 @@ public class ZoneOperator extends SubsystemBase {
 
         }, command, label);
 
+    }
+    public void addPolygon(Translation2d[] sidesOfPolygon, Command command, String label){
+        int[] xArray = new int[sidesOfPolygon.length];
+        int[] yArray = new int[sidesOfPolygon.length];
+
+        for (int i = 0; i < sidesOfPolygon.length; i++ ){
+            xArray[i] = (int) (sidesOfPolygon[i].getX()*1000);
+            yArray[i] = (int) (sidesOfPolygon[i].getY()*1000);
+
+        }
+        Polygon p = new Polygon(xArray, yArray, sidesOfPolygon.length);
+
+        this.addZone((currentPose) -> {
+            return p.contains(currentPose.getX()*1000, currentPose.getY()*1000);
+            
+
+        }, command, label);
     }
 
     @Override

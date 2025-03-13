@@ -15,7 +15,7 @@ import frc.robot.subsystems.swerveModule.SwerveModuleIOSparkFlex;
 import frc.robot.subsystems.swerveModule.SwerveModuleIOSparkMax;
 
 public class Constants {
-    public static final boolean ON_SYMPHONY = false;
+    public static final boolean ON_SYMPHONY = true;
 
     // Swerve Constants
     public static final double SWERVE_STEER_KP = 2 / 360.0;
@@ -44,6 +44,8 @@ public class Constants {
     public static final Time PISTON_OUT_TIME = Units.Second.of(0.25);
     public static final Pose3d[] EMPTY_POSE_ARRAY = {};
     public static final int[] EMPTY_INT_ARRAY = {};
+
+    public static final int AUTON_STAGES = 7;
 
     public record ModuleConstants(
             String label,

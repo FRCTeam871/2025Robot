@@ -315,4 +315,23 @@ public class Sequencing extends SubsystemBase {
                 Units.Inches.of(leftOrRight == LeftOrRight.Left ? -6.5 : 6.5),
                 Rotation2d.k180deg));
     }
+
+    public Pose2d reefPose(final ReefSides reefSides) {
+        int aprilTagID;
+        if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue) {
+            aprilTagID = reefSides.blueAprilTagID;
+        } else {
+            aprilTagID = reefSides.redAprilTagID;
+        }
+
+        // the april tag ids hard coded into the enum are assumed to be valid
+        assert fieldLayout.getTagPose(aprilTagID).isPresent();
+
+        final Pose2d aprilTagPose = fieldLayout.getTagPose(aprilTagID).get().toPose2d(); // 3d no no
+
+        return aprilTagPose.plus(new Transform2d(
+                ROBOT_X_LENGTH.div(2),
+                Units.Inches.of(0),
+                Rotation2d.k180deg));
+    }
 }

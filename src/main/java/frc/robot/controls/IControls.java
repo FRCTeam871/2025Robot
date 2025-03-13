@@ -37,4 +37,6 @@ public interface IControls {
     public Trigger compressorToggle();
 
     public Trigger fieldOrientationToggle();
+
+    public Trigger buttonL1(); 
 }

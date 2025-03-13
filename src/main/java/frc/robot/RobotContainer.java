@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
+import frc.AutonomousPlanner;
 import frc.robot.Constants.ModuleConstants;
 import frc.robot.controls.IControls;
 import frc.robot.controls.XboxControls;
@@ -67,8 +68,11 @@ public class RobotContainer {
     final LEDs led;
     final Compressor compressor;
     final ZoneOperator zoneOperator;
+    final AutonomousPlanner autonomousPlanner;
+    Elevator.Setpoint storedLevel;
 
     public RobotContainer() {
+        storedLevel = Elevator.Setpoint.L1;
         this.controls = new XboxControls();
         compressor = new Compressor(PneumaticsModuleType.CTREPCM);
         SwerveModuleIO[] moduleIOs = Collections.nCopies(4, SwerveModuleIO.EMPTY).toArray(SwerveModuleIO[]::new);
@@ -94,8 +98,8 @@ public class RobotContainer {
                 elevatorIO = new ElevatorIOReal();
                 intakeIO = new IntakeIOReal();
                 manipulatorIO = new ManipulatorIOReal();
+                fieldTrackingIO = new FieldTrackingIOLimeLight();
             }
-            fieldTrackingIO = new FieldTrackingIOLimeLight();
             // ledio = new LEDIOReal();
         }
 
@@ -115,6 +119,7 @@ public class RobotContainer {
         manipulator = new Manipulator(manipulatorIO, fieldTracking);
         sequencing = new Sequencing(elevator, intake, swerveDrive, manipulator, fieldTracking, sequencingIO);
         zoneOperator = new ZoneOperator(swerveDrive);
+        autonomousPlanner = new AutonomousPlanner(elevator, intake, manipulator, swerveDrive, sequencing, fieldTracking);
         led = new LEDs(ledio);
         configureBindings();
         configureZones();
@@ -152,6 +157,8 @@ public class RobotContainer {
             }
         }));
 
+        controls.buttonL1().onTrue(Commands.runOnce(()-> storedLevel = Elevator.Setpoint.L3));
+
         // sequencing.bindScoreCoral(controls.placeCoral());
         // controls.cancel().onTrue(Commands.runOnce(()->
         // sequencing.cancelScoreCoral()));
@@ -183,7 +190,7 @@ public class RobotContainer {
         zoneOperator.addCircle(
             new Translation2d(4.483, 3.995), 
             Units.Meters.of(2), 
-            elevator.goToSetpoint(Setpoint.L3).andThen(Commands.run(()->{})).finallyDo(()-> elevator.goToSetpoint(Setpoint.L1)),
+            Commands.runOnce(()-> elevator.goToSetpoint(storedLevel).schedule()).andThen(Commands.run(()->{})).finallyDo(()-> elevator.goToSetpoint(Setpoint.Bottom).schedule()),
             "ReefZone"
         );
         zoneOperator.addCircle(
@@ -194,15 +201,40 @@ public class RobotContainer {
         );
         zoneOperator.addCircle(
             new Translation2d(3.194, 4.205), 
-            Units.Meters.of(1),
-            swerveDrive.doPoseHoldBlueRelative(new Pose2d(3.194, 4.205, Rotation2d.kZero)).alongWith(swerveDrive.doHeadingHoldBlueRelative(Rotation2d.fromDegrees(0))),
-            "CoralStationRight"
+            Units.Meters.of(.3),
+            swerveDrive.doPoseHoldBlueRelative(new Pose2d(3.194, 4.205, Rotation2d.kZero)),
+            "ReefLeft"
         );
-        
+        zoneOperator.addPolygon(new Translation2d[]{
+            new Translation2d(3.625,4.514),
+            new Translation2d(3.625,3.550),            
+            new Translation2d(2.805,3.097),
+            new Translation2d(2.805,4.946),
+
+        }, swerveDrive.doHeadingHoldBlueRelative(Rotation2d.fromDegrees(0)), "gregory" ); // ??
+
+        // for (ReefSides side : ReefSides.values()) {
+        //     Pose2d leftPose = sequencing.reefPose(side, LeftOrRight.Left); 
+        //     Pose2d rightPose = sequencing.reefPose(side, LeftOrRight.Right); 
+        //     Pose2d centerPose = sequencing.reefPose(side);
+            
+        //     zoneOperator.addCircle(
+        //         leftPose.getTranslation(), 
+        //         Units.Meters.of(1),
+        //         swerveDrive.doPoseHoldBlueRelative(leftPose),
+        //         "CoralStationLeft"
+        //     );
+        //     zoneOperator.addCircle(
+        //         rightPose.getTranslation(), 
+        //         Units.Meters.of(1),
+        //         swerveDrive.doPoseHoldBlueRelative(rightPose),
+        //         "CoralStationRight"
+        //     );
+        // }
     }
 
     public Command getAutonomousCommand() {
-        return null;
+        return autonomousPlanner.getAutonCommand();
     }
 
     public Command getTeleopCommand() {
@@ -228,7 +260,7 @@ public class RobotContainer {
     }
 
     public void teleopInit() {
-        fieldTracking.setCameraIMUMode(IMUMode.InternalMT1Assist);
+        fieldTracking.setCameraIMUMode(IMUMode.InternalExternalAssist);
         fieldTracking.setThrottle(0);
         fieldTracking.setIMUAssistAlpha(.005);
     }

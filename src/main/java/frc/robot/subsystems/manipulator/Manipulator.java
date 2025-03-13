@@ -12,6 +12,7 @@ public class Manipulator extends SubsystemBase {
         this.io = io;
         this.fieldTracking = fieldTracking;
     }
+    //TODO: hasCoral
 
     public Command pushCoral() {
         return Commands.run(() -> io.pushCoral(true))

@@ -53,9 +53,9 @@ public class ElevatorIOReal implements ElevatorIO {
         this.relativeFilter = LinearFilter.singlePoleIIR(.2, .02);
 
         final SparkFlexConfig config = new SparkFlexConfig();
-        // config.smartCurrentLimit(40);
+        config.smartCurrentLimit(35);
+        config.secondaryCurrentLimit(55);
         config.idleMode(IdleMode.kBrake);
-        // TODO: current limit
         elevatorMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 
