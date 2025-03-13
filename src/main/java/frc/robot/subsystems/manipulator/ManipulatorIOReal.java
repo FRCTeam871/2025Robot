@@ -15,11 +15,13 @@ public class ManipulatorIOReal implements ManipulatorIO {
 
     @Override
     public void pushCoral(final boolean extend) {
+        ManipulatorIO.super.pushCoral(extend);
         pushPiston.set(extend);
     }
 
     @Override
     public void holdCoral(final boolean extend) {
+        ManipulatorIO.super.holdCoral(extend);
         holdPiston.set(!extend);
     }
 

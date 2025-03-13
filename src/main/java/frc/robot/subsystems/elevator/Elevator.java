@@ -62,16 +62,18 @@ public class Elevator extends SubsystemBase {
         this.io = io;
         this.elevatorPIDController = new ProfiledPIDController(.125, 0, 0.02, new TrapezoidProfile.Constraints(100, 250));
         elevatorPIDController.setGoal(goal.value);
+        elevatorPIDController.setTolerance(.15);
         SmartDashboard.putData("Elevator/PID", elevatorPIDController);
     }
     public void stopElevator(){
         // isElevatorStopped = true;
     }
-
+    int i;
     @Override
     public void periodic() {
 
         io.updateInputs(inputs);
+        System.out.println("elevator periodic" + i++);
         Logger.processInputs("Elevator", inputs);
         
         if(!inputs.currentHeight.isNear(inputs.currentHeightRelative,Constants.ELEVATOR_TOLERANCE)){

@@ -3,16 +3,16 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.387274590163935,
-        "y": 5.362827868852459
+        "x": 2.8626639344262297,
+        "y": 4.00342213114754
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.121372950819673,
-        "y": 5.815963114754097
+        "x": 2.2009426229508198,
+        "y": 4.859344262295081
       },
       "isLocked": false,
-      "linkedName": "reefside3"
+      "linkedName": "Reef Side 1"
     },
     {
       "anchor": {
@@ -20,8 +20,8 @@
         "y": 6.945204918032787
       },
       "prevControl": {
-        "x": 0.20836065573770512,
-        "y": 6.945204918032786
+        "x": 2.5749590163934424,
+        "y": 6.456106557377049
       },
       "nextControl": null,
       "isLocked": false,
@@ -48,7 +48,7 @@
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -119.99999999999999
+    "rotation": 0.0
   },
   "useDefaultConstraints": true
 }

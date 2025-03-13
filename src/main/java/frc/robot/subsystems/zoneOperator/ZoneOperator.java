@@ -25,6 +25,7 @@ import java.awt.Polygon;
 
 public class ZoneOperator extends SubsystemBase {
 
+    boolean enabled = true;
     class Zone {
         // copeputer numerical copetrol
         Command command;
@@ -48,10 +49,10 @@ public class ZoneOperator extends SubsystemBase {
                 pose = swerveDrive.getEstimatedPose();
             }
 
-            if (condition.apply(pose) && !command.isScheduled()) {
+            if (condition.apply(pose) && !command.isScheduled() && enabled) {
                 command.schedule();
                 System.out.println("zone canceled -> " + label);
-            } else if (!condition.apply(pose) && command.isScheduled()) {
+            } else if ((!condition.apply(pose) || !enabled) && command.isScheduled()) {
                 command.cancel();
                 System.out.println("zone canceled -> " + label);
             }
@@ -107,10 +108,13 @@ public class ZoneOperator extends SubsystemBase {
 
     @Override
     public void periodic() {
+        
         for (Zone zone : zoneList) {
             zone.zonePeriodic();
         }
-
+    }
+    public void setEnabled(boolean set){
+        this.enabled = set;
     }
 
 }

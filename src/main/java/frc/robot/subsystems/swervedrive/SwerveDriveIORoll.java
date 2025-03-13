@@ -14,6 +14,7 @@ public class SwerveDriveIORoll implements SwerveDriveIO {
 
     public SwerveDriveIORoll(final AHRS gyro) {
         SmartDashboard.putData("resetGyro", Commands.runOnce(this::zeroRoll).ignoringDisable(true));
+        SmartDashboard.putData("resetGyro180", Commands.runOnce(() -> setCurrentAngle(180.0)).ignoringDisable(true));
         this.gyro = gyro;
         zeroRoll();
     }

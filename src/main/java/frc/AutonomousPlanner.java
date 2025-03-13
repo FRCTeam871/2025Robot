@@ -2,10 +2,14 @@ package frc;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.util.FlippingUtil;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.units.Units;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -24,9 +28,13 @@ import frc.robot.subsystems.sequencing.Sequencing.ReefLevel;
 import frc.robot.subsystems.sequencing.Sequencing.ReefSides;
 import frc.robot.subsystems.swervedrive.SwerveDrive;
 
+import static edu.wpi.first.units.Units.Rotation;
+
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.function.Function;
+
+import org.littletonrobotics.junction.Logger;
 
 public class AutonomousPlanner {
 
@@ -186,19 +194,22 @@ public class AutonomousPlanner {
 
     private boolean generateStage(final SequentialCommandGroup scg, final FieldPosition start, final FieldPosition end, Action action, int i) {
         PathPlannerPath path = findPath(start, end);
-
+        
         if (action.canDoAction(end) && path != null) {
             SmartDashboard.putBoolean("Auton/Indicator" + i, true);
         }
         else {
             SmartDashboard.putBoolean("Auton/Indicator" + i, false);
         }
-
+        
         if (path == null) {
             field.getObject("stage" + i).setPoses(new Pose2d[0]);
             return false;
         }
-
+        path.preventFlipping = true;
+        if(DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red){
+            path = path.flipPath();
+        }
 
         final Pose2d[] points = path
             .generateTrajectory(new ChassisSpeeds(), Rotation2d.kZero, swerveDrive.getConfig())
@@ -209,12 +220,28 @@ public class AutonomousPlanner {
         
         field.getObject("stage" + i).setPoses(points);
 
+        scg.addCommands(Commands.runOnce(()-> {
+            Logger.recordOutput("Sequencing/Path", points);
+        }));
         scg.addCommands(AutoBuilder.followPath(path));
         if(action.canDoAction(end)){
         switch(action){
             case Intake:
             // make the elevator dowm if its not down and then mantain its pose up againist the coral station then stop when sensor sees the coral
-            scg.addCommands(fieldTracking.maintainPose(null).until(()-> manipulator.hasCoral));
+
+            Pose2d pose = null;
+            if(end == FieldPosition.CoralStationLeft){
+                pose = new Pose2d(1.144, 6.996,Rotation2d.fromDegrees(-54));
+            } else if(end == FieldPosition.CoralStationRight){
+                pose = new Pose2d(1.086, 1.112, Rotation2d.fromDegrees(54));
+            }
+            if(DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red){
+                pose = FlippingUtil.flipFieldPose(pose);
+            }
+
+
+
+            scg.addCommands(fieldTracking.maintainPose(pose).withTimeout(10));
                 break;
             case LeftScoreCoralL1:
             scg.addCommands(sequencing.scoreCoral(end.asReefSide(), LeftOrRight.Left, ReefLevel.L1));

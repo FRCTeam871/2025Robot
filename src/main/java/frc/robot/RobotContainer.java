@@ -170,7 +170,7 @@ public class RobotContainer {
 
         controls.pushCoral().onTrue((new ConditionalCommand(Commands.run(()->{}),manipulator.pushCoral(), ()-> elevator.getSetPoint() == Setpoint.L4)).beforeStarting(Commands.run(() -> {
         }).withTimeout(.02)).alongWith(manipulator.releaseCoral()).withTimeout(.8).finallyDo(() -> elevator.goToSetpoint(Setpoint.Bottom).schedule()));
-        // controls.releaseCoral().whileTrue(manipulator.releaseCoral().andThen(elevator.goToSetpoint(Setpoint.Bottom)));
+        controls.releaseCoral().whileTrue(manipulator.releaseCoral());
         // controls.pushCoral().whileTrue(manipulator.pushCoral());
 
         controls.intakePiston1().whileTrue(intake.sendLeftPistonOut());
@@ -249,25 +249,29 @@ public class RobotContainer {
     }
 
     public void disabledInit() {
-        fieldTracking.setCameraIMUMode(IMUMode.InternalMT1Assist);
+        // fieldTracking.setCameraIMUMode(IMUMode.InternalMT1Assist);
+        fieldTracking.setCameraIMUMode(IMUMode.InternalExternalAssist);
         fieldTracking.setThrottle(6);
         fieldTracking.setIMUAssistAlpha(.1);
+        zoneOperator.setEnabled(false);
     }
 
     public void autonomousInit() {
-        fieldTracking.setCameraIMUMode(IMUMode.InternalMT1Assist);
+        fieldTracking.setCameraIMUMode(IMUMode.InternalExternalAssist);
         fieldTracking.setThrottle(0);
+        zoneOperator.setEnabled(false);
     }
 
     public void teleopInit() {
         fieldTracking.setCameraIMUMode(IMUMode.InternalExternalAssist);
         fieldTracking.setThrottle(0);
         fieldTracking.setIMUAssistAlpha(.005);
+        zoneOperator.setEnabled(true);
     }
     public void disabledPeriodic() {
         Pose2d cameraPose = fieldTracking.getLimeLightPose();
         if(fieldTracking.isAprilTagDetected()){
-        swerveDrive.setCurrentAngle(cameraPose.getRotation().getDegrees());
+        // swerveDrive.setCurrentAngle(cameraPose.getRotation().getDegrees());
         }
     }
 }

@@ -14,6 +14,11 @@ public class Manipulator extends SubsystemBase {
     }
     //TODO: hasCoral
 
+    //sensor not hooked up right now fix once it is
+    // public boolean hascoral(){
+    //     return manipulatorSensor;
+    // }
+
     public Command pushCoral() {
         return Commands.run(() -> io.pushCoral(true))
                 .finallyDo(canceled -> io.pushCoral(false));

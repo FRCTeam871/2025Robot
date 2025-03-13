@@ -15,7 +15,7 @@ import frc.robot.subsystems.swerveModule.SwerveModuleIOSparkFlex;
 import frc.robot.subsystems.swerveModule.SwerveModuleIOSparkMax;
 
 public class Constants {
-    public static final boolean ON_SYMPHONY = true;
+    public static final boolean ON_SYMPHONY = false;
 
     // Swerve Constants
     public static final double SWERVE_STEER_KP = 2 / 360.0;

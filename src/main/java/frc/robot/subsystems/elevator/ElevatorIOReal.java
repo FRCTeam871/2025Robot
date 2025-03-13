@@ -19,8 +19,8 @@ import org.littletonrobotics.junction.Logger;
 
 public class ElevatorIOReal implements ElevatorIO {
    
-    private final double INPUT_BOTTOM = 4.44;
-    private final double INPUT_TOP = .7455;
+    private final double INPUT_BOTTOM = 4.455;
+    private final double INPUT_TOP = 0.7605;
     private final Distance OUTPUT_BOTTOM = Units.Inches.of(18.25);
     private final Distance OUTPUT_TOP = Units.Inches.of(77.25);
     private final double SLOPE =
@@ -53,7 +53,7 @@ public class ElevatorIOReal implements ElevatorIO {
         this.relativeFilter = LinearFilter.singlePoleIIR(.2, .02);
 
         final SparkFlexConfig config = new SparkFlexConfig();
-        config.smartCurrentLimit(35);
+        config.smartCurrentLimit(45);
         config.secondaryCurrentLimit(55);
         config.idleMode(IdleMode.kBrake);
         elevatorMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
