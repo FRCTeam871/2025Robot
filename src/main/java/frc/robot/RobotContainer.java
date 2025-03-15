@@ -11,7 +11,9 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Compressor;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -158,7 +160,7 @@ public class RobotContainer {
         }));
 
         controls.buttonL1().onTrue(Commands.runOnce(()-> storedLevel = Elevator.Setpoint.L3));
-
+        
         // sequencing.bindScoreCoral(controls.placeCoral());
         // controls.cancel().onTrue(Commands.runOnce(()->
         // sequencing.cancelScoreCoral()));
@@ -273,5 +275,9 @@ public class RobotContainer {
         if(fieldTracking.isAprilTagDetected()){
         // swerveDrive.setCurrentAngle(cameraPose.getRotation().getDegrees());
         }
+    }
+
+    public void robotPeriodic() {
+        autonomousPlanner.periodic();
     }
 }

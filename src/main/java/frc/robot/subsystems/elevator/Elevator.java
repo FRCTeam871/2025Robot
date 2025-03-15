@@ -73,7 +73,6 @@ public class Elevator extends SubsystemBase {
     public void periodic() {
 
         io.updateInputs(inputs);
-        System.out.println("elevator periodic" + i++);
         Logger.processInputs("Elevator", inputs);
         
         if(!inputs.currentHeight.isNear(inputs.currentHeightRelative,Constants.ELEVATOR_TOLERANCE)){

@@ -1,11 +1,20 @@
 package frc;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.littletonrobotics.junction.Logger;
+
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.path.GoalEndState;
+import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.path.Waypoint;
 import com.pathplanner.lib.util.FlippingUtil;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -19,7 +28,6 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.Constants;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.fieldtracking.FieldTracking;
-import frc.robot.subsystems.fieldtracking.FieldTrackingIOInputsAutoLogged;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.manipulator.Manipulator;
 import frc.robot.subsystems.sequencing.Sequencing;
@@ -27,14 +35,6 @@ import frc.robot.subsystems.sequencing.Sequencing.LeftOrRight;
 import frc.robot.subsystems.sequencing.Sequencing.ReefLevel;
 import frc.robot.subsystems.sequencing.Sequencing.ReefSides;
 import frc.robot.subsystems.swervedrive.SwerveDrive;
-
-import static edu.wpi.first.units.Units.Rotation;
-
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.function.Function;
-
-import org.littletonrobotics.junction.Logger;
 
 public class AutonomousPlanner {
 
@@ -64,6 +64,43 @@ public class AutonomousPlanner {
                             case ReefSide5 -> ReefSides.Side5;
                             case ReefSide6 -> ReefSides.Side6;
                             default -> throw new IllegalArgumentException("Unexpected value: " + this);
+            };
+        }
+
+        public Pose2d asPose2d(Sequencing sequencing){
+            return switch (this) {
+                case CoralStationLeft -> flipPose2d(new Pose2d(1.144, 6.996,Rotation2d.fromDegrees(-54)));
+                case CoralStationRight -> flipPose2d(new Pose2d(1.086, 1.112, Rotation2d.fromDegrees(54)));
+                case None -> null;
+                case ReefSide1, ReefSide2, ReefSide3, ReefSide4, ReefSide5, ReefSide6 -> sequencing.reefPose(this.asReefSide(), Units.Inches.of(24));
+                case StartLeft -> flipPose2d(new Pose2d(7.588, 6.873, Rotation2d.fromDegrees(180)));
+                case StartMiddle -> flipPose2d(new Pose2d(7.567, 4.047, Rotation2d.fromDegrees(180)));
+                case StartRight -> flipPose2d(new Pose2d(7.574, 0.796, Rotation2d.fromDegrees(180)));
+                default -> throw new IllegalArgumentException("Unexpected value: " + this);
+                
+            };
+        }
+        private Pose2d flipPose2d(Pose2d pose){
+            if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red){
+                return FlippingUtil.flipFieldPose(pose);
+            }
+            else{
+                return pose;
+            }
+
+        }
+        private boolean flipApproachEnd(){
+            return switch(this){
+                case CoralStationLeft, CoralStationRight -> true;
+                default -> false;
+                
+            };
+        }
+        private boolean flipApproachStart(){
+            return switch(this){
+                case ReefSide1, ReefSide2, ReefSide3, ReefSide4, ReefSide5, ReefSide6 -> true;
+                default -> false;
+                
             };
         }
     }
@@ -206,10 +243,7 @@ public class AutonomousPlanner {
             field.getObject("stage" + i).setPoses(new Pose2d[0]);
             return false;
         }
-        path.preventFlipping = true;
-        if(DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red){
-            path = path.flipPath();
-        }
+        
 
         final Pose2d[] points = path
             .generateTrajectory(new ChassisSpeeds(), Rotation2d.kZero, swerveDrive.getConfig())
@@ -244,31 +278,31 @@ public class AutonomousPlanner {
             scg.addCommands(fieldTracking.maintainPose(pose).withTimeout(10));
                 break;
             case LeftScoreCoralL1:
-            scg.addCommands(sequencing.scoreCoral(end.asReefSide(), LeftOrRight.Left, ReefLevel.L1));
+            scg.addCommands(sequencing.scoreCoralNoPath(end.asReefSide(), LeftOrRight.Left, ReefLevel.L1));
             break;
             case LeftScoreCoralL3:
-            scg.addCommands(sequencing.scoreCoral(end.asReefSide(), LeftOrRight.Left, ReefLevel.L3));
+            scg.addCommands(sequencing.scoreCoralNoPath(end.asReefSide(), LeftOrRight.Left, ReefLevel.L3));
                 break;
             case LeftScoreCoralL4:
-            scg.addCommands(sequencing.scoreCoral(end.asReefSide(), LeftOrRight.Left, ReefLevel.L4));
+            scg.addCommands(sequencing.scoreCoralNoPath(end.asReefSide(), LeftOrRight.Left, ReefLevel.L4));
                 break;
             case LeftScorecoralL2:
-            scg.addCommands(sequencing.scoreCoral(end.asReefSide(), LeftOrRight.Left, ReefLevel.L2));
+            scg.addCommands(sequencing.scoreCoralNoPath(end.asReefSide(), LeftOrRight.Left, ReefLevel.L2));
                 break;
             case None:
             //nothing
                 break;
             case RightScoreCoralL1:
-            scg.addCommands(sequencing.scoreCoral(end.asReefSide(), LeftOrRight.Right, ReefLevel.L1));
+            scg.addCommands(sequencing.scoreCoralNoPath(end.asReefSide(), LeftOrRight.Right, ReefLevel.L1));
                 break;
             case RightScoreCoralL3:
-            scg.addCommands(sequencing.scoreCoral(end.asReefSide(), LeftOrRight.Right, ReefLevel.L3));
+            scg.addCommands(sequencing.scoreCoralNoPath(end.asReefSide(), LeftOrRight.Right, ReefLevel.L3));
                 break;
             case RightScoreCoralL4:
-            scg.addCommands(sequencing.scoreCoral(end.asReefSide(), LeftOrRight.Right, ReefLevel.L4));
+            scg.addCommands(sequencing.scoreCoralNoPath(end.asReefSide(), LeftOrRight.Right, ReefLevel.L4));
                 break;
             case RightScorecoralL2:
-            scg.addCommands(sequencing.scoreCoral(end.asReefSide(), LeftOrRight.Right, ReefLevel.L2));
+            scg.addCommands(sequencing.scoreCoralNoPath(end.asReefSide(), LeftOrRight.Right, ReefLevel.L2));
                 break;
             default:
                 break;
@@ -281,7 +315,53 @@ public class AutonomousPlanner {
     private PathPlannerPath findPath(FieldPosition start, FieldPosition end){
         String pathFileName = start + "-" + end;
         PathPlannerPath path = loadPath(pathFileName.toLowerCase());
+        if (start.asPose2d(sequencing) == null || end.asPose2d(sequencing) == null){
+            return null;
+        }
+        if (path == null){
+            
+             final List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(
+                start.asPose2d(sequencing).transformBy(new Transform2d(0, 0, start.flipApproachStart() ? Rotation2d.k180deg : Rotation2d.kZero)),
+                end.asPose2d(sequencing).transformBy(new Transform2d(0, 0, end.flipApproachEnd() ? Rotation2d.k180deg : Rotation2d.kZero)));
+                
+            // if (DriverStation.getAlliance().equals(Optional.of(Alliance.Red)));
+            // waypoints.set(1, waypoints.get(1).flip());
+
+            final PathConstraints constraints = new PathConstraints(
+                    0.5 * Constants.DRIVE_SPEED_MULTIPLIER, 0.2, 2 * Math.PI, 4 * Math.PI); // The constraints
+            // for this path.
+
+            path = new PathPlannerPath(
+                    waypoints,
+                    List.of(),
+                    List.of(),
+                    List.of(),
+                    // List.of(new ConstraintsZone(0.8, 1.0, new
+                    // PathConstraints(0.5*Constants.DRIVE_SPEED_MULTIPLIER,
+                    // 0.5, 2 * Math.PI, 4 * Math.PI))),
+                    List.of(),
+                    constraints,
+                    null, // The ideal starting state, this is only relevant for pre-planned paths, so can
+                    // be null for on-the-fly paths.
+                    new GoalEndState(0.0, end.asPose2d(sequencing).getRotation()), // Goal end state. You can set a holonomic rotation
+                    // here. If using a differential drivetrain, the
+                    // rotation will have no effect.
+                    false);
+            path.preventFlipping = true;
+        }
+        else {
+            path.preventFlipping = true;
+            if(DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red){
+                path = path.flipPath();
+            }
+        }
+
         System.out.println(pathFileName + " " + path);
+
+        
+
+
+
         return path;
     }
 
@@ -297,5 +377,9 @@ public class AutonomousPlanner {
             command = generateCommand();
         }
         return command;
+    }
+
+    public void periodic() {
+        field.setRobotPose(swerveDrive.getEstimatedPose());
     }
 }

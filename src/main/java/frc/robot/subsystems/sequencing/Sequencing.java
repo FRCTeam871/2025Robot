@@ -251,6 +251,23 @@ public class Sequencing extends SubsystemBase {
                     .schedule();
         });
     }
+    public Command scoreCoralNoPath(final ReefSides side, final LeftOrRight leftOrRight, final ReefLevel level) {
+        return runOnce(() -> {
+            // Pose2d endPose = waypoints.get(Pair.of(side, leftOrRight));
+            // if (DriverStation.getAlliance().equals(Optional.of(Alliance.Red))) {
+            // endPose = FlippingUtil.flipFieldPose(endPose);
+            // }
+            final Pose2d endPose = reefPose(side, leftOrRight);
+
+            elevator.goToSetpoint(level.setpoint())
+                    .andThen(run(() -> {})
+                            .until(elevator::isAtSetpoint)
+                            .andThen(manipulator.releaseCoral().withTimeout(.5)
+                            .andThen(elevator.goToSetpoint(Elevator.Setpoint.Bottom)))
+                            .deadlineFor(fieldTracking.maintainPose(endPose)))
+                    .schedule();
+        });
+    }
 
     public Command followPath(final PathPlannerPath path) {
         return AutoBuilder.followPath(path)
@@ -317,7 +334,7 @@ public class Sequencing extends SubsystemBase {
                 Rotation2d.k180deg));
     }
 
-    public Pose2d reefPose(final ReefSides reefSides) {
+    public Pose2d reefPose(final ReefSides reefSides, final Distance wallDistance) {
         int aprilTagID;
         if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue) {
             aprilTagID = reefSides.blueAprilTagID;
@@ -331,7 +348,7 @@ public class Sequencing extends SubsystemBase {
         final Pose2d aprilTagPose = fieldLayout.getTagPose(aprilTagID).get().toPose2d(); // 3d no no
 
         return aprilTagPose.plus(new Transform2d(
-                ROBOT_X_LENGTH.div(2),
+                ROBOT_X_LENGTH.div(2).plus(wallDistance),
                 Units.Inches.of(0),
                 Rotation2d.k180deg));
     }
