@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.0,
-        "y": 7.0
+        "x": 2.857648026315789,
+        "y": 4.005756578947368
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.0,
-        "y": 7.0
+        "x": 2.2803453947368424,
+        "y": 1.1
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "reefside1"
     },
     {
       "anchor": {
-        "x": 5.768483606557378,
-        "y": 4.168852459016393
+        "x": 1.1449835526315788,
+        "y": 1.0422697368421052
       },
       "prevControl": {
-        "x": 6.559672131147542,
-        "y": 6.168401639344262
+        "x": 1.8954769736842105,
+        "y": 1.6676809210526313
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Reef H"
+      "linkedName": "coralstationright"
     }
   ],
   "rotationTargets": [],
@@ -42,7 +42,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": 53.13010235415599
   },
   "reversed": false,
   "folder": null,

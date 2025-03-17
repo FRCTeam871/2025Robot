@@ -8,24 +8,24 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.7614309210526313,
-        "y": 6.565131578947369
+        "x": 2.357319078947368,
+        "y": 7.642763157894738
       },
       "isLocked": false,
       "linkedName": "coralstationleft"
     },
     {
       "anchor": {
-        "x": 2.857648026315789,
-        "y": 4.005756578947368
+        "x": 3.6177631578947365,
+        "y": 2.610608552631579
       },
       "prevControl": {
-        "x": 2.857648026315789,
-        "y": 5.545230263157895
+        "x": 2.3765625,
+        "y": 3.1301809210526312
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "reefside1"
+      "linkedName": "reefside6"
     }
   ],
   "rotationTargets": [],
@@ -42,7 +42,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 59.23728046576109
   },
   "reversed": false,
   "folder": null,

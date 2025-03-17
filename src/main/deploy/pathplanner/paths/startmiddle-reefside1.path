@@ -3,29 +3,45 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 0.48909836065573775,
-        "y": 4.0249999999999995
+        "x": 7.572286184210526,
+        "y": 4.034621710526316
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.4890983606557366,
-        "y": 4.0249999999999995
+        "x": 7.225904605263157,
+        "y": 5.064144736842105
       },
       "isLocked": false,
-      "linkedName": "Start Middle"
+      "linkedName": "startmiddle"
     },
     {
       "anchor": {
-        "x": 2.8626639344262297,
-        "y": 4.00342213114754
+        "x": 4.618421052631579,
+        "y": 7.334868421052631
       },
       "prevControl": {
-        "x": 1.8626639344262297,
-        "y": 4.00342213114754
+        "x": 6.297080592105265,
+        "y": 7.342084703947368
+      },
+      "nextControl": {
+        "x": 2.939761513157893,
+        "y": 7.3276521381578945
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 2.857648026315789,
+        "y": 4.005756578947368
+      },
+      "prevControl": {
+        "x": 2.1263980263157896,
+        "y": 5.121875
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Reef Side 1"
+      "linkedName": "reefside1"
     }
   ],
   "rotationTargets": [],
@@ -48,7 +64,7 @@
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 179.04515874612787
   },
   "useDefaultConstraints": true
 }
