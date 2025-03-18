@@ -15,12 +15,10 @@ public class Manipulator extends SubsystemBase {
         this.io = io;
         this.fieldTracking = fieldTracking;
     }
-    //TODO: hasCoral
 
-    //sensor not hooked up right now fix once it is
-    // public boolean hascoral(){
-    //     return manipulatorSensor;
-    // }
+    public boolean hasCoral(){
+        return inputs.isCoralPresent;
+    }
 
     @Override
     public void periodic() {

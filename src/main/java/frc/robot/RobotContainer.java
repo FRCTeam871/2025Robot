@@ -10,12 +10,15 @@ import com.studica.frc.AHRS.NavXComType;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -74,6 +77,8 @@ public class RobotContainer {
     Elevator.Setpoint storedLevel;
 
     public RobotContainer() {
+        // NetworkTableInstance.getDefault().getEntry("CameraPublisher/IPCamera/streams").setStringArray(new String[]{"10.08.71.XX"});
+
         storedLevel = Elevator.Setpoint.L1;
         this.controls = new XboxControls();
         compressor = new Compressor(PneumaticsModuleType.CTREPCM);
@@ -146,10 +151,10 @@ public class RobotContainer {
                 })
                         .ignoringDisable(true));
 
-        controls.placeCoral()
-                .onTrue(sequencing
-                        .scoreCoral(ReefSides.Side1, LeftOrRight.Right, ReefLevel.L4)
-                        .until(() -> controls.cancel().getAsBoolean()));
+        // controls.placeCoral()
+        //         .onTrue(sequencing
+        //                 .scoreCoral(ReefSides.Side1, LeftOrRight.Right, ReefLevel.L4)
+        //                 .until(() -> controls.cancel().getAsBoolean()));
 
         controls.fieldOrientationToggle().onTrue(Commands.runOnce(()-> {
             if(swerveDrive.isFieldOrientation()){
@@ -159,7 +164,12 @@ public class RobotContainer {
             }
         }));
 
-        controls.buttonL1().onTrue(Commands.runOnce(()-> storedLevel = Elevator.Setpoint.L3));
+        controls.buttonL1().onTrue(Commands.runOnce(()-> storedLevel = Elevator.Setpoint.L1));
+        controls.buttonL2().onTrue(Commands.runOnce(()-> storedLevel = Elevator.Setpoint.L2));
+        controls.buttonL3().onTrue(Commands.runOnce(()-> storedLevel = Elevator.Setpoint.L3));
+        controls.buttonL4().onTrue(Commands.runOnce(()-> storedLevel = Elevator.Setpoint.L4));
+
+        
         
         // sequencing.bindScoreCoral(controls.placeCoral());
         // controls.cancel().onTrue(Commands.runOnce(()->
@@ -170,8 +180,18 @@ public class RobotContainer {
         // controls.goToNearestAprilTag().whileTrue(fieldTracking.followAprilTag());
         // controls.goToNearestAprilTag().whileTrue(intake.sendLeftPistonOut());
 
-        controls.pushCoral().onTrue((new ConditionalCommand(Commands.run(()->{}),manipulator.pushCoral(), ()-> elevator.getSetPoint() == Setpoint.L4)).beforeStarting(Commands.run(() -> {
-        }).withTimeout(.02)).alongWith(manipulator.releaseCoral()).withTimeout(.8).finallyDo(() -> elevator.goToSetpoint(Setpoint.Bottom).schedule()));
+        controls.pushCoral().onTrue(
+            (new ConditionalCommand(Commands.run(()->{}),manipulator.pushCoral(), ()-> elevator.getSetPoint() == Setpoint.L4))
+            .beforeStarting(Commands.run(() -> {}).withTimeout(.02))
+            .alongWith(manipulator.releaseCoral())
+            .withTimeout(.8)
+            .finallyDo(() -> {
+                elevator.goToSetpoint(Setpoint.Bottom).schedule();
+                storedLevel = Elevator.Setpoint.Bottom;
+            }
+            )
+        );
+
         controls.releaseCoral().whileTrue(manipulator.releaseCoral());
         // controls.pushCoral().whileTrue(manipulator.pushCoral());
 
@@ -195,25 +215,25 @@ public class RobotContainer {
             Commands.runOnce(()-> elevator.goToSetpoint(storedLevel).schedule()).andThen(Commands.run(()->{})).finallyDo(()-> elevator.goToSetpoint(Setpoint.Bottom).schedule()),
             "ReefZone"
         );
-        zoneOperator.addCircle(
-            new Translation2d(1.103, 6.944), 
-            Units.Meters.of(2),
-            swerveDrive.doHeadingHoldBlueRelative(Rotation2d.fromDegrees(-55)),
-            "CoralStationLeft"
-        );
-        zoneOperator.addCircle(
-            new Translation2d(3.194, 4.205), 
-            Units.Meters.of(.3),
-            swerveDrive.doPoseHoldBlueRelative(new Pose2d(3.194, 4.205, Rotation2d.kZero)),
-            "ReefLeft"
-        );
-        zoneOperator.addPolygon(new Translation2d[]{
-            new Translation2d(3.625,4.514),
-            new Translation2d(3.625,3.550),            
-            new Translation2d(2.805,3.097),
-            new Translation2d(2.805,4.946),
+        // zoneOperator.addCircle(
+        //     new Translation2d(1.103, 6.944), 
+        //     Units.Meters.of(2),
+        //     swerveDrive.doHeadingHoldBlueRelative(Rotation2d.fromDegrees(-55)),
+        //     "CoralStationLeft"
+        // );
+        // zoneOperator.addCircle(
+        //     new Translation2d(3.194, 4.205), 
+        //     Units.Meters.of(.3),
+        //     swerveDrive.doPoseHoldBlueRelative(new Pose2d(3.194, 4.205, Rotation2d.kZero)),
+        //     "ReefLeft"
+        // );
+        // zoneOperator.addPolygon(new Translation2d[]{
+        //     new Translation2d(3.625,4.514),
+        //     new Translation2d(3.625,3.550),            
+        //     new Translation2d(2.805,3.097),
+        //     new Translation2d(2.805,4.946),
 
-        }, swerveDrive.doHeadingHoldBlueRelative(Rotation2d.fromDegrees(0)), "gregory" ); // ??
+        // }, swerveDrive.doHeadingHoldBlueRelative(Rotation2d.fromDegrees(0)), "gregory" ); // ??
 
         // for (ReefSides side : ReefSides.values()) {
         //     Pose2d leftPose = sequencing.reefPose(side, LeftOrRight.Left); 
@@ -279,5 +299,22 @@ public class RobotContainer {
 
     public void robotPeriodic() {
         autonomousPlanner.periodic();
+    }
+
+    Alert symphonyAlert = new Alert("ON_SYMPHONY", AlertType.kError);
+
+    public boolean isReadyForMatch(){
+        boolean ok = true;
+
+        symphonyAlert.set(Constants.ON_SYMPHONY);
+        ok = ok && !Constants.ON_SYMPHONY;
+
+        // battery
+        // elevator height
+        // elevator pid not in manual mode
+        // controllers
+        // starting pose
+        
+        return ok;
     }
 }

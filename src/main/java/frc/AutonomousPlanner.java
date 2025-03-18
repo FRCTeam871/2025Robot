@@ -275,7 +275,7 @@ public class AutonomousPlanner {
 
 
 
-            scg.addCommands(fieldTracking.maintainPose(pose).withTimeout(10));
+            scg.addCommands(fieldTracking.maintainPose(pose).until(()-> manipulator.hasCoral()));
                 break;
             case LeftScoreCoralL1:
             scg.addCommands(sequencing.scoreCoralNoPath(end.asReefSide(), LeftOrRight.Left, ReefLevel.L1));

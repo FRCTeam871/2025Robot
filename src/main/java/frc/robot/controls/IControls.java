@@ -39,4 +39,11 @@ public interface IControls {
     public Trigger fieldOrientationToggle();
 
     public Trigger buttonL1(); 
+
+    public Trigger buttonL2();
+
+    public Trigger buttonL3();
+
+    public Trigger buttonL4(); 
+
 }

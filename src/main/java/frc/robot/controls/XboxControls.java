@@ -100,6 +100,18 @@ public class XboxControls implements IControls {
 
     @Override 
     public Trigger buttonL1(){
+        return driveXboxController.povDown();
+    }
+    @Override
+    public Trigger buttonL2(){
+        return driveXboxController.povLeft();
+    }
+    @Override
+    public Trigger buttonL3() {
+        return driveXboxController.povRight();
+    }
+    @Override
+    public Trigger buttonL4() {
         return driveXboxController.povUp();
     }
 }

@@ -93,6 +93,7 @@ public class Elevator extends SubsystemBase {
         }
         Logger.recordOutput("Elevator/usePID", usePID);
         Logger.recordOutput("Elevator/PID", outputPID);
+        Logger.recordOutput("Elevator/isAtSetPoint", elevatorPIDController.atGoal());
     }
 
     public Command manualControl(final DoubleSupplier speed) {

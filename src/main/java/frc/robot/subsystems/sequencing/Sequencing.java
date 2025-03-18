@@ -27,6 +27,9 @@ import frc.robot.subsystems.fieldtracking.FieldTracking;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.manipulator.Manipulator;
 import frc.robot.subsystems.swervedrive.SwerveDrive;
+
+import static edu.wpi.first.units.Units.Inches;
+
 import java.util.List;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
@@ -243,31 +246,40 @@ public class Sequencing extends SubsystemBase {
             System.out.println("SCORE CORAL " + level);
 
             AutoBuilder.followPath(path)
-                    .andThen(run(() -> {})
+                    .andThen(run(() -> {
+                    })
                             .until(elevator::isAtSetpoint)
                             .andThen(manipulator.releaseCoral().withTimeout(.5)
-                            .andThen(elevator.goToSetpoint(Elevator.Setpoint.Bottom)))
+                                    .andThen(elevator.goToSetpoint(Elevator.Setpoint.Bottom)))
                             .deadlineFor(fieldTracking.maintainPose(endPose)))
                     .schedule();
         });
     }
+
     public Command scoreCoralNoPath(final ReefSides side, final LeftOrRight leftOrRight, final ReefLevel level) {
-        return runOnce(() -> {
+        
             // Pose2d endPose = waypoints.get(Pair.of(side, leftOrRight));
             // if (DriverStation.getAlliance().equals(Optional.of(Alliance.Red))) {
             // endPose = FlippingUtil.flipFieldPose(endPose);
             // }
             final Pose2d endPose = reefPose(side, leftOrRight);
 
-            elevator.goToSetpoint(level.setpoint())
-                    .andThen(run(() -> {})
-                            .until(elevator::isAtSetpoint)
-                            .andThen(manipulator.releaseCoral().withTimeout(.5)
-                            .andThen(elevator.goToSetpoint(Elevator.Setpoint.Bottom)))
-                            .deadlineFor(fieldTracking.maintainPose(endPose)))
-                    .schedule();
-        });
-    }
+            return elevator.goToSetpoint(level.setpoint())
+                    .andThen(
+                            fieldTracking.maintainPose(endPose.plus(new Transform2d(Inches.of(-10), Inches.of(0), Rotation2d.kZero)))
+                            .until(() -> fieldTracking.isAtPosition() && elevator.isAtSetpoint())
+                            .andThen(
+                                fieldTracking.maintainPose(endPose).until(()-> fieldTracking.isAtPosition())
+                            )
+                            .andThen(
+                                manipulator.releaseCoral().withTimeout(1)
+                                    .andThen(elevator.goToSetpoint(Elevator.Setpoint.Bottom))
+                                    .deadlineFor(fieldTracking.maintainPose(endPose))
+                            )
+                            .andThen(() -> System.out.println("YOLO"))
+                    );
+        }
+    
 
     public Command followPath(final PathPlannerPath path) {
         return AutoBuilder.followPath(path)
@@ -283,8 +295,10 @@ public class Sequencing extends SubsystemBase {
             if (fieldTracking.isAprilTagDetected()) {
                 long currentAprilTag = fieldTracking.getAprilTag();
                 for (ReefSides reefSides : ReefSides.values()) {
-                    if ((reefSides.blueAprilTagID == currentAprilTag && DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue) 
-                    || (reefSides.redAprilTagID == currentAprilTag && DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red)) {
+                    if ((reefSides.blueAprilTagID == currentAprilTag
+                            && DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue)
+                            || (reefSides.redAprilTagID == currentAprilTag
+                                    && DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red)) {
                         reefSide = reefSides;
                         cancelScoreCoral();
                         scoreCommand = scoreCoral(reefSide, leftOrRight, reefLevel);
@@ -295,7 +309,7 @@ public class Sequencing extends SubsystemBase {
         }));
     }
 
-    public void cancelScoreCoral(){
+    public void cancelScoreCoral() {
         if (scoreCommand != null && !scoreCommand.isFinished()) {
             scoreCommand.cancel();
         }
