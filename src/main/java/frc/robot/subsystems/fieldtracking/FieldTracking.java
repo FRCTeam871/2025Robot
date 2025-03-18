@@ -75,6 +75,7 @@ public class FieldTracking extends SubsystemBase {
     public long getAprilTag() {
         return inputs.tid;
     }
+
     public Pose2d getLimeLightPose() {
         return inputs.pose;
     }
@@ -126,21 +127,21 @@ public class FieldTracking extends SubsystemBase {
 
     public Command maintainPose(final Pose2d poseToMaintain) {
         return run(() -> {
-            Logger.recordOutput("FieldTracking/MaintainPose", poseToMaintain);
+                    Logger.recordOutput("FieldTracking/MaintainPose", poseToMaintain);
 
-            final Pose2d relTgtPose = poseToMaintain.relativeTo(swerveDrive.getEstimatedPose());
+                    final Pose2d relTgtPose = poseToMaintain.relativeTo(swerveDrive.getEstimatedPose());
 
-            final double yout = sidePidController.calculate(0, relTgtPose.getY());
-            final double xout = forwardPidController.calculate(0, relTgtPose.getX());
-            final double yawout =
-                    yawPidController.calculate(0, relTgtPose.getRotation().getDegrees());
-            Logger.recordOutput("FieldTracking/tyPID", yout);
-            Logger.recordOutput("FieldTracking/txPID", xout);
+                    final double yout = sidePidController.calculate(0, relTgtPose.getY());
+                    final double xout = forwardPidController.calculate(0, relTgtPose.getX());
+                    final double yawout = yawPidController.calculate(
+                            0, relTgtPose.getRotation().getDegrees());
+                    Logger.recordOutput("FieldTracking/tyPID", yout);
+                    Logger.recordOutput("FieldTracking/txPID", xout);
 
-            final ChassisSpeeds speeds = new ChassisSpeeds(xout, yout, yawout);
-            swerveDrive.updateSpeed(speeds); // this will update the speeed
-
-        }).finallyDo(()-> Logger.recordOutput("FieldTracking/MaintainPose", new Pose2d()));
+                    final ChassisSpeeds speeds = new ChassisSpeeds(xout, yout, yawout);
+                    swerveDrive.updateSpeed(speeds); // this will update the speeed
+                })
+                .finallyDo(() -> Logger.recordOutput("FieldTracking/MaintainPose", new Pose2d()));
     }
 
     public boolean isAtPosition() {
@@ -154,7 +155,8 @@ public class FieldTracking extends SubsystemBase {
     public void setThrottle(final int throttle) {
         io.setCameraThrottle(throttle);
     }
-    public void setIMUAssistAlpha(final double alpha){
+
+    public void setIMUAssistAlpha(final double alpha) {
         io.setIMUAssistAlpha(alpha);
     }
 }

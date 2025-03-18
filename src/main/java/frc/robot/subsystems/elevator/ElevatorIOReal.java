@@ -7,18 +7,16 @@ import com.revrobotics.spark.SparkAnalogSensor;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkFlex;
-import com.revrobotics.spark.SparkRelativeEncoder;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import edu.wpi.first.math.filter.LinearFilter;
-import edu.wpi.first.units.DistanceUnit;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Distance;
 import org.littletonrobotics.junction.Logger;
 
 public class ElevatorIOReal implements ElevatorIO {
-   
+
     private final double INPUT_BOTTOM = 4.455;
     private final double INPUT_TOP = 0.7605;
     private final Distance OUTPUT_BOTTOM = Units.Inches.of(18.25);
@@ -26,11 +24,11 @@ public class ElevatorIOReal implements ElevatorIO {
     private final double SLOPE =
             (OUTPUT_TOP.in(Units.Inches) - OUTPUT_BOTTOM.in(Units.Inches)) / (INPUT_TOP - INPUT_BOTTOM);
     private final double INTERCEPT = OUTPUT_TOP.in(Units.Inches) - (SLOPE * INPUT_TOP);
-     //TODO: find relative input actual
+    // TODO: find relative input actual
     private final double RELATIVE_INPUT_BOTTOM = 0;
     private final double RELATIVE_INPUT_TOP = 203.28;
-    private final double RELATIVE_SLOPE = 
-    (OUTPUT_TOP.in(Units.Inches) - OUTPUT_BOTTOM.in(Units.Inches)) / (RELATIVE_INPUT_TOP - RELATIVE_INPUT_BOTTOM);
+    private final double RELATIVE_SLOPE = (OUTPUT_TOP.in(Units.Inches) - OUTPUT_BOTTOM.in(Units.Inches))
+            / (RELATIVE_INPUT_TOP - RELATIVE_INPUT_BOTTOM);
     private final double RELATIVE_INTERCEPT = OUTPUT_TOP.in(Units.Inches) - (SLOPE * RELATIVE_INPUT_TOP);
 
     private final SparkAnalogSensor absolutePot;
@@ -46,7 +44,7 @@ public class ElevatorIOReal implements ElevatorIO {
 
     public ElevatorIOReal() {
         this.elevatorMotor = new SparkFlex(13, MotorType.kBrushless);
-        
+
         this.absolutePot = elevatorMotor.getAnalog();
         this.absolutePotFilter = LinearFilter.singlePoleIIR(.2, .02);
         this.relativeEncoder = elevatorMotor.getEncoder();
@@ -62,14 +60,18 @@ public class ElevatorIOReal implements ElevatorIO {
     @Override
     public void updateInputs(ElevatorIOInputs inputs) {
         Logger.recordOutput("Elevator/Current", elevatorMotor.getOutputCurrent());
-        final double rawRelativeEncoder = (relativeEncoder.getPosition() *RELATIVE_SLOPE) + RELATIVE_INTERCEPT;
-        inputs.currentHeightRelative = Units.Inches.of(relativeFilter.calculate(rawRelativeEncoder)).minus(relativeEncoderZero);
+        final double rawRelativeEncoder = (relativeEncoder.getPosition() * RELATIVE_SLOPE) + RELATIVE_INTERCEPT;
+        inputs.currentHeightRelative =
+                Units.Inches.of(relativeFilter.calculate(rawRelativeEncoder)).minus(relativeEncoderZero);
         Logger.recordOutput("Elevator/RelativeEncoder", relativeEncoder.getPosition());
         final double rawEncoder = (absolutePot.getPosition() * SLOPE) + INTERCEPT;
         Logger.recordOutput("Elevator/RawAbsolutePot", absolutePot.getPosition());
         inputs.currentHeight = Units.Inches.of(absolutePotFilter.calculate(rawEncoder));
         Logger.recordOutput("Elevator/CurrentHeightInches", inputs.currentHeight.in(Inches));
-        inputs.currentHeightNormalized = inputs.currentHeight.minus(OUTPUT_BOTTOM).div(OUTPUT_TOP.minus(OUTPUT_BOTTOM)).in(Units.Value);
+        inputs.currentHeightNormalized = inputs.currentHeight
+                .minus(OUTPUT_BOTTOM)
+                .div(OUTPUT_TOP.minus(OUTPUT_BOTTOM))
+                .in(Units.Value);
     }
 
     @Override
@@ -78,8 +80,8 @@ public class ElevatorIOReal implements ElevatorIO {
         ElevatorIO.super.setElevatorSpeed(speed);
     }
 
-    public void resetRelativeEncoder(ElevatorIOInputs inputs){
-     relativeEncoderZero = (inputs.currentHeightRelative.plus(relativeEncoderZero)).minus(inputs.currentHeight);
-     Logger.recordOutput("Elevator/RelativeEncoderZero", relativeEncoderZero);
+    public void resetRelativeEncoder(ElevatorIOInputs inputs) {
+        relativeEncoderZero = (inputs.currentHeightRelative.plus(relativeEncoderZero)).minus(inputs.currentHeight);
+        Logger.recordOutput("Elevator/RelativeEncoderZero", relativeEncoderZero);
     }
 }

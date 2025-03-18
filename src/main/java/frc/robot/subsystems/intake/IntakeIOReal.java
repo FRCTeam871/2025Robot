@@ -93,7 +93,7 @@ public class IntakeIOReal implements IntakeIO {
             // purposefully leave inputs.tiltedRight the same as last update
         }
 
-        inputs.isTargetValid = limelightIntakeTable.getEntry("tv").getInteger(0) == 1;     
+        inputs.isTargetValid = limelightIntakeTable.getEntry("tv").getInteger(0) == 1;
         inputs.timeStamp = NetworkTablesJNI.now();
 
         Logger.recordOutput("Intake/Mechanism", mechanism2d);

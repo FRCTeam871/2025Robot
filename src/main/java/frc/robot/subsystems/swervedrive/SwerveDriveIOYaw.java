@@ -25,5 +25,4 @@ public class SwerveDriveIOYaw implements SwerveDriveIO {
     public void setCurrentAngle(double angle) {
         // TODO: make it work
     }
-    
 }

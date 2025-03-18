@@ -6,22 +6,14 @@ package frc.robot;
 
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
-
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.Compressor;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.RobotBase;
-import edu.wpi.first.wpilibj.Alert.AlertType;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
@@ -32,9 +24,9 @@ import frc.robot.controls.XboxControls;
 import frc.robot.subsystems.LEDSubsystem.LEDIO;
 import frc.robot.subsystems.LEDSubsystem.LEDs;
 import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.elevator.Elevator.Setpoint;
 import frc.robot.subsystems.elevator.ElevatorIO;
 import frc.robot.subsystems.elevator.ElevatorIOReal;
-import frc.robot.subsystems.elevator.Elevator.Setpoint;
 import frc.robot.subsystems.fieldtracking.FieldTracking;
 import frc.robot.subsystems.fieldtracking.FieldTrackingIO;
 import frc.robot.subsystems.fieldtracking.FieldTrackingIO.IMUMode;
@@ -46,9 +38,6 @@ import frc.robot.subsystems.manipulator.Manipulator;
 import frc.robot.subsystems.manipulator.ManipulatorIO;
 import frc.robot.subsystems.manipulator.ManipulatorIOReal;
 import frc.robot.subsystems.sequencing.Sequencing;
-import frc.robot.subsystems.sequencing.Sequencing.LeftOrRight;
-import frc.robot.subsystems.sequencing.Sequencing.ReefLevel;
-import frc.robot.subsystems.sequencing.Sequencing.ReefSides;
 import frc.robot.subsystems.sequencing.SequencingIO;
 import frc.robot.subsystems.swerveModule.SwerveModule;
 import frc.robot.subsystems.swerveModule.SwerveModuleIO;
@@ -57,7 +46,6 @@ import frc.robot.subsystems.swervedrive.SwerveDriveIO;
 import frc.robot.subsystems.swervedrive.SwerveDriveIORoll;
 import frc.robot.subsystems.swervedrive.SwerveDriveIOYaw;
 import frc.robot.subsystems.zoneOperator.ZoneOperator;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.stream.IntStream;
@@ -77,24 +65,26 @@ public class RobotContainer {
     Elevator.Setpoint storedLevel;
 
     public RobotContainer() {
-        // NetworkTableInstance.getDefault().getEntry("CameraPublisher/IPCamera/streams").setStringArray(new String[]{"10.08.71.XX"});
+        // NetworkTableInstance.getDefault().getEntry("CameraPublisher/IPCamera/streams").setStringArray(new
+        // String[]{"10.08.71.XX"});
 
         storedLevel = Elevator.Setpoint.L1;
         this.controls = new XboxControls();
         compressor = new Compressor(PneumaticsModuleType.CTREPCM);
-        SwerveModuleIO[] moduleIOs = Collections.nCopies(4, SwerveModuleIO.EMPTY).toArray(SwerveModuleIO[]::new);
+        SwerveModuleIO[] moduleIOs =
+                Collections.nCopies(4, SwerveModuleIO.EMPTY).toArray(SwerveModuleIO[]::new);
         SwerveDriveIO swerveDriveIO = SwerveDriveIO.EMPTY;
         ElevatorIO elevatorIO = ElevatorIO.EMPTY;
         SequencingIO sequencingIO = SequencingIO.EMPTY;
 
         ManipulatorIO manipulatorIO = ManipulatorIO.EMPTY;
-        
+
         IntakeIO intakeIO = IntakeIO.EMPTY;
         FieldTrackingIO fieldTrackingIO = FieldTrackingIO.EMPTY;
         LEDIO ledio = LEDIO.EMPTY;
         if (RobotBase.isReal()) {
             moduleIOs = Arrays.stream(
-                    Constants.ON_SYMPHONY ? Constants.MODULE_CONSTANTS_SYMPHONY : Constants.MODULE_CONSTANTS)
+                            Constants.ON_SYMPHONY ? Constants.MODULE_CONSTANTS_SYMPHONY : Constants.MODULE_CONSTANTS)
                     .map(Constants::getRealSwerveModuleIO)
                     .toArray(SwerveModuleIO[]::new);
 
@@ -126,7 +116,8 @@ public class RobotContainer {
         manipulator = new Manipulator(manipulatorIO, fieldTracking);
         sequencing = new Sequencing(elevator, intake, swerveDrive, manipulator, fieldTracking, sequencingIO);
         zoneOperator = new ZoneOperator(swerveDrive);
-        autonomousPlanner = new AutonomousPlanner(elevator, intake, manipulator, swerveDrive, sequencing, fieldTracking);
+        autonomousPlanner =
+                new AutonomousPlanner(elevator, intake, manipulator, swerveDrive, sequencing, fieldTracking);
         led = new LEDs(ledio);
         configureBindings();
         configureZones();
@@ -138,17 +129,17 @@ public class RobotContainer {
 
         controls.manualElevatorMoveDown()
                 .onTrue(elevator.goToSetpoint(() -> {
-                    System.out.println(elevator.getSetPoint().nextDown());
-                    System.out.println(elevator.getSetPoint());
-                    return elevator.getSetPoint().nextDown();
-                })
+                            System.out.println(elevator.getSetPoint().nextDown());
+                            System.out.println(elevator.getSetPoint());
+                            return elevator.getSetPoint().nextDown();
+                        })
                         .ignoringDisable(true));
         controls.manualElevatorMoveUp()
                 .onTrue(elevator.goToSetpoint(() -> {
-                    System.out.println(elevator.getSetPoint().nextUp());
-                    System.out.println(elevator.getSetPoint());
-                    return elevator.getSetPoint().nextUp();
-                })
+                            System.out.println(elevator.getSetPoint().nextUp());
+                            System.out.println(elevator.getSetPoint());
+                            return elevator.getSetPoint().nextUp();
+                        })
                         .ignoringDisable(true));
 
         // controls.placeCoral()
@@ -156,21 +147,19 @@ public class RobotContainer {
         //                 .scoreCoral(ReefSides.Side1, LeftOrRight.Right, ReefLevel.L4)
         //                 .until(() -> controls.cancel().getAsBoolean()));
 
-        controls.fieldOrientationToggle().onTrue(Commands.runOnce(()-> {
-            if(swerveDrive.isFieldOrientation()){
+        controls.fieldOrientationToggle().onTrue(Commands.runOnce(() -> {
+            if (swerveDrive.isFieldOrientation()) {
                 swerveDrive.setFieldOrientation(false);
-            } else{
+            } else {
                 swerveDrive.setFieldOrientation(true);
             }
         }));
 
-        controls.buttonL1().onTrue(Commands.runOnce(()-> storedLevel = Elevator.Setpoint.L1));
-        controls.buttonL2().onTrue(Commands.runOnce(()-> storedLevel = Elevator.Setpoint.L2));
-        controls.buttonL3().onTrue(Commands.runOnce(()-> storedLevel = Elevator.Setpoint.L3));
-        controls.buttonL4().onTrue(Commands.runOnce(()-> storedLevel = Elevator.Setpoint.L4));
+        controls.buttonL1().onTrue(Commands.runOnce(() -> storedLevel = Elevator.Setpoint.L1));
+        controls.buttonL2().onTrue(Commands.runOnce(() -> storedLevel = Elevator.Setpoint.L2));
+        controls.buttonL3().onTrue(Commands.runOnce(() -> storedLevel = Elevator.Setpoint.L3));
+        controls.buttonL4().onTrue(Commands.runOnce(() -> storedLevel = Elevator.Setpoint.L4));
 
-        
-        
         // sequencing.bindScoreCoral(controls.placeCoral());
         // controls.cancel().onTrue(Commands.runOnce(()->
         // sequencing.cancelScoreCoral()));
@@ -180,17 +169,18 @@ public class RobotContainer {
         // controls.goToNearestAprilTag().whileTrue(fieldTracking.followAprilTag());
         // controls.goToNearestAprilTag().whileTrue(intake.sendLeftPistonOut());
 
-        controls.pushCoral().onTrue(
-            (new ConditionalCommand(Commands.run(()->{}),manipulator.pushCoral(), ()-> elevator.getSetPoint() == Setpoint.L4))
-            .beforeStarting(Commands.run(() -> {}).withTimeout(.02))
-            .alongWith(manipulator.releaseCoral())
-            .withTimeout(.8)
-            .finallyDo(() -> {
-                elevator.goToSetpoint(Setpoint.Bottom).schedule();
-                storedLevel = Elevator.Setpoint.Bottom;
-            }
-            )
-        );
+        controls.pushCoral()
+                .onTrue((new ConditionalCommand(
+                                Commands.run(() -> {}),
+                                manipulator.pushCoral(),
+                                () -> elevator.getSetPoint() == Setpoint.L4))
+                        .beforeStarting(Commands.run(() -> {}).withTimeout(.02))
+                        .alongWith(manipulator.releaseCoral())
+                        .withTimeout(.8)
+                        .finallyDo(() -> {
+                            elevator.goToSetpoint(Setpoint.Bottom).schedule();
+                            storedLevel = Elevator.Setpoint.Bottom;
+                        }));
 
         controls.releaseCoral().whileTrue(manipulator.releaseCoral());
         // controls.pushCoral().whileTrue(manipulator.pushCoral());
@@ -198,56 +188,56 @@ public class RobotContainer {
         controls.intakePiston1().whileTrue(intake.sendLeftPistonOut());
         controls.intakePiston2().whileTrue(intake.sendRightPistonOut());
 
-        controls.compressorToggle().onTrue(
-                Commands.runOnce(() -> {
-                    if (compressor.isEnabled()) {
-                        compressor.disable();      
-                    } else {
-                        compressor.enableDigital();
-                    }
-                }));
+        controls.compressorToggle().onTrue(Commands.runOnce(() -> {
+            if (compressor.isEnabled()) {
+                compressor.disable();
+            } else {
+                compressor.enableDigital();
+            }
+        }));
     }
 
     private void configureZones() {
         zoneOperator.addCircle(
-            new Translation2d(4.483, 3.995), 
-            Units.Meters.of(2), 
-            Commands.runOnce(()-> elevator.goToSetpoint(storedLevel).schedule()).andThen(Commands.run(()->{})).finallyDo(()-> elevator.goToSetpoint(Setpoint.Bottom).schedule()),
-            "ReefZone"
-        );
+                new Translation2d(4.483, 3.995),
+                Units.Meters.of(2),
+                Commands.runOnce(() -> elevator.goToSetpoint(storedLevel).schedule())
+                        .andThen(Commands.run(() -> {}))
+                        .finallyDo(() -> elevator.goToSetpoint(Setpoint.Bottom).schedule()),
+                "ReefZone");
         // zoneOperator.addCircle(
-        //     new Translation2d(1.103, 6.944), 
+        //     new Translation2d(1.103, 6.944),
         //     Units.Meters.of(2),
         //     swerveDrive.doHeadingHoldBlueRelative(Rotation2d.fromDegrees(-55)),
         //     "CoralStationLeft"
         // );
         // zoneOperator.addCircle(
-        //     new Translation2d(3.194, 4.205), 
+        //     new Translation2d(3.194, 4.205),
         //     Units.Meters.of(.3),
         //     swerveDrive.doPoseHoldBlueRelative(new Pose2d(3.194, 4.205, Rotation2d.kZero)),
         //     "ReefLeft"
         // );
         // zoneOperator.addPolygon(new Translation2d[]{
         //     new Translation2d(3.625,4.514),
-        //     new Translation2d(3.625,3.550),            
+        //     new Translation2d(3.625,3.550),
         //     new Translation2d(2.805,3.097),
         //     new Translation2d(2.805,4.946),
 
         // }, swerveDrive.doHeadingHoldBlueRelative(Rotation2d.fromDegrees(0)), "gregory" ); // ??
 
         // for (ReefSides side : ReefSides.values()) {
-        //     Pose2d leftPose = sequencing.reefPose(side, LeftOrRight.Left); 
-        //     Pose2d rightPose = sequencing.reefPose(side, LeftOrRight.Right); 
+        //     Pose2d leftPose = sequencing.reefPose(side, LeftOrRight.Left);
+        //     Pose2d rightPose = sequencing.reefPose(side, LeftOrRight.Right);
         //     Pose2d centerPose = sequencing.reefPose(side);
-            
+
         //     zoneOperator.addCircle(
-        //         leftPose.getTranslation(), 
+        //         leftPose.getTranslation(),
         //         Units.Meters.of(1),
         //         swerveDrive.doPoseHoldBlueRelative(leftPose),
         //         "CoralStationLeft"
         //     );
         //     zoneOperator.addCircle(
-        //         rightPose.getTranslation(), 
+        //         rightPose.getTranslation(),
         //         Units.Meters.of(1),
         //         swerveDrive.doPoseHoldBlueRelative(rightPose),
         //         "CoralStationRight"
@@ -290,10 +280,11 @@ public class RobotContainer {
         fieldTracking.setIMUAssistAlpha(.005);
         zoneOperator.setEnabled(true);
     }
+
     public void disabledPeriodic() {
         Pose2d cameraPose = fieldTracking.getLimeLightPose();
-        if(fieldTracking.isAprilTagDetected()){
-        // swerveDrive.setCurrentAngle(cameraPose.getRotation().getDegrees());
+        if (fieldTracking.isAprilTagDetected()) {
+            // swerveDrive.setCurrentAngle(cameraPose.getRotation().getDegrees());
         }
     }
 
@@ -303,7 +294,7 @@ public class RobotContainer {
 
     Alert symphonyAlert = new Alert("ON_SYMPHONY", AlertType.kError);
 
-    public boolean isReadyForMatch(){
+    public boolean isReadyForMatch() {
         boolean ok = true;
 
         symphonyAlert.set(Constants.ON_SYMPHONY);
@@ -314,7 +305,7 @@ public class RobotContainer {
         // elevator pid not in manual mode
         // controllers
         // starting pose
-        
+
         return ok;
     }
 }

@@ -2,8 +2,6 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.Inches;
 
-import java.lang.reflect.Type;
-
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Translation2d;

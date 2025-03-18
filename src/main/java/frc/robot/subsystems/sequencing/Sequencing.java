@@ -1,5 +1,7 @@
 package frc.robot.subsystems.sequencing;
 
+import static edu.wpi.first.units.Units.Inches;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.EventMarker;
 import com.pathplanner.lib.path.GoalEndState;
@@ -18,7 +20,6 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
@@ -27,9 +28,6 @@ import frc.robot.subsystems.fieldtracking.FieldTracking;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.manipulator.Manipulator;
 import frc.robot.subsystems.swervedrive.SwerveDrive;
-
-import static edu.wpi.first.units.Units.Inches;
-
 import java.util.List;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
@@ -197,8 +195,8 @@ public class Sequencing extends SubsystemBase {
 
             // Logger.recordOutput("Sequencing/EndPose", endPose);
 
-            final List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(swerveDrive.getEstimatedPose(),
-                    endPose);
+            final List<Waypoint> waypoints =
+                    PathPlannerPath.waypointsFromPoses(swerveDrive.getEstimatedPose(), endPose);
 
             // if (DriverStation.getAlliance().equals(Optional.of(Alliance.Red)));
             // waypoints.set(1, waypoints.get(1).flip());
@@ -246,10 +244,11 @@ public class Sequencing extends SubsystemBase {
             System.out.println("SCORE CORAL " + level);
 
             AutoBuilder.followPath(path)
-                    .andThen(run(() -> {
-                    })
+                    .andThen(run(() -> {})
                             .until(elevator::isAtSetpoint)
-                            .andThen(manipulator.releaseCoral().withTimeout(.5)
+                            .andThen(manipulator
+                                    .releaseCoral()
+                                    .withTimeout(.5)
                                     .andThen(elevator.goToSetpoint(Elevator.Setpoint.Bottom)))
                             .deadlineFor(fieldTracking.maintainPose(endPose)))
                     .schedule();
@@ -257,29 +256,16 @@ public class Sequencing extends SubsystemBase {
     }
 
     public Command scoreCoralNoPath(final ReefSides side, final LeftOrRight leftOrRight, final ReefLevel level) {
-        
-            // Pose2d endPose = waypoints.get(Pair.of(side, leftOrRight));
-            // if (DriverStation.getAlliance().equals(Optional.of(Alliance.Red))) {
-            // endPose = FlippingUtil.flipFieldPose(endPose);
-            // }
-            final Pose2d endPose = reefPose(side, leftOrRight);
-
-            return elevator.goToSetpoint(level.setpoint())
-                    .andThen(
-                            fieldTracking.maintainPose(endPose.plus(new Transform2d(Inches.of(-10), Inches.of(0), Rotation2d.kZero)))
-                            .until(() -> fieldTracking.isAtPosition() && elevator.isAtSetpoint())
-                            .andThen(
-                                fieldTracking.maintainPose(endPose).until(()-> fieldTracking.isAtPosition())
-                            )
-                            .andThen(
-                                manipulator.releaseCoral().withTimeout(1)
-                                    .andThen(elevator.goToSetpoint(Elevator.Setpoint.Bottom))
-                                    .deadlineFor(fieldTracking.maintainPose(endPose))
-                            )
-                            .andThen(() -> System.out.println("YOLO"))
-                    );
-        }
-    
+        final Pose2d endPose = reefPose(side, leftOrRight);
+        return elevator.goToSetpoint(level.setpoint())
+                .andThen(fieldTracking.maintainPose(endPose.plus(new Transform2d(Inches.of(-10), Inches.of(0), Rotation2d.kZero)))
+                                      .until(fieldTracking::isAtPosition))
+                .andThen(fieldTracking.maintainPose(endPose)
+                                      .until(() -> fieldTracking.isAtPosition() && elevator.isAtSetpoint()))
+                .andThen(manipulator.releaseCoral().withTimeout(1))
+                .andThen(elevator.goToSetpoint(Elevator.Setpoint.Bottom)
+                                 .deadlineFor(fieldTracking.maintainPose(endPose)));
+    }
 
     public Command followPath(final PathPlannerPath path) {
         return AutoBuilder.followPath(path)
@@ -291,12 +277,11 @@ public class Sequencing extends SubsystemBase {
 
     public void bindScoreCoral(final Trigger t) {
         t.onTrue(runOnce(() -> {
-
             if (fieldTracking.isAprilTagDetected()) {
                 long currentAprilTag = fieldTracking.getAprilTag();
                 for (ReefSides reefSides : ReefSides.values()) {
                     if ((reefSides.blueAprilTagID == currentAprilTag
-                            && DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue)
+                                    && DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue)
                             || (reefSides.redAprilTagID == currentAprilTag
                                     && DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red)) {
                         reefSide = reefSides;
@@ -304,7 +289,6 @@ public class Sequencing extends SubsystemBase {
                         scoreCommand = scoreCoral(reefSide, leftOrRight, reefLevel);
                     }
                 }
-
             }
         }));
     }
@@ -361,9 +345,7 @@ public class Sequencing extends SubsystemBase {
 
         final Pose2d aprilTagPose = fieldLayout.getTagPose(aprilTagID).get().toPose2d(); // 3d no no
 
-        return aprilTagPose.plus(new Transform2d(
-                ROBOT_X_LENGTH.div(2).plus(wallDistance),
-                Units.Inches.of(0),
-                Rotation2d.k180deg));
+        return aprilTagPose.plus(
+                new Transform2d(ROBOT_X_LENGTH.div(2).plus(wallDistance), Units.Inches.of(0), Rotation2d.k180deg));
     }
 }

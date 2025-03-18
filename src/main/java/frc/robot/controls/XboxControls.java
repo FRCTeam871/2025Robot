@@ -1,12 +1,9 @@
 package frc.robot.controls;
 
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
 import java.util.function.DoubleSupplier;
-
-import org.littletonrobotics.conduit.schema.SystemData;
 
 public class XboxControls implements IControls {
 
@@ -15,7 +12,7 @@ public class XboxControls implements IControls {
 
     public XboxControls() {
         driveXboxController = new CommandXboxController(0); // xboxcontroller 1
-        systemXboxController = new CommandXboxController(1); //xbox controlr 2
+        systemXboxController = new CommandXboxController(1); // xbox controlr 2
     }
 
     @Override
@@ -89,27 +86,30 @@ public class XboxControls implements IControls {
     }
 
     @Override
-    public Trigger compressorToggle(){
+    public Trigger compressorToggle() {
         return driveXboxController.back();
     }
-    
+
     @Override
-    public Trigger fieldOrientationToggle(){
+    public Trigger fieldOrientationToggle() {
         return systemXboxController.b();
     }
 
-    @Override 
-    public Trigger buttonL1(){
+    @Override
+    public Trigger buttonL1() {
         return driveXboxController.povDown();
     }
+
     @Override
-    public Trigger buttonL2(){
+    public Trigger buttonL2() {
         return driveXboxController.povLeft();
     }
+
     @Override
     public Trigger buttonL3() {
         return driveXboxController.povRight();
     }
+
     @Override
     public Trigger buttonL4() {
         return driveXboxController.povUp();

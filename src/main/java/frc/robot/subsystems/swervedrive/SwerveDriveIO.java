@@ -12,7 +12,8 @@ public interface SwerveDriveIO {
         boolean isCalibrating;
         double gyroRate;
     }
-    default void setCurrentAngle(double angle){}
+
+    default void setCurrentAngle(double angle) {}
 
     default void updateInputs(SwerveDriveIOInputs inputs) {}
 }

@@ -42,6 +42,5 @@ public interface FieldTrackingIO {
 
     default void setCameraThrottle(int throttle) {}
 
-    default void setIMUAssistAlpha(double alpha){
-    }
+    default void setIMUAssistAlpha(double alpha) {}
 }

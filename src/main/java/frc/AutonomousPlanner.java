@@ -1,17 +1,11 @@
 package frc;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.littletonrobotics.junction.Logger;
-
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.GoalEndState;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.path.Waypoint;
 import com.pathplanner.lib.util.FlippingUtil;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
@@ -35,6 +29,9 @@ import frc.robot.subsystems.sequencing.Sequencing.LeftOrRight;
 import frc.robot.subsystems.sequencing.Sequencing.ReefLevel;
 import frc.robot.subsystems.sequencing.Sequencing.ReefSides;
 import frc.robot.subsystems.swervedrive.SwerveDrive;
+import java.util.ArrayList;
+import java.util.List;
+import org.littletonrobotics.junction.Logger;
 
 public class AutonomousPlanner {
 
@@ -55,59 +52,58 @@ public class AutonomousPlanner {
         CoralStationLeft,
         CoralStationRight;
 
-        public ReefSides asReefSide(){
-            return switch(this) {
-                            case ReefSide1 -> ReefSides.Side1;
-                            case ReefSide2 -> ReefSides.Side2;
-                            case ReefSide3 -> ReefSides.Side3;
-                            case ReefSide4 -> ReefSides.Side4;
-                            case ReefSide5 -> ReefSides.Side5;
-                            case ReefSide6 -> ReefSides.Side6;
-                            default -> throw new IllegalArgumentException("Unexpected value: " + this);
+        public ReefSides asReefSide() {
+            return switch (this) {
+                case ReefSide1 -> ReefSides.Side1;
+                case ReefSide2 -> ReefSides.Side2;
+                case ReefSide3 -> ReefSides.Side3;
+                case ReefSide4 -> ReefSides.Side4;
+                case ReefSide5 -> ReefSides.Side5;
+                case ReefSide6 -> ReefSides.Side6;
+                default -> throw new IllegalArgumentException("Unexpected value: " + this);
             };
         }
 
-        public Pose2d asPose2d(Sequencing sequencing){
+        public Pose2d asPose2d(Sequencing sequencing) {
             return switch (this) {
-                case CoralStationLeft -> flipPose2d(new Pose2d(1.144, 6.996,Rotation2d.fromDegrees(-54)));
+                case CoralStationLeft -> flipPose2d(new Pose2d(1.144, 6.996, Rotation2d.fromDegrees(-54)));
                 case CoralStationRight -> flipPose2d(new Pose2d(1.086, 1.112, Rotation2d.fromDegrees(54)));
                 case None -> null;
-                case ReefSide1, ReefSide2, ReefSide3, ReefSide4, ReefSide5, ReefSide6 -> sequencing.reefPose(this.asReefSide(), Units.Inches.of(24));
+                case ReefSide1, ReefSide2, ReefSide3, ReefSide4, ReefSide5, ReefSide6 -> sequencing.reefPose(
+                        this.asReefSide(), Units.Inches.of(24));
                 case StartLeft -> flipPose2d(new Pose2d(7.588, 6.873, Rotation2d.fromDegrees(180)));
                 case StartMiddle -> flipPose2d(new Pose2d(7.567, 4.047, Rotation2d.fromDegrees(180)));
                 case StartRight -> flipPose2d(new Pose2d(7.574, 0.796, Rotation2d.fromDegrees(180)));
                 default -> throw new IllegalArgumentException("Unexpected value: " + this);
-                
             };
         }
-        private Pose2d flipPose2d(Pose2d pose){
-            if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red){
+
+        private Pose2d flipPose2d(Pose2d pose) {
+            if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red) {
                 return FlippingUtil.flipFieldPose(pose);
-            }
-            else{
+            } else {
                 return pose;
             }
-
         }
-        private boolean flipApproachEnd(){
-            return switch(this){
+
+        private boolean flipApproachEnd() {
+            return switch (this) {
                 case CoralStationLeft, CoralStationRight -> true;
                 default -> false;
-                
             };
         }
-        private boolean flipApproachStart(){
-            return switch(this){
+
+        private boolean flipApproachStart() {
+            return switch (this) {
                 case ReefSide1, ReefSide2, ReefSide3, ReefSide4, ReefSide5, ReefSide6 -> true;
                 default -> false;
-                
             };
         }
     }
 
-    public enum Action{
+    public enum Action {
         None,
-        
+
         Intake,
 
         LeftScoreCoralL1,
@@ -120,19 +116,23 @@ public class AutonomousPlanner {
         RightScoreCoralL3,
         RightScoreCoralL4;
 
-        public boolean canDoAction(FieldPosition position){
-            if(this == None){
+        public boolean canDoAction(FieldPosition position) {
+            if (this == None) {
                 return true;
-            } 
-            if(this == Intake){
-                if(position == FieldPosition.CoralStationLeft || position == FieldPosition.CoralStationRight){
+            }
+            if (this == Intake) {
+                if (position == FieldPosition.CoralStationLeft || position == FieldPosition.CoralStationRight) {
                     return true;
-                } else{
+                } else {
                     return false;
                 }
-            } 
-            if(position == FieldPosition.ReefSide1 || position == FieldPosition.ReefSide2 || position == FieldPosition.ReefSide3 
-            || position == FieldPosition.ReefSide4 || position == FieldPosition.ReefSide5 || position == FieldPosition.ReefSide6){
+            }
+            if (position == FieldPosition.ReefSide1
+                    || position == FieldPosition.ReefSide2
+                    || position == FieldPosition.ReefSide3
+                    || position == FieldPosition.ReefSide4
+                    || position == FieldPosition.ReefSide5
+                    || position == FieldPosition.ReefSide6) {
                 return true;
             }
             return false;
@@ -152,7 +152,13 @@ public class AutonomousPlanner {
 
     private Field2d field;
 
-    public AutonomousPlanner(Elevator elevator, Intake intake, Manipulator manipulator, SwerveDrive swerveDrive, Sequencing sequencing, FieldTracking fieldTracking) {
+    public AutonomousPlanner(
+            Elevator elevator,
+            Intake intake,
+            Manipulator manipulator,
+            SwerveDrive swerveDrive,
+            Sequencing sequencing,
+            FieldTracking fieldTracking) {
         this.sequencing = sequencing;
         this.manipulator = manipulator;
         this.swerveDrive = swerveDrive;
@@ -164,7 +170,6 @@ public class AutonomousPlanner {
 
         // goes for how many auton stages there are
 
-        
         SmartDashboard.putData("Check auton", checkCommand());
         SmartDashboard.putData("Auton/Field", this.field);
         SmartDashboard.putData("Auton/StartPosition", this.start);
@@ -214,12 +219,16 @@ public class AutonomousPlanner {
     private Command generateCommand() {
         final SequentialCommandGroup scg = new SequentialCommandGroup();
         FieldPosition currentPosition = start.getSelected();
-        for(int i = 0; i < Constants.AUTON_STAGES;i++){
+        for (int i = 0; i < Constants.AUTON_STAGES; i++) {
             field.getObject("stage" + i).setPoses(new Pose2d[0]);
         }
         for (int i = 0; i < Constants.AUTON_STAGES; i++) {
-            boolean continueLoop =
-                    generateStage(scg, currentPosition, positions.get(i).getSelected(), actions.get(i).getSelected(), i);
+            boolean continueLoop = generateStage(
+                    scg,
+                    currentPosition,
+                    positions.get(i).getSelected(),
+                    actions.get(i).getSelected(),
+                    i);
             if (!continueLoop) {
                 scg.addCommands(swerveDrive.manualDrive(() -> 0, () -> 0, () -> 0));
                 break;
@@ -229,101 +238,107 @@ public class AutonomousPlanner {
         return scg;
     }
 
-    private boolean generateStage(final SequentialCommandGroup scg, final FieldPosition start, final FieldPosition end, Action action, int i) {
+    private boolean generateStage(
+            final SequentialCommandGroup scg,
+            final FieldPosition start,
+            final FieldPosition end,
+            Action action,
+            int i) {
         PathPlannerPath path = findPath(start, end);
-        
+
         if (action.canDoAction(end) && path != null) {
             SmartDashboard.putBoolean("Auton/Indicator" + i, true);
-        }
-        else {
+        } else {
             SmartDashboard.putBoolean("Auton/Indicator" + i, false);
         }
-        
+
         if (path == null) {
             field.getObject("stage" + i).setPoses(new Pose2d[0]);
             return false;
         }
-        
 
-        final Pose2d[] points = path
-            .generateTrajectory(new ChassisSpeeds(), Rotation2d.kZero, swerveDrive.getConfig())
-            .getStates()
-            .stream()
-            .map(trajectory -> trajectory.pose)
-            .toArray(length -> new Pose2d[length]);
-        
+        final Pose2d[] points =
+                path
+                        .generateTrajectory(new ChassisSpeeds(), Rotation2d.kZero, swerveDrive.getConfig())
+                        .getStates()
+                        .stream()
+                        .map(trajectory -> trajectory.pose)
+                        .toArray(length -> new Pose2d[length]);
+
         field.getObject("stage" + i).setPoses(points);
 
-        scg.addCommands(Commands.runOnce(()-> {
+        scg.addCommands(Commands.runOnce(() -> {
             Logger.recordOutput("Sequencing/Path", points);
         }));
         scg.addCommands(AutoBuilder.followPath(path));
-        if(action.canDoAction(end)){
-        switch(action){
-            case Intake:
-            // make the elevator dowm if its not down and then mantain its pose up againist the coral station then stop when sensor sees the coral
+        if (action.canDoAction(end)) {
+            switch (action) {
+                case Intake:
+                    // make the elevator dowm if its not down and then mantain its pose up againist the coral station
+                    // then stop when sensor sees the coral
 
-            Pose2d pose = null;
-            if(end == FieldPosition.CoralStationLeft){
-                pose = new Pose2d(1.144, 6.996,Rotation2d.fromDegrees(-54));
-            } else if(end == FieldPosition.CoralStationRight){
-                pose = new Pose2d(1.086, 1.112, Rotation2d.fromDegrees(54));
+                    Pose2d pose = null;
+                    if (end == FieldPosition.CoralStationLeft) {
+                        pose = new Pose2d(1.144, 6.996, Rotation2d.fromDegrees(-54));
+                    } else if (end == FieldPosition.CoralStationRight) {
+                        pose = new Pose2d(1.086, 1.112, Rotation2d.fromDegrees(54));
+                    }
+                    if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red) {
+                        pose = FlippingUtil.flipFieldPose(pose);
+                    }
+
+                    scg.addCommands(fieldTracking.maintainPose(pose).until(manipulator::hasCoral));
+                    break;
+                case LeftScoreCoralL1:
+                    scg.addCommands(sequencing.scoreCoralNoPath(end.asReefSide(), LeftOrRight.Left, ReefLevel.L1));
+                    break;
+                case LeftScoreCoralL3:
+                    scg.addCommands(sequencing.scoreCoralNoPath(end.asReefSide(), LeftOrRight.Left, ReefLevel.L3));
+                    break;
+                case LeftScoreCoralL4:
+                    scg.addCommands(sequencing.scoreCoralNoPath(end.asReefSide(), LeftOrRight.Left, ReefLevel.L4));
+                    break;
+                case LeftScorecoralL2:
+                    scg.addCommands(sequencing.scoreCoralNoPath(end.asReefSide(), LeftOrRight.Left, ReefLevel.L2));
+                    break;
+                case None:
+                    // nothing
+                    break;
+                case RightScoreCoralL1:
+                    scg.addCommands(sequencing.scoreCoralNoPath(end.asReefSide(), LeftOrRight.Right, ReefLevel.L1));
+                    break;
+                case RightScoreCoralL3:
+                    scg.addCommands(sequencing.scoreCoralNoPath(end.asReefSide(), LeftOrRight.Right, ReefLevel.L3));
+                    break;
+                case RightScoreCoralL4:
+                    scg.addCommands(sequencing.scoreCoralNoPath(end.asReefSide(), LeftOrRight.Right, ReefLevel.L4));
+                    break;
+                case RightScorecoralL2:
+                    scg.addCommands(sequencing.scoreCoralNoPath(end.asReefSide(), LeftOrRight.Right, ReefLevel.L2));
+                    break;
+                default:
+                    break;
             }
-            if(DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red){
-                pose = FlippingUtil.flipFieldPose(pose);
-            }
-
-
-
-            scg.addCommands(fieldTracking.maintainPose(pose).until(()-> manipulator.hasCoral()));
-                break;
-            case LeftScoreCoralL1:
-            scg.addCommands(sequencing.scoreCoralNoPath(end.asReefSide(), LeftOrRight.Left, ReefLevel.L1));
-            break;
-            case LeftScoreCoralL3:
-            scg.addCommands(sequencing.scoreCoralNoPath(end.asReefSide(), LeftOrRight.Left, ReefLevel.L3));
-                break;
-            case LeftScoreCoralL4:
-            scg.addCommands(sequencing.scoreCoralNoPath(end.asReefSide(), LeftOrRight.Left, ReefLevel.L4));
-                break;
-            case LeftScorecoralL2:
-            scg.addCommands(sequencing.scoreCoralNoPath(end.asReefSide(), LeftOrRight.Left, ReefLevel.L2));
-                break;
-            case None:
-            //nothing
-                break;
-            case RightScoreCoralL1:
-            scg.addCommands(sequencing.scoreCoralNoPath(end.asReefSide(), LeftOrRight.Right, ReefLevel.L1));
-                break;
-            case RightScoreCoralL3:
-            scg.addCommands(sequencing.scoreCoralNoPath(end.asReefSide(), LeftOrRight.Right, ReefLevel.L3));
-                break;
-            case RightScoreCoralL4:
-            scg.addCommands(sequencing.scoreCoralNoPath(end.asReefSide(), LeftOrRight.Right, ReefLevel.L4));
-                break;
-            case RightScorecoralL2:
-            scg.addCommands(sequencing.scoreCoralNoPath(end.asReefSide(), LeftOrRight.Right, ReefLevel.L2));
-                break;
-            default:
-                break;
-            
         }
-    }
         return true;
     }
 
-    private PathPlannerPath findPath(FieldPosition start, FieldPosition end){
+    private PathPlannerPath findPath(FieldPosition start, FieldPosition end) {
         String pathFileName = start + "-" + end;
         PathPlannerPath path = loadPath(pathFileName.toLowerCase());
-        if (start.asPose2d(sequencing) == null || end.asPose2d(sequencing) == null){
+        if (start.asPose2d(sequencing) == null || end.asPose2d(sequencing) == null) {
             return null;
         }
-        if (path == null){
-            
-             final List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(
-                start.asPose2d(sequencing).transformBy(new Transform2d(0, 0, start.flipApproachStart() ? Rotation2d.k180deg : Rotation2d.kZero)),
-                end.asPose2d(sequencing).transformBy(new Transform2d(0, 0, end.flipApproachEnd() ? Rotation2d.k180deg : Rotation2d.kZero)));
-                
+        if (path == null) {
+
+            final List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(
+                    start.asPose2d(sequencing)
+                            .transformBy(new Transform2d(
+                                    0, 0, start.flipApproachStart() ? Rotation2d.k180deg : Rotation2d.kZero)),
+                    end.asPose2d(sequencing)
+                            .transformBy(new Transform2d(
+                                    0, 0, end.flipApproachEnd() ? Rotation2d.k180deg : Rotation2d.kZero)));
+
             // if (DriverStation.getAlliance().equals(Optional.of(Alliance.Red)));
             // waypoints.set(1, waypoints.get(1).flip());
 
@@ -343,37 +358,35 @@ public class AutonomousPlanner {
                     constraints,
                     null, // The ideal starting state, this is only relevant for pre-planned paths, so can
                     // be null for on-the-fly paths.
-                    new GoalEndState(0.0, end.asPose2d(sequencing).getRotation()), // Goal end state. You can set a holonomic rotation
+                    new GoalEndState(
+                            0.0,
+                            end.asPose2d(sequencing).getRotation()), // Goal end state. You can set a holonomic rotation
                     // here. If using a differential drivetrain, the
                     // rotation will have no effect.
                     false);
             path.preventFlipping = true;
-        }
-        else {
+        } else {
             path.preventFlipping = true;
-            if(DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red){
+            if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red) {
                 path = path.flipPath();
             }
         }
 
         System.out.println(pathFileName + " " + path);
 
-        
-
-
-
         return path;
     }
 
     private Command checkCommand() {
         return Commands.runOnce(() -> {
-            command = generateCommand(); 
-        }).ignoringDisable(true).withName("Check");
+                    command = generateCommand();
+                })
+                .ignoringDisable(true)
+                .withName("Check");
     }
 
-
-    public Command getAutonCommand(){
-        if(command == null){
+    public Command getAutonCommand() {
+        if (command == null) {
             command = generateCommand();
         }
         return command;

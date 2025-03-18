@@ -32,7 +32,7 @@ public class FieldTrackingIOLimeLight implements FieldTrackingIO {
     }
 
     @Override
-    public void setIMUAssistAlpha(double alpha){
+    public void setIMUAssistAlpha(double alpha) {
         LimelightHelpers.SetIMUAssistAlpha("limelight", alpha);
     }
 

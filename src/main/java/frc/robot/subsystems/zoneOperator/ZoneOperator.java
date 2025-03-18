@@ -2,14 +2,7 @@ package frc.robot.subsystems.zoneOperator;
 
 import static edu.wpi.first.units.Units.Meters;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.locks.Condition;
-import java.util.function.Function;
-
 import com.pathplanner.lib.util.FlippingUtil;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.measure.Distance;
@@ -17,15 +10,16 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.subsystems.elevator.Elevator;
-import frc.robot.subsystems.fieldtracking.FieldTracking;
-import frc.robot.subsystems.sequencing.Sequencing;
 import frc.robot.subsystems.swervedrive.SwerveDrive;
 import java.awt.Polygon;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Function;
 
 public class ZoneOperator extends SubsystemBase {
 
     boolean enabled = true;
+
     class Zone {
         // copeputer numerical copetrol
         Command command;
@@ -78,43 +72,45 @@ public class ZoneOperator extends SubsystemBase {
 
     /**From blue teams perspective */
     public void addCircle(Translation2d center, Distance radius, Command command, String label) {
-        this.addZone((currentPose) -> {
-            if (center.getDistance(currentPose.getTranslation()) < radius.in(Meters)) {
-                return true;
-            } else {
-                return false;
-            }
-
-        }, command, label);
-
+        this.addZone(
+                (currentPose) -> {
+                    if (center.getDistance(currentPose.getTranslation()) < radius.in(Meters)) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                },
+                command,
+                label);
     }
-    public void addPolygon(Translation2d[] sidesOfPolygon, Command command, String label){
+
+    public void addPolygon(Translation2d[] sidesOfPolygon, Command command, String label) {
         int[] xArray = new int[sidesOfPolygon.length];
         int[] yArray = new int[sidesOfPolygon.length];
 
-        for (int i = 0; i < sidesOfPolygon.length; i++ ){
-            xArray[i] = (int) (sidesOfPolygon[i].getX()*1000);
-            yArray[i] = (int) (sidesOfPolygon[i].getY()*1000);
-
+        for (int i = 0; i < sidesOfPolygon.length; i++) {
+            xArray[i] = (int) (sidesOfPolygon[i].getX() * 1000);
+            yArray[i] = (int) (sidesOfPolygon[i].getY() * 1000);
         }
         Polygon p = new Polygon(xArray, yArray, sidesOfPolygon.length);
 
-        this.addZone((currentPose) -> {
-            return p.contains(currentPose.getX()*1000, currentPose.getY()*1000);
-            
-
-        }, command, label);
+        this.addZone(
+                (currentPose) -> {
+                    return p.contains(currentPose.getX() * 1000, currentPose.getY() * 1000);
+                },
+                command,
+                label);
     }
 
     @Override
     public void periodic() {
-        
+
         for (Zone zone : zoneList) {
             zone.zonePeriodic();
         }
     }
-    public void setEnabled(boolean set){
+
+    public void setEnabled(boolean set) {
         this.enabled = set;
     }
-
 }

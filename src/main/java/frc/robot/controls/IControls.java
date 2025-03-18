@@ -1,6 +1,5 @@
 package frc.robot.controls;
 
-import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import java.util.function.DoubleSupplier;
 
@@ -23,7 +22,7 @@ public interface IControls {
     public Trigger intakePiston1();
 
     public Trigger intakePiston2();
-    
+
     public Trigger placeCoral();
 
     public Trigger cancel();
@@ -38,12 +37,11 @@ public interface IControls {
 
     public Trigger fieldOrientationToggle();
 
-    public Trigger buttonL1(); 
+    public Trigger buttonL1();
 
     public Trigger buttonL2();
 
     public Trigger buttonL3();
 
-    public Trigger buttonL4(); 
-
+    public Trigger buttonL4();
 }
