@@ -259,12 +259,15 @@ public class Sequencing extends SubsystemBase {
         final Pose2d endPose = reefPose(side, leftOrRight);
         return elevator.goToSetpoint(level.setpoint())
                 .andThen(fieldTracking.maintainPose(endPose.plus(new Transform2d(Inches.of(-10), Inches.of(0), Rotation2d.kZero)))
-                                      .until(fieldTracking::isAtPosition))
+                                .until(fieldTracking::isAtPosition))
+                // .andThen(fieldTracking.maintainPose(endPose.plus(new Transform2d(Inches.of(-10), Inches.of(0), Rotation2d.kZero)))
+                //                 .withTimeout(2.0))
                 .andThen(fieldTracking.maintainPose(endPose)
-                                      .until(() -> fieldTracking.isAtPosition() && elevator.isAtSetpoint()))
-                .andThen(manipulator.releaseCoral().withTimeout(1))
+                                .until(() -> fieldTracking.isAtPosition() && elevator.isAtSetpoint()).withTimeout(1.5))
+                .andThen(manipulator.releaseCoral().withTimeout(1)
+                                .deadlineFor(fieldTracking.maintainPose(endPose)))
                 .andThen(elevator.goToSetpoint(Elevator.Setpoint.Bottom)
-                                 .deadlineFor(fieldTracking.maintainPose(endPose)));
+                                .deadlineFor(fieldTracking.maintainPose(endPose)));
     }
 
     public Command followPath(final PathPlannerPath path) {
@@ -328,7 +331,7 @@ public class Sequencing extends SubsystemBase {
 
         return aprilTagPose.plus(new Transform2d(
                 ROBOT_X_LENGTH.div(2),
-                Units.Inches.of(leftOrRight == LeftOrRight.Left ? -6.5 : 6.5),
+                Units.Inches.of(leftOrRight == LeftOrRight.Left ? -6.5-1 : 6.5-1),
                 Rotation2d.k180deg));
     }
 

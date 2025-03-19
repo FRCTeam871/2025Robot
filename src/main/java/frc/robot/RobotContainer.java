@@ -269,7 +269,8 @@ public class RobotContainer {
     }
 
     public void autonomousInit() {
-        fieldTracking.setCameraIMUMode(IMUMode.InternalExternalAssist);
+        // fieldTracking.setCameraIMUMode(IMUMode.InternalExternalAssist);
+        fieldTracking.setCameraIMUMode(IMUMode.ExternalOnly);
         fieldTracking.setThrottle(0);
         zoneOperator.setEnabled(false);
     }

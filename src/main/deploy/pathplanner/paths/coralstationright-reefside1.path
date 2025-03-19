@@ -8,20 +8,20 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.4246710526315787,
-        "y": 1.4560032894736843
+        "x": 2.884241803278689,
+        "y": 1.4931967213114752
       },
       "isLocked": false,
       "linkedName": "coralstationright"
     },
     {
       "anchor": {
-        "x": 2.857648026315789,
-        "y": 4.005756578947368
+        "x": 2.853668251035967,
+        "y": 4.0216476812392985
       },
       "prevControl": {
-        "x": 2.9827302631578942,
-        "y": 2.7356907894736846
+        "x": 1.3450204918032787,
+        "y": 3.8955327868852447
       },
       "nextControl": null,
       "isLocked": false,
@@ -33,8 +33,8 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 3.0,
-    "maxAcceleration": 3.0,
+    "maxVelocity": 2.5,
+    "maxAcceleration": 2.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,

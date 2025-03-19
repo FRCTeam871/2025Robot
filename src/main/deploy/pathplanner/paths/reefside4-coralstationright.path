@@ -4,12 +4,12 @@
     {
       "anchor": {
         "x": 6.128114754098362,
-        "y": 3.909918032786885
+        "y": 3.9900414264676796
       },
       "prevControl": null,
       "nextControl": {
         "x": 6.464874622519415,
-        "y": 2.178010138050043
+        "y": 2.2581335317308375
       },
       "isLocked": false,
       "linkedName": "reefside4"
@@ -33,8 +33,8 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 3.0,
-    "maxAcceleration": 3.0,
+    "maxVelocity": 2.5,
+    "maxAcceleration": 2.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
@@ -48,7 +48,7 @@
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 178.80651057601793
+    "rotation": 180.0
   },
   "useDefaultConstraints": true
 }

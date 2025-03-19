@@ -25,7 +25,7 @@ public class Elevator extends SubsystemBase {
         L1(30),
         L2(36),
         L3(50),
-        L4(75), // good enuf
+        L4(76), // good enuf
         ClimbingMount(77.25); // good enuf
 
         final double value;

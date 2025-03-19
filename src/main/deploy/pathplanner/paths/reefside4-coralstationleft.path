@@ -4,12 +4,12 @@
     {
       "anchor": {
         "x": 6.128114754098362,
-        "y": 3.909918032786885
+        "y": 3.9900414264676796
       },
       "prevControl": null,
       "nextControl": {
         "x": 7.081578947368423,
-        "y": 6.058367126833478
+        "y": 6.138490520514272
       },
       "isLocked": false,
       "linkedName": "reefside4"
@@ -20,8 +20,8 @@
         "y": 7.026973684210526
       },
       "prevControl": {
-        "x": 3.2136513157894733,
-        "y": 6.526644736842105
+        "x": 2.42391393442623,
+        "y": 6.6575
       },
       "nextControl": null,
       "isLocked": false,
@@ -29,12 +29,26 @@
     }
   ],
   "rotationTargets": [],
-  "constraintZones": [],
+  "constraintZones": [
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 0.7007052186177726,
+      "maxWaypointRelativePos": 0.9940761636107193,
+      "constraints": {
+        "maxVelocity": 1.5,
+        "maxAcceleration": 1.5,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 3.0,
-    "maxAcceleration": 3.0,
+    "maxVelocity": 2.5,
+    "maxAcceleration": 2.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
@@ -48,7 +62,7 @@
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 178.80651057601793
+    "rotation": 180.0
   },
   "useDefaultConstraints": true
 }

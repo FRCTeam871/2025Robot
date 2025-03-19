@@ -31,11 +31,11 @@ public class Constants {
     public static final double NEO_MAX_RPM = 5676;
     public static final double MAX_SPEED_MPS = (NEO_MAX_RPM / 60.0d) * SWERVE_POSITION_FACTOR;
     public static final double MAX_ROTATION_SPEED_RDPS = 2 * Math.PI * 2;
-    public static final double LEVER_ARM_VAL = (Constants.DISTANCE_BETWEEN_WHEELS / 39.37) / 2;
+    public static final double LEVER_ARM_VAL = edu.wpi.first.math.util.Units.inchesToMeters(Constants.DISTANCE_BETWEEN_WHEELS) / 2;
 
     public static final Distance ELEVATOR_TOLERANCE = Inches.of(3);
 
-    public static final double DISTANCE_BETWEEN_WHEELS = 22.75;
+    public static final double DISTANCE_BETWEEN_WHEELS = 22.75; // inches
     // INTAKE CONSTANTS
     public static final Time PISTON_THRESHOLD = Units.Second.of(1.0);
     public static final Time TARGET_DROP_THRESHOLD = Units.Second.of(0.5);
