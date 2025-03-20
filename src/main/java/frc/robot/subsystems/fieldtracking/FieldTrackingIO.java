@@ -13,6 +13,7 @@ public interface FieldTrackingIO {
         double timestampSeconds;
         long tid;
         double[] targetpose_robotspace;
+        boolean on;
     }
 
     enum IMUMode {

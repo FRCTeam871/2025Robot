@@ -1,0 +1,15 @@
+Controls
+controller 1
+left stick is drive
+right stick is turn
+left bumper down
+right bumper up
+y shoot coral and go down 
+down pov store setpoint to L1
+left pov store setpoint to L2
+right pov store setpoint to L3
+up pov store setpoint to L4
+note when go near reef go to stored setpoint
+
+controller 2
+b toggle field orientation

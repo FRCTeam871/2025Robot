@@ -2,6 +2,7 @@ package frc.robot.subsystems.elevator;
 
 import static edu.wpi.first.units.Units.Inches;
 
+import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -21,7 +22,7 @@ public class Elevator extends SubsystemBase {
     private boolean isElevatorStopped = false;
 
     public enum Setpoint {
-        Bottom(18.25),
+        Bottom(18.75),
         L1(30),
         L2(36),
         L3(50),
@@ -60,7 +61,7 @@ public class Elevator extends SubsystemBase {
     public Elevator(final ElevatorIO io) {
         this.io = io;
         this.elevatorPIDController =
-                new ProfiledPIDController(.125, 0, 0.02, new TrapezoidProfile.Constraints(100, 250));
+                new ProfiledPIDController(.125, 0, 0.025, new TrapezoidProfile.Constraints(100, 250));
         elevatorPIDController.setGoal(goal.value);
         elevatorPIDController.setTolerance(.5);
         SmartDashboard.putData("Elevator/PID", elevatorPIDController);
@@ -132,5 +133,9 @@ public class Elevator extends SubsystemBase {
 
     public double getCurrentHeightNormalized() {
         return inputs.currentHeightNormalized;
+    }
+
+    public boolean isRoughlyAtSetPoint(Setpoint setpoint) {
+        return Math.abs(inputs.currentHeight.in(Inches) - setpoint.value) < 2.0;
     }
 }

@@ -23,13 +23,13 @@ public class FieldTracking extends SubsystemBase {
     private final SwerveDrive swerveDrive;
     private final FieldTrackingIO io;
     private final FieldTrackingIOInputsAutoLogged inputs = new FieldTrackingIOInputsAutoLogged();
-    private final AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
+    private final AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
 
     public FieldTracking(final SwerveDrive swerveDrive, final FieldTrackingIO io) {
         this.sidePidController = new ProfiledPIDController(2.5, 0.001, .1, new Constraints(1000, 1000));
-        sidePidController.setTolerance(.05);
+        sidePidController.setTolerance(.06);
         this.forwardPidController = new ProfiledPIDController(2.5, 0.001, .1, new Constraints(1000, 1000));
-        forwardPidController.setTolerance(.05);
+        forwardPidController.setTolerance(.1);
         this.yawPidController = new ProfiledPIDController(0.08, 0.001, 0, new Constraints(1000, 1000));
         yawPidController.setTolerance(1);
         yawPidController.enableContinuousInput(0, 360);
@@ -142,6 +142,10 @@ public class FieldTracking extends SubsystemBase {
                     swerveDrive.updateSpeed(speeds); // this will update the speeed
                 })
                 .finallyDo(() -> Logger.recordOutput("FieldTracking/MaintainPose", new Pose2d()));
+    }
+    
+    public boolean limeLightOn() {
+        return inputs.on;
     }
 
     public boolean isAtPosition() {

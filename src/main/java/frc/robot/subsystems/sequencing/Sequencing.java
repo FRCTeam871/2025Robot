@@ -43,7 +43,7 @@ public class Sequencing extends SubsystemBase {
     private final Field2d field2d;
     private final SequencingIO io;
     private final SequencingIOInputsAutoLogged inputs = new SequencingIOInputsAutoLogged();
-    private final AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
+    private final AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
 
     @AutoLogOutput
     private ReefSides reefSide;
@@ -263,7 +263,7 @@ public class Sequencing extends SubsystemBase {
                 // .andThen(fieldTracking.maintainPose(endPose.plus(new Transform2d(Inches.of(-10), Inches.of(0), Rotation2d.kZero)))
                 //                 .withTimeout(2.0))
                 .andThen(fieldTracking.maintainPose(endPose)
-                                .until(() -> fieldTracking.isAtPosition() && elevator.isAtSetpoint()).withTimeout(1.5))
+                                .until(() -> fieldTracking.isAtPosition() && elevator.isAtSetpoint()).withTimeout(1.25))
                 .andThen(manipulator.releaseCoral().withTimeout(1)
                                 .deadlineFor(fieldTracking.maintainPose(endPose)))
                 .andThen(elevator.goToSetpoint(Elevator.Setpoint.Bottom)

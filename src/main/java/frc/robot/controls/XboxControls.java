@@ -27,7 +27,7 @@ public class XboxControls implements IControls {
 
     @Override
     public DoubleSupplier driveRotation() {
-        return () -> Constants.deadbandAndExponential(-driveXboxController.getRightX());
+        return () -> Constants.deadbandAndExponential(-driveXboxController.getRightX())*.6;
     }
 
     @Override
