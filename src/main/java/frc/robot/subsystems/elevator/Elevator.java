@@ -22,11 +22,11 @@ public class Elevator extends SubsystemBase {
     private boolean isElevatorStopped = false;
 
     public enum Setpoint {
-        Bottom(18.75),
+        Bottom(18.85),
         L1(30),
         L2(36),
         L3(50),
-        L4(76), // good enuf
+        L4(75.75), // good enuf
         ClimbingMount(77.25); // good enuf
 
         final double value;

@@ -279,9 +279,9 @@ public class AutonomousPlanner {
 
                     Pose2d pose = null;
                     if (end == FieldPosition.CoralStationLeft) {
-                        pose = new Pose2d(1.144, 6.996, Rotation2d.fromDegrees(-54));
+                        pose = new Pose2d(1.115, 7.147, Rotation2d.fromDegrees(-54));
                     } else if (end == FieldPosition.CoralStationRight) {
-                        pose = new Pose2d(1.086, 1.112, Rotation2d.fromDegrees(54));
+                        pose = new Pose2d(1.057, 0.961, Rotation2d.fromDegrees(54));
                     }
                     if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red) {
                         pose = FlippingUtil.flipFieldPose(pose);

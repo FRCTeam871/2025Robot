@@ -17,8 +17,8 @@ import org.littletonrobotics.junction.Logger;
 
 public class ElevatorIOReal implements ElevatorIO {
 
-    private final double INPUT_BOTTOM = 4.455 - .02;
-    private final double INPUT_TOP = 0.7605 - .02;
+    private final double INPUT_BOTTOM = 4.455;
+    private final double INPUT_TOP = 0.7605;
     private final Distance OUTPUT_BOTTOM = Units.Inches.of(18.25);
     private final Distance OUTPUT_TOP = Units.Inches.of(77.25);
     private final double SLOPE =
