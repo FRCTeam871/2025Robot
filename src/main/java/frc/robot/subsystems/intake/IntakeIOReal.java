@@ -79,7 +79,7 @@ public class IntakeIOReal implements IntakeIO {
             Translation2d left = bottomLeft.interpolate(topLeft, 0.5);
             left = new Translation2d(leftXFilter.calculate(left.getX()), leftYFilter.calculate(left.getY()));
 
-            Logger.recordOutput("Intake/Midpoints", top, left, right, bottom);
+            // Logger.recordOutput("Intake/Midpoints", top, left, right, bottom);
 
             double height = top.getDistance(bottom);
             double width = left.getDistance(right);
@@ -96,7 +96,7 @@ public class IntakeIOReal implements IntakeIO {
         inputs.isTargetValid = limelightIntakeTable.getEntry("tv").getInteger(0) == 1;
         inputs.timeStamp = NetworkTablesJNI.now();
 
-        Logger.recordOutput("Intake/Mechanism", mechanism2d);
+        // Logger.recordOutput("Intake/Mechanism", mechanism2d);
     }
 
     @Override

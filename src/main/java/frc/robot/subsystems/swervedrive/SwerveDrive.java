@@ -115,14 +115,14 @@ public class SwerveDrive extends SubsystemBase {
             }
 
             if (poseHoldEnabled && chassisSpeeds.vxMetersPerSecond == 0 && chassisSpeeds.vyMetersPerSecond == 0) {
-                Logger.recordOutput("Drive/HoldPose", poseHold);
+                // Logger.recordOutput("Drive/HoldPose", poseHold);
 
                 final Pose2d relTgtPose = poseHold.relativeTo(getEstimatedPose());
 
                 final double yout = sidePidController.calculate(0, relTgtPose.getY());
                 final double xout = forwardPidController.calculate(0, relTgtPose.getX());
-                Logger.recordOutput("Drive/tyPID", yout);
-                Logger.recordOutput("Drive/txPID", xout);
+                // Logger.recordOutput("Drive/tyPID", yout);
+                // Logger.recordOutput("Drive/txPID", xout);
 
                 chassisSpeeds.vxMetersPerSecond = xout;
                 chassisSpeeds.vyMetersPerSecond = yout;
@@ -135,7 +135,7 @@ public class SwerveDrive extends SubsystemBase {
     @Override
     public void periodic() {
         io.updateInputs(inputs);
-        Logger.processInputs("Drive", inputs);
+        // Logger.processInputs("Drive", inputs);
 
         poseEstimator.update(getGyroRotation(), getModulePositions());
         for (final SwerveModule bob : swerveModules) {
@@ -143,17 +143,17 @@ public class SwerveDrive extends SubsystemBase {
         }
     }
 
-    @AutoLogOutput(key = "Drive/ChassisSpeeds")
+    // @AutoLogOutput(key = "Drive/ChassisSpeeds")
     public ChassisSpeeds getChassisSpeeds() {
         return swerveDriveKinematics.toChassisSpeeds(getModuleStates());
     }
 
-    @AutoLogOutput(key = "Drive/ModuleStates")
+    // @AutoLogOutput(key = "Drive/ModuleStates")
     public SwerveModuleState[] getModuleStates() {
         return Arrays.stream(swerveModules).map(SwerveModule::getState).toArray(SwerveModuleState[]::new);
     }
 
-    @AutoLogOutput(key = "Drive/ModulePositions")
+    // @AutoLogOutput(key = "Drive/ModulePositions")
     public SwerveModulePosition[] getModulePositions() {
         return Arrays.stream(swerveModules).map(SwerveModule::getPosition).toArray(SwerveModulePosition[]::new);
     }
@@ -174,8 +174,8 @@ public class SwerveDrive extends SubsystemBase {
                 (-elevator.getCurrentHeightNormalized() * 0.9 + 1.25) * Constants.MAX_SPEED_MPS / .4;
         double rotationRateLimit =
                 (-elevator.getCurrentHeightNormalized() * 1.1 + 1.25) * Constants.MAX_ROTATION_SPEED_RDPS / .4;
-        Logger.recordOutput("Drive/RateMultiplier", multiplerRateLimit);
-        Logger.recordOutput("Drive/InputSpeed", speeds);
+        // Logger.recordOutput("Drive/RateMultiplier", multiplerRateLimit);
+        // Logger.recordOutput("Drive/InputSpeed", speeds);
 
         forwardRateLimiter.setRate(multiplerRateLimit);
         sideRateLimiter.setRate(multiplerRateLimit);
@@ -197,7 +197,7 @@ public class SwerveDrive extends SubsystemBase {
         // speeds.vxMetersPerSecond = MathUtil.clamp(speeds.vxMetersPerSecond, -maxSpeed , maxSpeed);
         // speeds.vyMetersPerSecond = MathUtil.clamp(speeds.vyMetersPerSecond, -maxSpeed , maxSpeed);
 
-        Logger.recordOutput("Drive/SpeedFiltered", speeds);
+        // Logger.recordOutput("Drive/SpeedFiltered", speeds);
         setStates(swerveDriveKinematics.toSwerveModuleStates(speeds));
     }
 

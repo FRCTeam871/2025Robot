@@ -230,7 +230,7 @@ public class Sequencing extends SubsystemBase {
                     .stream()
                     .map(trajectory -> trajectory.pose)
                     .toArray(length -> new Pose2d[length]);
-            Logger.recordOutput("Sequencing/Path", points);
+            // Logger.recordOutput("Sequencing/Path", points);
 
             // System.out.println("!!!!!!!!!!!!!!!");
 
@@ -241,7 +241,7 @@ public class Sequencing extends SubsystemBase {
             // for (PathPoint allPathPoints : path.getAllPathPoints()) {
             // System.out.println("POIT " + allPathPoints.position.toString());
             // }
-            System.out.println("SCORE CORAL " + level);
+            // System.out.println("SCORE CORAL " + level);
 
             AutoBuilder.followPath(path)
                     .andThen(run(() -> {})

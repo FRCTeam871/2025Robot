@@ -58,10 +58,10 @@ public class Intake extends SubsystemBase {
                     detectionEndTime = inputs.timeStamp;
                 }
 
-                Logger.recordOutput("Intake/StartTime", detectionStartTime);
-                Logger.recordOutput("Intake/EndTime", detectionEndTime);
-                Logger.recordOutput("Intake/LostDuration", (double) (inputs.timeStamp - detectionEndTime) / 1e6);
-                Logger.recordOutput("Intake/DetectDuration", (double) (inputs.timeStamp - detectionStartTime) / 1e6);
+                // Logger.recordOutput("Intake/StartTime", detectionStartTime);
+                // Logger.recordOutput("Intake/EndTime", detectionEndTime);
+                // Logger.recordOutput("Intake/LostDuration", (double) (inputs.timeStamp - detectionEndTime) / 1e6);
+                // Logger.recordOutput("Intake/DetectDuration", (double) (inputs.timeStamp - detectionStartTime) / 1e6);
                 // if we have target and amount of time is passed
                 if (inputs.isTargetValid
                         && inputs.timeStamp - detectionStartTime > Constants.PISTON_THRESHOLD.in(Units.Microsecond)) {

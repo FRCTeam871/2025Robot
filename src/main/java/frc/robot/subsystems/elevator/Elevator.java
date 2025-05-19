@@ -22,12 +22,12 @@ public class Elevator extends SubsystemBase {
     private boolean isElevatorStopped = false;
 
     public enum Setpoint {
-        Bottom(18.85),
+        Bottom(18.75),
         L1(30),
         L2(36),
         L3(50),
-        L4(75.75), // good enuf
-        ClimbingMount(77.25); // good enuf
+        L4(74.55), // good enuf
+        ClimbingMount(77.15); // good enuf
 
         final double value;
 
@@ -61,10 +61,10 @@ public class Elevator extends SubsystemBase {
     public Elevator(final ElevatorIO io) {
         this.io = io;
         this.elevatorPIDController =
-                new ProfiledPIDController(.125, 0, 0.025, new TrapezoidProfile.Constraints(100, 250));
+                new ProfiledPIDController(.125, 0, 0.03, new TrapezoidProfile.Constraints(100, 250));
         elevatorPIDController.setGoal(goal.value);
         elevatorPIDController.setTolerance(.5);
-        SmartDashboard.putData("Elevator/PID", elevatorPIDController);
+        // SmartDashboard.putData("Elevator/PID", elevatorPIDController);
     }
 
     public void stopElevator() {
@@ -94,7 +94,7 @@ public class Elevator extends SubsystemBase {
                 io.setElevatorSpeed(outputPID);
             }
         }
-        Logger.recordOutput("Elevator/usePID", usePID);
+        // Logger.recordOutput("Elevator/usePID", usePID);
         Logger.recordOutput("Elevator/PID", outputPID);
         Logger.recordOutput("Elevator/isAtSetPoint", elevatorPIDController.atGoal());
     }

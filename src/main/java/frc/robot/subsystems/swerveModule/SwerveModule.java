@@ -42,22 +42,22 @@ public class SwerveModule {
         final double outputSteer = pidController.calculate(currentSteeringAngle, desiredSteeringAngle);
 
         io.setDriveSpeed(state.speedMetersPerSecond / Constants.MAX_SPEED_MPS);
-        Logger.recordOutput(
-                "Drive/Module" + label + "/DriveSpeed", state.speedMetersPerSecond / Constants.MAX_SPEED_MPS);
+        // Logger.recordOutput(
+        //         "Drive/Module" + label + "/DriveSpeed", state.speedMetersPerSecond / Constants.MAX_SPEED_MPS);
         io.setSteerSpeed(outputSteer);
-        Logger.recordOutput("Steer/Module" + label + "/SteerSpeed", outputSteer);
+        // Logger.recordOutput("Steer/Module" + label + "/SteerSpeed", outputSteer);
     }
 
     public void setState(final SwerveModuleState state) {
         this.state = state;
     }
 
-    @AutoLogOutput(key = "Drive/Module{label}/State")
+    // @AutoLogOutput(key = "Drive/Module{label}/State")
     public SwerveModuleState getState() {
         return new SwerveModuleState(inputs.driveVelocity, Rotation2d.fromDegrees(getDirectionDegrees()));
     }
 
-    @AutoLogOutput(key = "Drive/Module{label}/Position")
+    // @AutoLogOutput(key = "Drive/Module{label}/Position")
     public SwerveModulePosition getPosition() {
         return new SwerveModulePosition(inputs.drivePosition, Rotation2d.fromDegrees(getDirectionDegrees()));
     }

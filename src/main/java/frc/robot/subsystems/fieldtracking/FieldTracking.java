@@ -31,7 +31,7 @@ public class FieldTracking extends SubsystemBase {
         this.forwardPidController = new ProfiledPIDController(2.5, 0.001, .1, new Constraints(1000, 1000));
         forwardPidController.setTolerance(.1);
         this.yawPidController = new ProfiledPIDController(0.08, 0.001, 0, new Constraints(1000, 1000));
-        yawPidController.setTolerance(1);
+        yawPidController.setTolerance(5);
         yawPidController.enableContinuousInput(0, 360);
         this.swerveDrive = swerveDrive;
         this.io = io;
@@ -47,10 +47,10 @@ public class FieldTracking extends SubsystemBase {
         // second, ignore vision updates
         if (Math.abs(swerveDrive.getYawRate()) > 720) {
             Logger.recordOutput("FieldTracking/TargetPoses", Constants.EMPTY_POSE_ARRAY);
-            Logger.recordOutput("FieldTracking/TargetIDs", Constants.EMPTY_INT_ARRAY);
+            // Logger.recordOutput("FieldTracking/TargetIDs", Constants.EMPTY_INT_ARRAY);
         } else if (inputs.tagCount == 0) {
             Logger.recordOutput("FieldTracking/TargetPoses", Constants.EMPTY_POSE_ARRAY);
-            Logger.recordOutput("FieldTracking/TargetIDs", Constants.EMPTY_INT_ARRAY);
+            // Logger.recordOutput("FieldTracking/TargetIDs", Constants.EMPTY_INT_ARRAY);
 
         } else {
             final Optional<Pose3d> pose = fieldLayout.getTagPose((int) inputs.tid);
@@ -59,10 +59,10 @@ public class FieldTracking extends SubsystemBase {
                         inputs.pose, inputs.timestampSeconds, VecBuilder.fill(.7, .7, 9999999));
 
                 Logger.recordOutput("FieldTracking/TargetPoses", new Pose3d[] {pose.get()});
-                Logger.recordOutput("FieldTracking/TargetIDs", new int[] {(int) inputs.tid});
+                // Logger.recordOutput("FieldTracking/TargetIDs", new int[] {(int) inputs.tid});
             } else {
                 Logger.recordOutput("FieldTracking/TargetPoses", Constants.EMPTY_POSE_ARRAY);
-                Logger.recordOutput("FieldTracking/TargetIDs", Constants.EMPTY_INT_ARRAY);
+                // Logger.recordOutput("FieldTracking/TargetIDs", Constants.EMPTY_INT_ARRAY);
             }
         }
     }
@@ -108,9 +108,9 @@ public class FieldTracking extends SubsystemBase {
                     final double pitch = inputs.targetpose_robotspace[3];
                     final double yaw = inputs.targetpose_robotspace[4];
                     final double roll = inputs.targetpose_robotspace[5];
-                    Logger.recordOutput("FieldTracking/pitch", pitch);
+                    // Logger.recordOutput("FieldTracking/pitch", pitch);
                     Logger.recordOutput("FieldTracking/yaw", yaw);
-                    Logger.recordOutput("FieldTracking/roll", roll);
+                    // Logger.recordOutput("FieldTracking/roll", roll);
 
                     // step two feed values into pids
                     final double xout = sidePidController.calculate(-tx, 0);
@@ -135,8 +135,8 @@ public class FieldTracking extends SubsystemBase {
                     final double xout = forwardPidController.calculate(0, relTgtPose.getX());
                     final double yawout = yawPidController.calculate(
                             0, relTgtPose.getRotation().getDegrees());
-                    Logger.recordOutput("FieldTracking/tyPID", yout);
-                    Logger.recordOutput("FieldTracking/txPID", xout);
+                    // Logger.recordOutput("FieldTracking/tyPID", yout);
+                    // Logger.recordOutput("FieldTracking/txPID", xout);
 
                     final ChassisSpeeds speeds = new ChassisSpeeds(xout, yout, yawout);
                     swerveDrive.updateSpeed(speeds); // this will update the speeed
